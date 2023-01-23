@@ -45,7 +45,7 @@ class server:
             arr = data.split('@')
             func = arr[0]
             if func == 'register':
-                if not self.UsersDb.is_exist(arr[2], arr[3]):
+                if not self.UsersDb.is_exist(arr[2]):
                     try:
                         self.UsersDb.insert_user(arr[1], arr[2], arr[3])
                         send_with_size(conn, 'user inserted success')
@@ -56,9 +56,16 @@ class server:
                 else:
                     send_with_size(conn, 'user exist')
                     print('user exist')
+            if func == 'login':
+                if self.UsersDb.Login(arr[1], arr[2]):
+                    send_with_size(conn, 'Login success')
+                    print('Login success')
+                else:
+                    send_with_size(conn, 'Login NOT success')
+                    print('Login NOT success')
             if func == 'sendmail':
                 pass
-
+                pass
 
 
 if __name__ == '__main__':

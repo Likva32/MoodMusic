@@ -72,11 +72,11 @@ class Users:  # main tbl with persons with their income&&outcome
             print("Failed to delete user")
             return False
 
-    def is_exist(self, Username, Password):
+    def is_exist(self, Username):
         try:
             conn = sqlite3.connect('MoodMusic.db')
             print("Opened database successfully")
-            query = f"SELECT * from {self.tablename} where {self.Username} = '{Username}' and {self.Password} = '{Password}'"
+            query = f"SELECT * from {self.tablename} where {self.Username} = '{Username}'"
             cursor = conn.execute(query)
             row = cursor.fetchall()
             conn.commit()
@@ -86,6 +86,24 @@ class Users:  # main tbl with persons with their income&&outcome
                 return True
             else:
                 print("Not exist")
+                return False
+        except:
+            return False
+
+    def Login(self, Username, Password):
+        try:
+            conn = sqlite3.connect('MoodMusic.db')
+            print("Opened database successfully")
+            query = f"SELECT * from {self.tablename} where {self.Username} = '{Username}' and {self.Password} = '{Password}'"
+            cursor = conn.execute(query)
+            row = cursor.fetchall()
+            conn.commit()
+            conn.close()
+            if row:
+                print("username and pass True")
+                return True
+            else:
+                print("username and pass False")
                 return False
         except:
             return False
