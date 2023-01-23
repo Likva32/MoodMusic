@@ -147,7 +147,7 @@ class RegisterFrame(wx.Frame):
         self.status_text = wx.StaticText(self.m_panel9, wx.ID_ANY, '', wx.DefaultPosition, wx.DefaultSize, 0)
         self.status_text.Wrap(-1)
         self.status_text.SetFont(font)
-        self.status_text.SetForegroundColour(colour='red')
+
 
         status_box.Add(self.status_text, 0,  wx.ALIGN_CENTER, 0)
 
@@ -240,10 +240,13 @@ class RegisterFrame(wx.Frame):
             print(msg)
         elif username == '' and password == '':
             self.status_text.SetLabelText('write username and password')
+            self.status_text.SetForegroundColour(colour='red')
         elif username == '':
             self.status_text.SetLabelText('write username')
+            self.status_text.SetForegroundColour(colour='red')
         elif password == '':
             self.status_text.SetLabelText('write password')
+            self.status_text.SetForegroundColour(colour='red')
 
     def GoBack(self, event):
         self.Hide()  # hide the register frame

@@ -2,6 +2,9 @@ import wx
 import wx.xrc
 import socket
 from Register import RegisterFrame
+from MainMenu import MainFrame
+from tcp_by_size import recv_by_size
+from tcp_by_size import send_with_size
 
 
 class LoginFrame(wx.Frame):
@@ -11,6 +14,7 @@ class LoginFrame(wx.Frame):
                           size=wx.Size(620, 635), style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.register_frame = RegisterFrame(self)
+        self.MainFrame = MainFrame(self)
         self.SetIcon(wx.Icon("images/black logo2.ico"))
         font = wx.Font(15, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Garamond")
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
@@ -151,7 +155,18 @@ class LoginFrame(wx.Frame):
 
         Sizer_login.Add(self.Button_login, 0, wx.ALL, 10)
 
-        gbSizer_allitems.Add(Sizer_login, wx.GBPosition(5, 1), wx.GBSpan(1, 1), wx.ALIGN_CENTER | wx.EXPAND, 5)
+        gbSizer_allitems.Add(Sizer_login, wx.GBPosition(6, 1), wx.GBSpan(1, 1), wx.ALIGN_CENTER | wx.EXPAND, 5)
+
+        status_sizer = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.status_text = wx.StaticText(self.panel_background2, wx.ID_ANY, "", wx.DefaultPosition,
+                                         wx.DefaultSize, 0)
+        self.status_text.Wrap(-1)
+
+        self.status_text.SetFont(font)
+        status_sizer.Add(self.status_text, 0, wx.ALIGN_CENTER, 5)
+
+        gbSizer_allitems.Add(status_sizer, wx.GBPosition(5, 1), wx.GBSpan(1, 1), wx.ALIGN_CENTER | wx.RIGHT, 120)
 
         Sizer_noAcc = wx.BoxSizer(wx.HORIZONTAL)
 
@@ -173,11 +188,11 @@ class LoginFrame(wx.Frame):
 
         Sizer_noAcc.Add(self.Button_signup, 0, wx.ALIGN_CENTER | wx.ALL, 5)
 
-        gbSizer_allitems.Add(Sizer_noAcc, wx.GBPosition(6, 1), wx.GBSpan(1, 1), wx.ALIGN_CENTER | wx.EXPAND, 5)
+        gbSizer_allitems.Add(Sizer_noAcc, wx.GBPosition(7, 1), wx.GBSpan(1, 1), wx.ALIGN_CENTER | wx.EXPAND, 5)
 
         Sizer_back = wx.BoxSizer(wx.VERTICAL)
 
-        gbSizer_allitems.Add(Sizer_back, wx.GBPosition(5, 0), wx.GBSpan(4, 1), wx.ALIGN_CENTER | wx.EXPAND, 5)
+        gbSizer_allitems.Add(Sizer_back, wx.GBPosition(6, 0), wx.GBSpan(4, 1), wx.ALIGN_CENTER | wx.EXPAND, 5)
 
         bSizer185 = wx.BoxSizer(wx.VERTICAL)
 
@@ -241,12 +256,37 @@ class LoginFrame(wx.Frame):
         event.Skip()
 
     def Login(self, event):
-        event.Skip()
+        username = self.textCtrl_username.GetValue()
+        password = self.textCtrl_password.GetValue()
+        data_send = f'login@{username}@{password}'
+        if username and password != '':
+            send_with_size(self.client, data_send)
+            msg = recv_by_size(self.client)
+            if msg == 'Login success':
+                self.GoToMain()
+            else:
+                self.status_text.SetLabelText(msg)
+                self.status_text.SetForegroundColour(colour='red')
+            print(msg)
+        elif username == '' and password == '':
+            self.status_text.SetLabelText('write username and password')
+            self.status_text.SetForegroundColour(colour='red')
+        elif username == '':
+            self.status_text.SetLabelText('write username')
+            self.status_text.SetForegroundColour(colour='red')
+        elif password == '':
+            self.status_text.SetLabelText('write password')
+            self.status_text.SetForegroundColour(colour='red')
 
     def GoToSignup(self, event):
         self.Hide()  # hide the login frame
         self.register_frame.Centre()
         self.register_frame.Show()  # show the register frame
+
+    def GoToMain(self):
+        self.Hide()  # hide the login frame
+        self.MainFrame.Centre()
+        self.MainFrame.Show()  # show the register frame
 
     def GoToSettings(self, event):
         event.Skip()
