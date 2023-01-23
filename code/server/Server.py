@@ -15,7 +15,7 @@ class server:
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.running = True
         self.IP = socket.gethostbyname(socket.gethostname())
-        self.PORT = 5052
+        self.PORT = 5056
         self.ADDR = (self.IP, self.PORT)
         self.FORMAT = 'utf-8'
         self.server.bind(self.ADDR)
@@ -41,6 +41,7 @@ class server:
             data = recv_by_size(conn)
             print(data)
             if len(data) == 0:
+                print('disconnect')
                 break
             arr = data.split('@')
             func = arr[0]

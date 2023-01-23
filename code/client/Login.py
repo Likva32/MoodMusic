@@ -5,6 +5,7 @@ from Register import RegisterFrame
 from MainMenu import MainFrame
 from tcp_by_size import recv_by_size
 from tcp_by_size import send_with_size
+from ForgotPassword import ForgotFrame
 
 
 class LoginFrame(wx.Frame):
@@ -15,6 +16,7 @@ class LoginFrame(wx.Frame):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.register_frame = RegisterFrame(self)
         self.MainFrame = MainFrame(self)
+        self.ForgotFrame = ForgotFrame(self)
         self.SetIcon(wx.Icon("images/black logo2.ico"))
         font = wx.Font(15, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Garamond")
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
@@ -232,12 +234,13 @@ class LoginFrame(wx.Frame):
         self.Button_login.Bind(wx.EVT_BUTTON, self.Login)
         self.Button_signup.Bind(wx.EVT_BUTTON, self.GoToSignup)
         self.m_bpButton33.Bind(wx.EVT_BUTTON, self.GoToSettings)
+        self.Button_password.Bind(wx.EVT_BUTTON, self.GoToForgot)
         self.connect()
 
     def connect(self):
 
         my_ip = socket.gethostbyname(socket.gethostname())
-        PORT = 5052
+        PORT = 5056
         ADDR = (my_ip, PORT)
         try:
             self.client.connect(ADDR)
@@ -290,6 +293,11 @@ class LoginFrame(wx.Frame):
 
     def GoToSettings(self, event):
         event.Skip()
+
+    def GoToForgot(self, event):
+        self.Hide()  # hide the login frame
+        self.ForgotFrame.Centre()
+        self.ForgotFrame.Show()
 
 
 # Virtual event handlers, override them in your derived class

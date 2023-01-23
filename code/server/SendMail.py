@@ -4,9 +4,9 @@ import uuid
 from email.message import EmailMessage
 
 # Define email sender and receiver
-email_sender = 'arturtkach32@gmail.com'
-email_password = 'ljpdmhhgkchykous'
-email_receiver = 'dimon2005mm@gmail.com'
+email_sender = 'companymoodmusic@gmail.com'
+email_password = 'sosdxdenkxkfgvmg'
+email_receiver = 'sushko.ariel@gmail.com'
 security_code = str(uuid.uuid4())
 half_length = len(security_code) // 2
 security_code = security_code[:half_length]
