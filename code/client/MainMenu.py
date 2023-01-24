@@ -1,7 +1,5 @@
 import wx
 import wx.xrc
-from tcp_by_size import recv_by_size
-from tcp_by_size import send_with_size
 
 
 class MainFrame(wx.Frame):

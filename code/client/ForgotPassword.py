@@ -8,6 +8,9 @@ class ForgotFrame(wx.Frame):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=u"Mood Music", pos=wx.DefaultPosition,
                           size=wx.Size(500, 470), style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
         self.parent = parent
+        self.Email = ''
+        self.Code = ''
+
         self.SetIcon(wx.Icon("images/black logo2.ico"))
         font = wx.Font(15, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Garamond")
 
@@ -39,7 +42,8 @@ class ForgotFrame(wx.Frame):
         self.header_text.Wrap(-1)
 
         self.header_text.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BTNHIGHLIGHT))
-        self.header_text.SetFont(wx.Font(20, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Garamond"))
+        self.header_text.SetFont(
+            wx.Font(20, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Garamond"))
 
         header_sizer.Add(self.header_text, 0, wx.ALIGN_CENTER | wx.ALL, 5)
 
@@ -87,7 +91,7 @@ class ForgotFrame(wx.Frame):
 
         Sizer_login.Add(self.Button_login, 0, wx.ALL, 5)
 
-        gbSizer_allitems.Add(Sizer_login, wx.GBPosition(5, 1), wx.GBSpan(1, 1), wx.ALIGN_CENTER | wx.EXPAND, 5)
+        gbSizer_allitems.Add(Sizer_login, wx.GBPosition(6, 1), wx.GBSpan(1, 1), wx.ALIGN_CENTER | wx.EXPAND, 5)
 
         Sizer_back = wx.BoxSizer(wx.VERTICAL)
 
@@ -146,27 +150,55 @@ class ForgotFrame(wx.Frame):
 
     def SendEmail(self, event):
         # bla bla send
-        print("send Mail")
-        self.CodeScreen()
+        self.Email = self.textCtrl_first.GetValue()
+        data_send = f'sendmail*{self.Email}'
+        self.parent.send_with_size(self.parent.client, data_send)
+        data_from_server = self.parent.recv_by_size(self.parent.client)
+        if data_from_server == 'Code Sended':
+            self.CodeScreen()
+        else:
+            print("error")
 
     def CodeScreen(self):
+        self.textCtrl_first.SetValue('')
         self.textCtrl_first.SetHint('Code')
         self.Button_login.Bind(wx.EVT_BUTTON, self.SendCode)
 
     def SendCode(self, event):
-        print("send Code")
-        self.PasswordScreen()
+        self.Code = self.textCtrl_first.GetValue()
+        data_send = f'sendcode*{self.Email}*{self.Code}'
+        self.parent.send_with_size(self.parent.client, data_send)
+        data_from_server = self.parent.recv_by_size(self.parent.client)
+        if data_from_server == 'Code verified':
+            self.PasswordScreen()
+        else:
+            self.CodeScreen()
+            print("error")
 
     def PasswordScreen(self):
-        self.textCtrl_second.Enable(True)
+        self.textCtrl_first.SetValue('')
+        self.textCtrl_second.SetValue('')
+        self.textCtrl_second.Show()
+        self.textCtrl_first.Show()
         self.textCtrl_first.SetHint('Password')
         self.textCtrl_second.SetHint('Confirm Password')
         self.Button_login.Bind(wx.EVT_BUTTON, self.SendPassword)
 
     def SendPassword(self, event):
-
-        #send pass
-        print("send Pass")
+        # send pass
+        Password1 = self.textCtrl_first.GetValue()
+        Password2 = self.textCtrl_second.GetValue()
+        if Password1 == Password2:
+            data_send = f'sendpass*{self.Email}*{Password1}'
+            self.parent.send_with_size(self.parent.client, data_send)
+            data_from_server = self.parent.recv_by_size(self.parent.client)
+            if data_from_server == 'Password Changed':
+                print("good")
+            else:
+                print("not good")
+        else:
+            self.CodeScreen()
+            print("pass1 not equal to pass2")
 
     def GoBack(self, event):
 

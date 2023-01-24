@@ -5,7 +5,9 @@ from tcp_by_size import send_with_size
 from DataBase.Users import Users
 import smtplib
 import ssl
-from email.message import EmailMessage
+import uuid
+from SendMail import SendVerificationCode
+from validators import email
 
 
 class server:
@@ -15,7 +17,7 @@ class server:
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.running = True
         self.IP = socket.gethostbyname(socket.gethostname())
-        self.PORT = 5056
+        self.PORT = 5061
         self.ADDR = (self.IP, self.PORT)
         self.FORMAT = 'utf-8'
         self.server.bind(self.ADDR)
@@ -43,17 +45,22 @@ class server:
             if len(data) == 0:
                 print('disconnect')
                 break
-            arr = data.split('@')
+            arr = data.split('*')
             func = arr[0]
+            print(arr)
             if func == 'register':
                 if not self.UsersDb.is_exist(arr[2]):
-                    try:
-                        self.UsersDb.insert_user(arr[1], arr[2], arr[3])
-                        send_with_size(conn, 'user inserted success')
-                        print('user inserted success')
-                    except:
-                        send_with_size(conn, 'user inserted NOT success')
-                        print('user inserted NOT success')
+                    if email(arr[2]):
+                        flag = self.UsersDb.insert_user(arr[1], arr[2], arr[3])
+                        if flag:
+                            send_with_size(conn, 'Email inserted success')
+                            print('Email inserted success')
+                        else:
+                            send_with_size(conn, 'user inserted NOT success')
+                            print('Email inserted NOT success')
+                    else:
+                        send_with_size(conn, 'invalid email')
+                        print('invalid email')
                 else:
                     send_with_size(conn, 'user exist')
                     print('user exist')
@@ -65,7 +72,32 @@ class server:
                     send_with_size(conn, 'Login NOT success')
                     print('Login NOT success')
             if func == 'sendmail':
-                pass
+                if self.UsersDb.is_exist(arr[1]):
+                    sendmail = SendVerificationCode(arr[1])
+                    sendmail.SendMail()
+                    code = sendmail.security_code
+                    self.UsersDb.update_code(arr[1], code)
+                    send_with_size(conn, 'Code Sended')
+                    print('Code Sended')
+                else:
+                    send_with_size(conn, 'user NOT exist')
+                    print('user NOT exist')
+            if func == 'sendcode':
+                if self.UsersDb.verify_code(arr[1], arr[2]):
+                    send_with_size(conn, 'Code verified')
+                    print('Code verified')
+                else:
+                    send_with_size(conn, 'Code NOT verified')
+                    print('Code NOT verified')
+            if func == 'sendpass':
+                flag = self.UsersDb.update_password(arr[1], arr[2])
+                if flag:
+                    send_with_size(conn, 'Password Changed')
+                    print('Password Changed')
+                else:
+                    send_with_size(conn, 'Password NOT Changed')
+                    print('Password NOT Changed')
+            if func == '':
                 pass
 
 

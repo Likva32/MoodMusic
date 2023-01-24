@@ -1,7 +1,5 @@
 import wx
 import wx.xrc
-from tcp_by_size import recv_by_size
-from tcp_by_size import send_with_size
 
 
 class RegisterFrame(wx.Frame):
@@ -103,7 +101,7 @@ class RegisterFrame(wx.Frame):
 
         gbSizer_allitems.Add(Sizer_userdev, wx.GBPosition(2, 1), wx.GBSpan(1, 1), wx.ALIGN_CENTER | wx.EXPAND, 5)
 
-        Sizer_username = wx.BoxSizer(wx.HORIZONTAL)
+        Sizer_Email = wx.BoxSizer(wx.HORIZONTAL)
 
         self.textCtrl_name = wx.TextCtrl(self.m_panel9, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition,
                                          wx.DefaultSize, wx.TE_CENTER | wx.BORDER_STATIC)
@@ -112,9 +110,9 @@ class RegisterFrame(wx.Frame):
         self.textCtrl_name.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW))
         self.textCtrl_name.SetHint('Name')
 
-        Sizer_username.Add(self.textCtrl_name, 1, wx.ALIGN_CENTER | wx.ALL, 5)
+        Sizer_Email.Add(self.textCtrl_name, 1, wx.ALIGN_CENTER | wx.ALL, 5)
 
-        gbSizer_allitems.Add(Sizer_username, wx.GBPosition(3, 1), wx.GBSpan(1, 1), wx.ALIGN_CENTER | wx.EXPAND, 5)
+        gbSizer_allitems.Add(Sizer_Email, wx.GBPosition(3, 1), wx.GBSpan(1, 1), wx.ALIGN_CENTER | wx.EXPAND, 5)
 
         Sizer_password = wx.BoxSizer(wx.HORIZONTAL)
 
@@ -129,18 +127,18 @@ class RegisterFrame(wx.Frame):
 
         gbSizer_allitems.Add(Sizer_password, wx.GBPosition(5, 1), wx.GBSpan(1, 1), wx.ALIGN_CENTER | wx.EXPAND, 5)
 
-        Sizer_username1 = wx.BoxSizer(wx.HORIZONTAL)
+        Sizer_Email = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.textCtrl_username = wx.TextCtrl(self.m_panel9, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition,
+        self.textCtrl_Email = wx.TextCtrl(self.m_panel9, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition,
                                              wx.DefaultSize, wx.TE_CENTER | wx.BORDER_STATIC)
-        self.textCtrl_username.SetFont(font)
-        self.textCtrl_username.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT))
-        self.textCtrl_username.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW))
-        self.textCtrl_username.SetHint('Username')
+        self.textCtrl_Email.SetFont(font)
+        self.textCtrl_Email.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT))
+        self.textCtrl_Email.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW))
+        self.textCtrl_Email.SetHint('Email')
 
-        Sizer_username1.Add(self.textCtrl_username, 1, wx.ALIGN_CENTER | wx.ALL, 5)
+        Sizer_Email.Add(self.textCtrl_Email, 1, wx.ALIGN_CENTER | wx.ALL, 5)
 
-        gbSizer_allitems.Add(Sizer_username1, wx.GBPosition(4, 1), wx.GBSpan(1, 1), wx.ALIGN_CENTER | wx.EXPAND, 5)
+        gbSizer_allitems.Add(Sizer_Email, wx.GBPosition(4, 1), wx.GBSpan(1, 1), wx.ALIGN_CENTER | wx.EXPAND, 5)
 
         status_box = wx.BoxSizer(wx.HORIZONTAL)
 
@@ -219,34 +217,35 @@ class RegisterFrame(wx.Frame):
 
     # Virtual event handlers, override them in your derived class
     def typeUser(self, event):
-        send_with_size(self.parent.client, 'CatUser')
+        self.parent.send_with_size(self.parent.client, 'CatUser')
         event.Skip()
 
     def typeDev(self, event):
-        send_with_size(self.parent.client, 'CatDev')
+        self.parent.send_with_size(self.parent.client, 'CatDev')
         event.Skip()
 
     def Register(self, event):
         name = self.textCtrl_name.GetValue()
-        username = self.textCtrl_username.GetValue()
+        Email = self.textCtrl_Email.GetValue()
         password = self.textCtrl_password.GetValue()
-        data_send = f'register@{name}@{username}@{password}'
-        if username and password != '':
-            send_with_size(self.parent.client, data_send)
-            msg = recv_by_size(self.parent.client)
-            if msg == 'user inserted success':
-                self.status_text.SetForegroundColour(colour='green')
-            self.status_text.SetLabelText(msg)
-            print(msg)
-        elif username == '' and password == '':
-            self.status_text.SetLabelText('write username and password')
-            self.status_text.SetForegroundColour(colour='red')
-        elif username == '':
-            self.status_text.SetLabelText('write username')
-            self.status_text.SetForegroundColour(colour='red')
-        elif password == '':
-            self.status_text.SetLabelText('write password')
-            self.status_text.SetForegroundColour(colour='red')
+        data_send = f'register*{name}*{Email}*{password}'
+        self.status_text.SetForegroundColour(colour='red')
+        if self.parent.check_email(Email):
+            if Email and password != '':
+                self.parent.send_with_size(self.parent.client, data_send)
+                msg = self.parent.recv_by_size(self.parent.client)
+                if msg == 'Email inserted success':
+                    self.status_text.SetForegroundColour(colour='green')
+                self.status_text.SetLabelText(msg)
+                print(msg)
+            elif Email == '' and password == '':
+                self.status_text.SetLabelText('write Email and password')
+            elif Email == '':
+                self.status_text.SetLabelText('write Email')
+            elif password == '':
+                self.status_text.SetLabelText('write password')
+        else:
+            self.status_text.SetLabelText('invalid Email')
 
     def GoBack(self, event):
         self.Hide()  # hide the register frame
