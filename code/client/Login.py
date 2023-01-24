@@ -120,16 +120,15 @@ class LoginFrame(wx.Frame):
 
         self.textCtrl_Email = wx.TextCtrl(self.panel_background2, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition,
                                              wx.DefaultSize, wx.TE_CENTER | wx.BORDER_STATIC )
-        self.textCtrl_Email.SetMinSize((100, -1))
         self.textCtrl_Email.SetFont(font)
         self.textCtrl_Email.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT))
         self.textCtrl_Email.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW))
         self.textCtrl_Email.SetHint('Email')
 
 
-        self.Sizer_Email.Add(self.textCtrl_Email, 1,wx.ALIGN_CENTER|wx.ALL, 10 )
+        self.Sizer_Email.Add(self.textCtrl_Email, 1,wx.ALL , 10 )
 
-        gbSizer_allitems.Add(self.Sizer_Email, wx.GBPosition(3, 1), wx.GBSpan(1, 1), wx.ALIGN_CENTER | wx.EXPAND, 5)
+        gbSizer_allitems.Add(self.Sizer_Email, wx.GBPosition(3, 1), wx.GBSpan(1, 1),  wx.EXPAND, 5)
 
         Sizer_password = wx.BoxSizer(wx.HORIZONTAL)
 
@@ -140,7 +139,7 @@ class LoginFrame(wx.Frame):
         self.textCtrl_password.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW))
         self.textCtrl_password.SetHint('Password')
 
-        Sizer_password.Add(self.textCtrl_password, 0, wx.LEFT, 42)
+        Sizer_password.Add(self.textCtrl_password, 1, wx.EXPAND|wx.LEFT, 42)
 
         self.Button_password = wx.Button(self.panel_background2, wx.ID_ANY, u"Forgot?", wx.DefaultPosition,
                                          wx.DefaultSize, 0 | wx.BORDER_RAISED | wx.BORDER_SIMPLE)
@@ -150,7 +149,7 @@ class LoginFrame(wx.Frame):
 
         Sizer_password.Add(self.Button_password, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 5)
 
-        gbSizer_allitems.Add(Sizer_password, wx.GBPosition(4, 1), wx.GBSpan(1, 3), wx.ALIGN_CENTER | wx.EXPAND, 5)
+        gbSizer_allitems.Add(Sizer_password, wx.GBPosition(4, 1), wx.GBSpan(1, 3),  wx.EXPAND, 5)
 
         Sizer_login = wx.BoxSizer(wx.HORIZONTAL)
 

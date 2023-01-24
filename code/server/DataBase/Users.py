@@ -162,7 +162,7 @@ class Users:  # main tbl with persons with their income&&outcome
             conn.close()
             print("Update code successfully")
             x = 10
-            thread = threading.Thread(target=self.delete_code, args=(Email, x))
+            thread = threading.Thread(target=self.delete_code, args=(Email, Code))
             thread.daemon = True
             thread.start()
             return True
@@ -189,7 +189,7 @@ class Users:  # main tbl with persons with their income&&outcome
         except:
             return False
 
-    def delete_code(self, Email,x):
+    def delete_code(self, Email,Code):
         try:
             time.sleep(300)
             conn = sqlite3.connect('MoodMusic.db')
@@ -198,7 +198,7 @@ class Users:  # main tbl with persons with their income&&outcome
             query = f"""
                     UPDATE Users
                                     SET Code = NULL
-                                    WHERE Email = '{Email}'
+                                    WHERE Email = '{Email} AND {self.Code} = '{Code}'
             """
 
             conn.execute(query)

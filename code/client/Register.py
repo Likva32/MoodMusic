@@ -123,9 +123,9 @@ class RegisterFrame(wx.Frame):
         self.textCtrl_password.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW))
         self.textCtrl_password.SetHint('Password')
 
-        Sizer_password.Add(self.textCtrl_password, 0, wx.BOTTOM | wx.TOP, 5)
+        Sizer_password.Add(self.textCtrl_password, 1,wx.EXPAND| wx.ALL, 5)
 
-        gbSizer_allitems.Add(Sizer_password, wx.GBPosition(5, 1), wx.GBSpan(1, 1), wx.ALIGN_CENTER | wx.EXPAND, 5)
+        gbSizer_allitems.Add(Sizer_password, wx.GBPosition(5, 1), wx.GBSpan(1, 2),  wx.EXPAND, 5)
 
         Sizer_Email = wx.BoxSizer(wx.HORIZONTAL)
 
@@ -136,9 +136,9 @@ class RegisterFrame(wx.Frame):
         self.textCtrl_Email.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW))
         self.textCtrl_Email.SetHint('Email')
 
-        Sizer_Email.Add(self.textCtrl_Email, 1, wx.ALIGN_CENTER | wx.ALL, 5)
+        Sizer_Email.Add(self.textCtrl_Email, 1, wx.ALL, 5)
 
-        gbSizer_allitems.Add(Sizer_Email, wx.GBPosition(4, 1), wx.GBSpan(1, 1), wx.ALIGN_CENTER | wx.EXPAND, 5)
+        gbSizer_allitems.Add(Sizer_Email, wx.GBPosition(4, 1), wx.GBSpan(1, 1),  wx.EXPAND, 5)
 
         status_box = wx.BoxSizer(wx.HORIZONTAL)
 

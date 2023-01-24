@@ -6,7 +6,7 @@ class ForgotFrame(wx.Frame):
 
     def __init__(self, parent):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=u"Mood Music", pos=wx.DefaultPosition,
-                          size=wx.Size(500, 470), style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
+                          size=wx.Size(500, 500), style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
         self.parent = parent
         self.Email = ''
         self.Code = ''
@@ -66,9 +66,9 @@ class ForgotFrame(wx.Frame):
         self.textCtrl_first.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT))
         self.textCtrl_first.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW))
 
-        first_sizer.Add(self.textCtrl_first, 0, wx.BOTTOM | wx.TOP, 5)
+        first_sizer.Add(self.textCtrl_first, 1, wx.EXPAND|wx.BOTTOM | wx.TOP, 5)
 
-        gbSizer_allitems.Add(first_sizer, wx.GBPosition(3, 1), wx.GBSpan(1, 1), wx.ALIGN_CENTER | wx.EXPAND, 5)
+        gbSizer_allitems.Add(first_sizer, wx.GBPosition(3, 1), wx.GBSpan(1, 1), wx.EXPAND, 5)
 
         second_sizer = wx.BoxSizer(wx.HORIZONTAL)
 
@@ -78,9 +78,18 @@ class ForgotFrame(wx.Frame):
         self.textCtrl_second.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT))
         self.textCtrl_second.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW))
 
-        second_sizer.Add(self.textCtrl_second, 1, wx.ALIGN_CENTER | wx.ALL, 5)
+        second_sizer.Add(self.textCtrl_second, 1, wx.EXPAND | wx.ALL, 5)
 
-        gbSizer_allitems.Add(second_sizer, wx.GBPosition(4, 1), wx.GBSpan(1, 1), wx.ALIGN_CENTER | wx.EXPAND, 5)
+        gbSizer_allitems.Add(second_sizer, wx.GBPosition(4, 1), wx.GBSpan(1, 1),  wx.EXPAND, 5)
+
+        status_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.status_text = wx.StaticText(self.m_panel9, wx.ID_ANY, "dwaa", wx.DefaultPosition,
+                                         wx.DefaultSize, 0)
+        self.status_text.Wrap(-1)
+        self.status_text.SetFont(wx.Font(18, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Garamond"))
+        status_sizer.Add(self.status_text, 1,   wx.ALIGN_CENTER|wx.RIGHT, 70)
+        gbSizer_allitems.Add(status_sizer, wx.GBPosition(6, 1), wx.GBSpan(1, 1), wx.ALIGN_CENTER, 5)
+
 
         Sizer_login = wx.BoxSizer(wx.HORIZONTAL)
 
@@ -91,7 +100,7 @@ class ForgotFrame(wx.Frame):
 
         Sizer_login.Add(self.Button_login, 0, wx.ALL, 5)
 
-        gbSizer_allitems.Add(Sizer_login, wx.GBPosition(6, 1), wx.GBSpan(1, 1), wx.ALIGN_CENTER | wx.EXPAND, 5)
+        gbSizer_allitems.Add(Sizer_login, wx.GBPosition(7, 1), wx.GBSpan(1, 1), wx.ALIGN_CENTER | wx.EXPAND, 5)
 
         Sizer_back = wx.BoxSizer(wx.VERTICAL)
 
@@ -134,6 +143,8 @@ class ForgotFrame(wx.Frame):
         self.SetSizer(bSizer58)
         self.Layout()
 
+
+
         self.Centre(wx.BOTH)
 
         # Connect Events
@@ -149,6 +160,7 @@ class ForgotFrame(wx.Frame):
         self.textCtrl_first.SetHint('Email')
 
     def SendEmail(self, event):
+        self.status_text.SetLabelText('')
         # bla bla send
         self.Email = self.textCtrl_first.GetValue()
         data_send = f'sendmail*{self.Email}'
@@ -157,9 +169,12 @@ class ForgotFrame(wx.Frame):
         if data_from_server == 'Code Sended':
             self.CodeScreen()
         else:
+            self.status_text.SetLabelText(data_from_server)
+            self.status_text.SetForegroundColour(colour='red')
             print("error")
 
     def CodeScreen(self):
+        self.status_text.SetLabelText('')
         self.textCtrl_first.SetValue('')
         self.textCtrl_first.SetHint('Code')
         self.Button_login.Bind(wx.EVT_BUTTON, self.SendCode)
@@ -172,14 +187,20 @@ class ForgotFrame(wx.Frame):
         if data_from_server == 'Code verified':
             self.PasswordScreen()
         else:
-            self.CodeScreen()
+            self.status_text.SetLabelText(data_from_server)
+            self.status_text.SetForegroundColour(colour='red')
             print("error")
 
     def PasswordScreen(self):
+        self.textCtrl_first.SetWindowStyle(style=wx.TE_PASSWORD)
+        self.textCtrl_second.SetWindowStyle(style=wx.TE_PASSWORD)
+        self.status_text.SetLabelText('')
         self.textCtrl_first.SetValue('')
         self.textCtrl_second.SetValue('')
         self.textCtrl_second.Show()
         self.textCtrl_first.Show()
+
+
         self.textCtrl_first.SetHint('Password')
         self.textCtrl_second.SetHint('Confirm Password')
         self.Button_login.Bind(wx.EVT_BUTTON, self.SendPassword)
@@ -193,11 +214,14 @@ class ForgotFrame(wx.Frame):
             self.parent.send_with_size(self.parent.client, data_send)
             data_from_server = self.parent.recv_by_size(self.parent.client)
             if data_from_server == 'Password Changed':
-                print("good")
+                self.status_text.SetLabelText(data_from_server)
+                self.status_text.SetForegroundColour(colour='green')
             else:
-                print("not good")
+                self.status_text.SetLabelText(data_from_server)
+                self.status_text.SetForegroundColour(colour='red')
         else:
-            self.CodeScreen()
+            self.status_text.SetLabelText("pass1 not equal to pass2")
+            self.status_text.SetForegroundColour(colour='red')
             print("pass1 not equal to pass2")
 
     def GoBack(self, event):
