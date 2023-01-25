@@ -1,5 +1,7 @@
 import wx
 import wx.xrc
+import json
+from validators import email
 
 
 class RegisterFrame(wx.Frame):
@@ -228,9 +230,15 @@ class RegisterFrame(wx.Frame):
         name = self.textCtrl_name.GetValue()
         Email = self.textCtrl_Email.GetValue()
         password = self.textCtrl_password.GetValue()
-        data_send = f'register*{name}*{Email}*{password}'
+        dict = {
+            'Func': 'Register',
+            'Name': name,
+            'Email': Email,
+            'Password': password
+        }
+        data_send = json.dumps(dict)
         self.status_text.SetForegroundColour(colour='red')
-        if self.parent.check_email(Email):
+        if email(Email):
             if Email and password != '':
                 self.parent.send_with_size(self.parent.client, data_send)
                 msg = self.parent.recv_by_size(self.parent.client)

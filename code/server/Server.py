@@ -3,11 +3,9 @@ import threading
 from tcp_by_size import recv_by_size
 from tcp_by_size import send_with_size
 from DataBase.Users import Users
-import smtplib
-import ssl
-import uuid
 from SendMail import SendVerificationCode
 from validators import email
+import json
 
 
 class server:
@@ -17,7 +15,7 @@ class server:
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.running = True
         self.IP = socket.gethostbyname(socket.gethostname())
-        self.PORT = 5061
+        self.PORT = 5056
         self.ADDR = (self.IP, self.PORT)
         self.FORMAT = 'utf-8'
         self.server.bind(self.ADDR)
@@ -40,18 +38,16 @@ class server:
 
     def case(self, conn, addr):
         while True:
-            data = recv_by_size(conn)
-            print(data)
-            if len(data) == 0:
+            data_recv = recv_by_size(conn)
+            data_recv = json.loads(data_recv)
+            print(data_recv)
+            if len(data_recv) == 0:
                 print('disconnect')
                 break
-            arr = data.split('*')
-            func = arr[0]
-            print(arr)
-            if func == 'register':
-                if not self.UsersDb.is_exist(arr[2]):
-                    if email(arr[2]):
-                        flag = self.UsersDb.insert_user(arr[1], arr[2], arr[3])
+            if data_recv['Func'] == 'Register':
+                if not self.UsersDb.is_exist(data_recv['Email']):
+                    if email(data_recv['Email']):
+                        flag = self.UsersDb.insert_user(data_recv['Name'], data_recv['Email'], data_recv['Password'])
                         if flag:
                             send_with_size(conn, 'Email inserted success')
                             print('Email inserted success')
@@ -64,40 +60,40 @@ class server:
                 else:
                     send_with_size(conn, 'user exist')
                     print('user exist')
-            if func == 'login':
-                if self.UsersDb.Login(arr[1], arr[2]):
+            if data_recv['Func'] == 'Login':
+                if self.UsersDb.Login(data_recv['Email'], data_recv['Password']):
                     send_with_size(conn, 'Login success')
                     print('Login success')
                 else:
                     send_with_size(conn, 'Login NOT success')
                     print('Login NOT success')
-            if func == 'sendmail':
-                if self.UsersDb.is_exist(arr[1]):
-                    sendmail = SendVerificationCode(arr[1])
+            if data_recv['Func'] == 'Sendmail':
+                if self.UsersDb.is_exist(data_recv['Email']):
+                    sendmail = SendVerificationCode(data_recv['Email'])
                     sendmail.SendMail()
                     code = sendmail.security_code
-                    self.UsersDb.update_code(arr[1], code)
+                    self.UsersDb.update_code(data_recv['Email'], code)
                     send_with_size(conn, 'Code Sended')
                     print('Code Sended')
                 else:
                     send_with_size(conn, 'user NOT exist')
                     print('user NOT exist')
-            if func == 'sendcode':
-                if self.UsersDb.verify_code(arr[1], arr[2]):
+            if data_recv['Func'] == 'Sendcode':
+                if self.UsersDb.verify_code(data_recv['Email'], data_recv['Code']):
                     send_with_size(conn, 'Code verified')
                     print('Code verified')
                 else:
                     send_with_size(conn, 'Code NOT verified')
                     print('Code NOT verified')
-            if func == 'sendpass':
-                flag = self.UsersDb.update_password(arr[1], arr[2])
+            if data_recv['Func'] == 'Sendpass':
+                flag = self.UsersDb.update_password(data_recv['Email'], data_recv['Password'])
                 if flag:
                     send_with_size(conn, 'Password Changed')
                     print('Password Changed')
                 else:
                     send_with_size(conn, 'Password NOT Changed')
                     print('Password NOT Changed')
-            if func == '':
+            if data_recv['Func'] == '':
                 pass
 
 

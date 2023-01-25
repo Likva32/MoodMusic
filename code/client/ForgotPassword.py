@@ -1,5 +1,7 @@
 import wx
 import wx.xrc
+from validators import email
+import json
 
 
 class ForgotFrame(wx.Frame):
@@ -83,7 +85,7 @@ class ForgotFrame(wx.Frame):
         gbSizer_allitems.Add(second_sizer, wx.GBPosition(4, 1), wx.GBSpan(1, 1),  wx.EXPAND, 5)
 
         status_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.status_text = wx.StaticText(self.m_panel9, wx.ID_ANY, "dwaa", wx.DefaultPosition,
+        self.status_text = wx.StaticText(self.m_panel9, wx.ID_ANY, "", wx.DefaultPosition,
                                          wx.DefaultSize, 0)
         self.status_text.Wrap(-1)
         self.status_text.SetFont(wx.Font(18, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Garamond"))
@@ -163,15 +165,23 @@ class ForgotFrame(wx.Frame):
         self.status_text.SetLabelText('')
         # bla bla send
         self.Email = self.textCtrl_first.GetValue()
-        data_send = f'sendmail*{self.Email}'
-        self.parent.send_with_size(self.parent.client, data_send)
-        data_from_server = self.parent.recv_by_size(self.parent.client)
-        if data_from_server == 'Code Sended':
-            self.CodeScreen()
+        dict = {
+            'Func': 'Sendmail',
+            'Email': self.Email,
+        }
+        data_send = json.dumps(dict)
+        if email(self.Email):
+            self.parent.send_with_size(self.parent.client, data_send)
+            data_from_server = self.parent.recv_by_size(self.parent.client)
+            if data_from_server == 'Code Sended':
+                self.CodeScreen()
+            else:
+                self.status_text.SetLabelText(data_from_server)
+                self.status_text.SetForegroundColour(colour='red')
+                print("error")
         else:
-            self.status_text.SetLabelText(data_from_server)
             self.status_text.SetForegroundColour(colour='red')
-            print("error")
+            self.status_text.SetLabelText('invalid Email')
 
     def CodeScreen(self):
         self.status_text.SetLabelText('')
@@ -181,7 +191,12 @@ class ForgotFrame(wx.Frame):
 
     def SendCode(self, event):
         self.Code = self.textCtrl_first.GetValue()
-        data_send = f'sendcode*{self.Email}*{self.Code}'
+        dict = {
+            'Func': 'Sendcode',
+            'Email': self.Email,
+            'Code': self.Code,
+        }
+        data_send = json.dumps(dict)
         self.parent.send_with_size(self.parent.client, data_send)
         data_from_server = self.parent.recv_by_size(self.parent.client)
         if data_from_server == 'Code verified':
@@ -209,8 +224,13 @@ class ForgotFrame(wx.Frame):
         # send pass
         Password1 = self.textCtrl_first.GetValue()
         Password2 = self.textCtrl_second.GetValue()
+        dict = {
+            'Func': 'Sendpass',
+            'Email': self.Email,
+            'Password': Password1,
+        }
+        data_send = json.dumps(dict)
         if Password1 == Password2:
-            data_send = f'sendpass*{self.Email}*{Password1}'
             self.parent.send_with_size(self.parent.client, data_send)
             data_from_server = self.parent.recv_by_size(self.parent.client)
             if data_from_server == 'Password Changed':

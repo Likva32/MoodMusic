@@ -6,7 +6,7 @@ import threading
 class Users:  # main tbl with persons with their income&&outcome
     """קלאס של טבלה IncomeOutcome"""
     def __init__(self, tablename="Users", Name='Name', UserId="UserId", Email="Email",
-                 Password="Password", SpotUrl="SpotUrl", SpotToken="token",Code = "Code"):
+                 Password="Password", SpotUrl="SpotUrl", SpotToken="token", Code="Code"):
         self.tablename = tablename
         self.UserId = UserId
         self.Name = Name
@@ -161,7 +161,6 @@ class Users:  # main tbl with persons with their income&&outcome
             conn.commit()
             conn.close()
             print("Update code successfully")
-            x = 10
             thread = threading.Thread(target=self.delete_code, args=(Email, Code))
             thread.daemon = True
             thread.start()
@@ -189,7 +188,7 @@ class Users:  # main tbl with persons with their income&&outcome
         except:
             return False
 
-    def delete_code(self, Email,Code):
+    def delete_code(self, Email, Code):
         try:
             time.sleep(300)
             conn = sqlite3.connect('MoodMusic.db')
@@ -198,7 +197,7 @@ class Users:  # main tbl with persons with their income&&outcome
             query = f"""
                     UPDATE Users
                                     SET Code = NULL
-                                    WHERE Email = '{Email} AND {self.Code} = '{Code}'
+                                    WHERE Email = '{Email}' AND {self.Code} = '{Code}'
             """
 
             conn.execute(query)
@@ -210,14 +209,3 @@ class Users:  # main tbl with persons with their income&&outcome
         except:
             print('not')
             return False
-
-
-# U = Users()
-# # U.delete_user('Dimon4ickAliant')
-# U.insert_user('Artur', 'Likva', 'pass123','awd')
-# # U.insert_user('Dima', 'Dimon4ickAliant', '123pass', 'https://www.spotify.com/dimon', 'tokennykcfg')
-# print(U.get_all_users())
-# U.is_exist('Likva32', 'pass123')
-# # U.update_password('Likva32', 'pass123', 'XUIII')
-# # U.update_spotify('Likva32', 'pass123', 'https://www.spotify.com/neartur', '123')
-#

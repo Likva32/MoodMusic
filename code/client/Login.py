@@ -1,12 +1,14 @@
 import wx
 import wx.xrc
 import socket
+import threading
 from Register import RegisterFrame
 from MainMenu import MainFrame
 from tcp_by_size import recv_by_size
 from tcp_by_size import send_with_size
 from ForgotPassword import ForgotFrame
 from validators import email
+import json
 
 
 class LoginFrame(wx.Frame):
@@ -14,12 +16,15 @@ class LoginFrame(wx.Frame):
     def __init__(self, parent):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=u"Mood Music", pos=wx.DefaultPosition,
                           size=wx.Size(620, 635), style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
+        self.Connected = False
         self.send_with_size = send_with_size
         self.recv_by_size = recv_by_size
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # frames
         self.register_frame = RegisterFrame(self)
         self.MainFrame = MainFrame(self)
         self.ForgotFrame = ForgotFrame(self)
+
         self.SetIcon(wx.Icon("images/black logo2.ico"))
         font = wx.Font(15, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Garamond")
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
@@ -119,16 +124,15 @@ class LoginFrame(wx.Frame):
         self.Sizer_Email = wx.BoxSizer(wx.HORIZONTAL)
 
         self.textCtrl_Email = wx.TextCtrl(self.panel_background2, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition,
-                                             wx.DefaultSize, wx.TE_CENTER | wx.BORDER_STATIC )
+                                          wx.DefaultSize, wx.TE_CENTER | wx.BORDER_STATIC)
         self.textCtrl_Email.SetFont(font)
         self.textCtrl_Email.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT))
         self.textCtrl_Email.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW))
         self.textCtrl_Email.SetHint('Email')
 
+        self.Sizer_Email.Add(self.textCtrl_Email, 1, wx.ALL, 10)
 
-        self.Sizer_Email.Add(self.textCtrl_Email, 1,wx.ALL , 10 )
-
-        gbSizer_allitems.Add(self.Sizer_Email, wx.GBPosition(3, 1), wx.GBSpan(1, 1),  wx.EXPAND, 5)
+        gbSizer_allitems.Add(self.Sizer_Email, wx.GBPosition(3, 1), wx.GBSpan(1, 1), wx.EXPAND, 5)
 
         Sizer_password = wx.BoxSizer(wx.HORIZONTAL)
 
@@ -139,7 +143,7 @@ class LoginFrame(wx.Frame):
         self.textCtrl_password.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW))
         self.textCtrl_password.SetHint('Password')
 
-        Sizer_password.Add(self.textCtrl_password, 1, wx.EXPAND|wx.LEFT, 42)
+        Sizer_password.Add(self.textCtrl_password, 1, wx.EXPAND | wx.LEFT, 42)
 
         self.Button_password = wx.Button(self.panel_background2, wx.ID_ANY, u"Forgot?", wx.DefaultPosition,
                                          wx.DefaultSize, 0 | wx.BORDER_RAISED | wx.BORDER_SIMPLE)
@@ -149,7 +153,7 @@ class LoginFrame(wx.Frame):
 
         Sizer_password.Add(self.Button_password, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 5)
 
-        gbSizer_allitems.Add(Sizer_password, wx.GBPosition(4, 1), wx.GBSpan(1, 3),  wx.EXPAND, 5)
+        gbSizer_allitems.Add(Sizer_password, wx.GBPosition(4, 1), wx.GBSpan(1, 3), wx.EXPAND, 5)
 
         Sizer_login = wx.BoxSizer(wx.HORIZONTAL)
 
@@ -238,40 +242,67 @@ class LoginFrame(wx.Frame):
         self.Button_login.Bind(wx.EVT_BUTTON, self.Login)
         self.Button_signup.Bind(wx.EVT_BUTTON, self.GoToSignup)
         self.m_bpButton33.Bind(wx.EVT_BUTTON, self.GoToSettings)
-        self.Button_password.Bind(wx.EVT_BUTTON, self.GoToForgot)
 
-        #  change text binds
-        # self.Bind(wx.EVT_SIZE, self.on_text_change, self.textCtrl_Email)
-        # self.Bind(wx.EVT_SIZE, self.on_text_change, self.textCtrl_password)
-        self.connect()
+        self.EnDis(False)
+        thread = threading.Thread(target=self.connect)
+        thread.daemon = True
+        thread.start()
 
     def connect(self):
 
         my_ip = socket.gethostbyname(socket.gethostname())
-        PORT = 5061
+        PORT = 5056
         ADDR = (my_ip, PORT)
-        try:
-            self.client.connect(ADDR)
-            print('good')
-        except:
-            print('fail')
+        while True:
+            try:
+                self.client.connect(ADDR)
+                print('good')
+                self.status_text.SetForegroundColour(colour='green')
+                self.status_text.SetLabelText('U Connected to the server')
+                self.EnDis(True)
+                break
+            except:
+                self.EnDis(False)
+                self.status_text.SetForegroundColour(colour='red')
+                self.status_text.SetLabelText('U not Connected to the server')
+                print('fail')
 
-    # Virtual event handlers, override them in your derived class
+    def EnDis(self, flag):  # enable or disable buttons and textctrl
+        if flag:
+            self.textCtrl_Email.SetEditable(True)
+            self.textCtrl_password.SetEditable(True)
+            self.Button_login.Enable(True)
+            self.Button_password.Enable(True)
+            self.Button_signup.Enable(True)
+            self.Button_password.Enable(True)
+            self.Button_dev.Enable(True)
+            self.Button_user.Enable(True)
+        else:
+            self.textCtrl_Email.SetEditable(False)
+            self.textCtrl_password.SetEditable(False)
+            self.Button_login.Enable(False)
+            self.Button_password.Enable(False)
+            self.Button_signup.Enable(False)
+            self.Button_password.Enable(False)
+            self.Button_dev.Enable(False)
+            self.Button_user.Enable(False)
     def typeUser(self, event):
         event.Skip()
 
     def typeDev(self, event):
         event.Skip()
 
-    def GoToForgot(self, event):
-        event.Skip()
-
     def Login(self, event):
         Email = self.textCtrl_Email.GetValue()
         password = self.textCtrl_password.GetValue()
-        data_send = f'login*{Email}*{password}'
+        dict = {
+            'Func': 'Login',
+            'Email': Email,
+            'Password': password
+        }
+        data_send = json.dumps(dict)
         self.status_text.SetForegroundColour(colour='red')
-        if self.check_email(Email):
+        if email(Email):
             if Email and password != '':
                 send_with_size(self.client, data_send)
                 msg = recv_by_size(self.client)
@@ -290,8 +321,6 @@ class LoginFrame(wx.Frame):
                 self.status_text.SetLabelText('write password')
         else:
             self.status_text.SetLabelText('invalid Email')
-
-
 
     def GoToSignup(self, event):
         self.Hide()  # hide the login frame
@@ -315,14 +344,6 @@ class LoginFrame(wx.Frame):
         textctrl = event.GetEventObject()
         size = textctrl.GetBestSize()
         textctrl.SetSize(size)
-
-    def check_email(self, Email):
-        if email(Email):
-            print("valid email")
-            return True
-        else:
-            print("invalid email")
-            return False
 
 
 # Virtual event handlers, override them in your derived class
