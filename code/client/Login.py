@@ -26,10 +26,8 @@ class LoginFrame(wx.Frame):
         self.ForgotFrame = ForgotFrame(self)
 
         self.SetIcon(wx.Icon("images/black logo2.ico"))
-        font = wx.Font(15, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Garamond")
+        font = wx.Font(15, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Poppins")
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
-        self.SetFont(
-            wx.Font(14, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_SEMIBOLD, False, "Bookman Old Style"))
 
         bSizer_main = wx.BoxSizer(wx.VERTICAL)
 
@@ -42,7 +40,7 @@ class LoginFrame(wx.Frame):
 
         self.panel_background2 = wx.Panel(self.panel_background1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0)
         self.panel_background2.SetFont(
-            wx.Font(20, wx.FONTFAMILY_SCRIPT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Viner Hand ITC"))
+            wx.Font(22, wx.FONTFAMILY_SCRIPT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Poppins"))
         self.panel_background2.SetBackgroundColour(wx.Colour(53, 53, 53))
 
         bSizer_gridbag = wx.BoxSizer(wx.VERTICAL)
@@ -52,14 +50,6 @@ class LoginFrame(wx.Frame):
         gbSizer_allitems.SetNonFlexibleGrowMode(wx.FLEX_GROWMODE_SPECIFIED)
 
         bSizer_accType1 = wx.BoxSizer(wx.VERTICAL)
-
-        self.staticText_accType1 = wx.StaticText(self.panel_background2, wx.ID_ANY, u"Login", wx.DefaultPosition,
-                                                 wx.DefaultSize, 0)
-        self.staticText_accType1.Wrap(-1)
-
-        self.staticText_accType1.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BTNHIGHLIGHT))
-
-        bSizer_accType1.Add(self.staticText_accType1, 0, wx.ALIGN_CENTER | wx.ALL, 5)
 
         gbSizer_allitems.Add(bSizer_accType1, wx.GBPosition(0, 1), wx.GBSpan(1, 1), wx.ALIGN_CENTER, 5)
 
@@ -86,7 +76,7 @@ class LoginFrame(wx.Frame):
         self.staticText_user.Wrap(-1)
 
         self.staticText_user.SetFont(
-            wx.Font(18, wx.FONTFAMILY_SCRIPT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Viner Hand ITC"))
+            wx.Font(18, wx.FONTFAMILY_SCRIPT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Poppins"))
         self.staticText_user.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BTNHIGHLIGHT))
 
         Sizer_user.Add(self.staticText_user, 0, wx.ALIGN_CENTER, 5)
@@ -106,7 +96,7 @@ class LoginFrame(wx.Frame):
         self.staticText_dev.Wrap(-1)
 
         self.staticText_dev.SetFont(
-            wx.Font(18, wx.FONTFAMILY_SCRIPT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Viner Hand ITC"))
+            wx.Font(18, wx.FONTFAMILY_SCRIPT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Poppins"))
         self.staticText_dev.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BTNHIGHLIGHT))
 
         Sizer_dev.Add(self.staticText_dev, 0, wx.ALIGN_CENTER, 0)
@@ -214,7 +204,7 @@ class LoginFrame(wx.Frame):
 
         bSizer185.Add(self.m_bpButton33, 0, wx.ALL, 5)
 
-        gbSizer_allitems.Add(bSizer185, wx.GBPosition(0, 2), wx.GBSpan(1, 1), wx.ALIGN_CENTER | wx.EXPAND, 5)
+        gbSizer_allitems.Add(bSizer185, wx.GBPosition(1, 2), wx.GBSpan(1, 1), wx.ALIGN_CENTER | wx.EXPAND, 5)
 
         bSizer_gridbag.Add(gbSizer_allitems, 0, wx.ALIGN_CENTER | wx.LEFT, 53)
 
@@ -286,6 +276,7 @@ class LoginFrame(wx.Frame):
             self.Button_password.Enable(False)
             self.Button_dev.Enable(False)
             self.Button_user.Enable(False)
+
     def typeUser(self, event):
         event.Skip()
 

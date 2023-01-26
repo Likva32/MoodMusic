@@ -10,7 +10,7 @@ class RegisterFrame(wx.Frame):
                           size=wx.Size(620, 635), style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER | wx.TAB_TRAVERSAL)
         self.parent = parent
         self.SetIcon(wx.Icon("images/black logo2.ico"))
-        font = wx.Font(15, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Garamond")
+        font = wx.Font(15, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Poppins")
 
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
 
@@ -25,7 +25,7 @@ class RegisterFrame(wx.Frame):
 
         self.m_panel9 = wx.Panel(self.panel_background1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0)
         self.m_panel9.SetFont(
-            wx.Font(20, wx.FONTFAMILY_SCRIPT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Viner Hand ITC"))
+            wx.Font(20, wx.FONTFAMILY_SCRIPT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Poppins"))
         self.m_panel9.SetBackgroundColour(wx.Colour(53, 53, 53))
 
         panel_background2 = wx.BoxSizer(wx.VERTICAL)
@@ -35,14 +35,6 @@ class RegisterFrame(wx.Frame):
         gbSizer_allitems.SetNonFlexibleGrowMode(wx.FLEX_GROWMODE_SPECIFIED)
 
         bSizer_accType1 = wx.BoxSizer(wx.VERTICAL)
-
-        self.staticText_accType1 = wx.StaticText(self.m_panel9, wx.ID_ANY, u"Register Menu", wx.DefaultPosition,
-                                                 wx.DefaultSize, 0)
-        self.staticText_accType1.Wrap(-1)
-
-        self.staticText_accType1.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BTNHIGHLIGHT))
-
-        bSizer_accType1.Add(self.staticText_accType1, 0, wx.ALIGN_CENTER | wx.ALL, 5)
 
         gbSizer_allitems.Add(bSizer_accType1, wx.GBPosition(0, 1), wx.GBSpan(1, 1), wx.EXPAND, 5)
 
@@ -68,7 +60,7 @@ class RegisterFrame(wx.Frame):
         self.staticText_user.Wrap(-1)
 
         self.staticText_user.SetFont(
-            wx.Font(18, wx.FONTFAMILY_SCRIPT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Viner Hand ITC"))
+            wx.Font(18, wx.FONTFAMILY_SCRIPT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Poppins"))
         self.staticText_user.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BTNHIGHLIGHT))
 
         Sizer_user.Add(self.staticText_user, 0, wx.ALIGN_CENTER, 5)
@@ -88,7 +80,7 @@ class RegisterFrame(wx.Frame):
         self.staticText_dev.Wrap(-1)
 
         self.staticText_dev.SetFont(
-            wx.Font(18, wx.FONTFAMILY_SCRIPT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Viner Hand ITC"))
+            wx.Font(18, wx.FONTFAMILY_SCRIPT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Poppins"))
         self.staticText_dev.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BTNHIGHLIGHT))
 
         Sizer_dev.Add(self.staticText_dev, 0, wx.ALIGN_CENTER, 0)
@@ -186,7 +178,7 @@ class RegisterFrame(wx.Frame):
 
         bSizer185.Add(self.m_bpButton33, 0, wx.ALL, 5)
 
-        gbSizer_allitems.Add(bSizer185, wx.GBPosition(0, 3), wx.GBSpan(1, 1), wx.ALIGN_CENTER | wx.EXPAND, 5)
+        gbSizer_allitems.Add(bSizer185, wx.GBPosition(1, 3), wx.GBSpan(1, 1), wx.ALIGN_CENTER | wx.EXPAND, 5)
 
         panel_background2.Add(gbSizer_allitems, 0, wx.EXPAND, 5)
 

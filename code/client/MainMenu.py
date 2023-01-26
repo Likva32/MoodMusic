@@ -1,5 +1,7 @@
 import wx
 import wx.xrc
+from wx.lib import statbmp
+import cv2
 
 
 class MainFrame(wx.Frame):
@@ -53,23 +55,38 @@ class MainFrame(wx.Frame):
 
         bSizer_accType = wx.BoxSizer(wx.VERTICAL)
 
-        self.button_Create1 = wx.Button(self.m_panel9, wx.ID_ANY, u"Created Playlist", wx.DefaultPosition,
+        self.button_Created = wx.Button(self.m_panel9, wx.ID_ANY, u"Created Playlist", wx.DefaultPosition,
                                         wx.DefaultSize, 0)
-        self.button_Create1.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW))
+        self.button_Created.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW))
 
-        bSizer_accType.Add(self.button_Create1, 0, wx.ALL, 5)
+        bSizer_accType.Add(self.button_Created, 0, wx.ALL, 5)
 
         gbSizer_allitems.Add(bSizer_accType, wx.GBPosition(5, 0), wx.GBSpan(1, 1), wx.ALIGN_CENTER, 5)
 
-        Sizer_userdev = wx.BoxSizer(wx.HORIZONTAL)
+        Sizer_userCam = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.Button_dev = wx.BitmapButton(self.m_panel9, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize,
-                                          wx.BU_AUTODRAW | 0)
+        #################################
 
-        self.Button_dev.SetBitmap(wx.Bitmap(u"images/face2.png", wx.BITMAP_TYPE_ANY))
-        Sizer_userdev.Add(self.Button_dev, 0, wx.ALL, 5)
+        self.capture = cv2.VideoCapture(0)
+        self.face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
-        gbSizer_allitems.Add(Sizer_userdev, wx.GBPosition(1, 3), wx.GBSpan(5, 7), wx.ALIGN_CENTER | wx.EXPAND, 5)
+        ret, frame = self.capture.read()
+        frame = cv2.resize(frame, (400, 320))
+        height, width = frame.shape[:2]
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        self.bmp = wx.BitmapFromBuffer(width, height, frame)
+        self.timer = wx.Timer(self)
+        self.fps = 60
+        self.timer.Start(int(self.timer.Start(int())))
+        self.userCam = statbmp.GenStaticBitmap(self.m_panel9, wx.ID_ANY, self.bmp)
+
+        # self.Button_Cam = wx.BitmapButton(self.m_panel9, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize,
+        #                                   wx.BU_AUTODRAW | 0)
+        #
+        # self.Button_Cam.SetBitmap(wx.Bitmap(u"images/face2.png", wx.BITMAP_TYPE_ANY))
+        # Sizer_userCam.Add(self.Button_Cam, 0, wx.ALL, 5)
+
+        gbSizer_allitems.Add(self.userCam, wx.GBPosition(1, 3), wx.GBSpan(5, 7), wx.ALIGN_CENTER, 5)
 
         xd_box = wx.BoxSizer(wx.HORIZONTAL)
 
@@ -137,9 +154,9 @@ class MainFrame(wx.Frame):
 
         bSizer185.Add(self.m_bpButton33, 0, wx.ALL, 5)
 
-        gbSizer_allitems.Add(bSizer185, wx.GBPosition(0, 9), wx.GBSpan(1, 1), wx.ALIGN_CENTER , 5)
+        gbSizer_allitems.Add(bSizer185, wx.GBPosition(0, 9), wx.GBSpan(1, 1), wx.ALIGN_CENTER, 5)
 
-        panel_background2.Add(gbSizer_allitems, 0, wx.ALIGN_CENTER , 5)
+        panel_background2.Add(gbSizer_allitems, 0, wx.ALIGN_CENTER, 5)
 
         self.m_panel9.SetSizer(panel_background2)
         self.m_panel9.Layout()
@@ -160,15 +177,25 @@ class MainFrame(wx.Frame):
 
         # Connect Events
         self.button_Create.Bind(wx.EVT_BUTTON, self.Go_To_CreatePlaylist)
-        self.button_Create1.Bind(wx.EVT_BUTTON, self.Go_To_CreatedPlaylist)
-        self.Button_dev.Bind(wx.EVT_BUTTON, self.CAMERA)
+        self.button_Created.Bind(wx.EVT_BUTTON, self.Go_To_CreatedPlaylist)
         self.Button_login.Bind(wx.EVT_BUTTON, self.OnCamera)
         self.Button_login1.Bind(wx.EVT_BUTTON, self.OffCamera)
         self.Button_back.Bind(wx.EVT_BUTTON, self.GoBack)
         self.m_bpButton33.Bind(wx.EVT_BUTTON, self.GoToSettings)
+        self.Bind(wx.EVT_TIMER, self.NextFrame)
 
-    def __del__(self):
-        pass
+    def NextFrame(self, event):
+        ret, frame = self.capture.read()
+        frame = cv2.resize(frame, (400, 320))
+        if ret:
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            faces = self.face_cascade.detectMultiScale(gray, 1.1, 4)
+            for (x, y, w, h) in faces:
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            self.bmp.CopyFromBuffer(frame)
+            self.userCam.SetBitmap(self.bmp)
 
     # Virtual event handlers, override them in your derived class
     def Go_To_CreatePlaylist(self, event):
@@ -181,10 +208,12 @@ class MainFrame(wx.Frame):
         event.Skip()
 
     def OnCamera(self, event):
-        event.Skip()
+        self.capture = cv2.VideoCapture(0)
+        self.timer.Start()
 
     def OffCamera(self, event):
-        event.Skip()
+        self.capture.release()
+        self.timer.Stop()
 
     def GoBack(self, event):
         self.Hide()  # hide the register frame
