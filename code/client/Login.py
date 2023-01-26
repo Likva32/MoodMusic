@@ -16,6 +16,7 @@ class LoginFrame(wx.Frame):
     def __init__(self, parent):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=u"Mood Music", pos=wx.DefaultPosition,
                           size=wx.Size(620, 635), style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
+        self.Email = None
         self.Connected = False
         self.send_with_size = send_with_size
         self.recv_by_size = recv_by_size
@@ -241,7 +242,7 @@ class LoginFrame(wx.Frame):
     def connect(self):
 
         my_ip = socket.gethostbyname(socket.gethostname())
-        PORT = 5056
+        PORT = 5057
         ADDR = (my_ip, PORT)
         while True:
             try:
@@ -284,29 +285,30 @@ class LoginFrame(wx.Frame):
         event.Skip()
 
     def Login(self, event):
-        Email = self.textCtrl_Email.GetValue()
+        self.Email = self.textCtrl_Email.GetValue()
         password = self.textCtrl_password.GetValue()
         dict = {
             'Func': 'Login',
-            'Email': Email,
+            'Email': self.Email,
             'Password': password
         }
         data_send = json.dumps(dict)
         self.status_text.SetForegroundColour(colour='red')
-        if email(Email):
-            if Email and password != '':
+        if email(self.Email):
+            if self.Email and password != '':
                 send_with_size(self.client, data_send)
                 msg = recv_by_size(self.client)
                 if msg == 'Login success':
+                    self.MainFrame.username_text.SetLabel(self.GetName())
                     self.GoToMain()
                     self.status_text.SetLabelText(msg)
                     self.status_text.SetForegroundColour(colour='green')
                 else:
                     self.status_text.SetLabelText(msg)
                 print(msg)
-            elif Email == '' and password == '':
+            elif self.Email == '' and password == '':
                 self.status_text.SetLabelText('write Email and password')
-            elif Email == '':
+            elif self.Email == '':
                 self.status_text.SetLabelText('write Email')
             elif password == '':
                 self.status_text.SetLabelText('write password')
@@ -335,6 +337,16 @@ class LoginFrame(wx.Frame):
         textctrl = event.GetEventObject()
         size = textctrl.GetBestSize()
         textctrl.SetSize(size)
+
+    def GetName(self):
+        dict = {
+            'Func': 'GetName',
+            'Email': self.Email
+        }
+        data_send = json.dumps(dict)
+        self.send_with_size(self.client, data_send)
+        msg = self.recv_by_size(self.client)
+        return msg
 
 
 # Virtual event handlers, override them in your derived class

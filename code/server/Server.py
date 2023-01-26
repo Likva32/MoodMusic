@@ -15,7 +15,7 @@ class server:
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.running = True
         self.IP = socket.gethostbyname(socket.gethostname())
-        self.PORT = 5056
+        self.PORT = 5057
         self.ADDR = (self.IP, self.PORT)
         self.FORMAT = 'utf-8'
         self.server.bind(self.ADDR)
@@ -93,6 +93,9 @@ class server:
                 else:
                     send_with_size(conn, 'Password NOT Changed')
                     print('Password NOT Changed')
+            if data_recv['Func'] == 'GetName':
+                data_send = self.UsersDb.name_by_email(data_recv['Email'])
+                send_with_size(conn, data_send)
             if data_recv['Func'] == '':
                 pass
 

@@ -42,24 +42,24 @@ class Users:  # main tbl with persons with their income&&outcome
 
     def insert_user(self, Name, Email, Password, SpotUrl='', SpotToken=''):
         """מכניס בן אדם לטבלה"""
-        # try:
-        if not self.is_exist(Email):
-            conn = sqlite3.connect('MoodMusic.db')
-            print("u open database successfully")
-            command = f"INSERT INTO {self.tablename}({self.Name},{self.Email},{self.Password},{self.SpotUrl}," \
-                    f"{self.SpotToken})" \
-                    f" VALUES('{Name}','{Email}','{Password}','{SpotUrl}','{SpotToken}')"
-            conn.execute(command)
-            conn.commit()
-            conn.close()
-            print("Add User successfully")
-            return True
-        else:
-            print("User exist so insert failed")
+        try:
+            if not self.is_exist(Email):
+                conn = sqlite3.connect('MoodMusic.db')
+                print("u open database successfully")
+                command = f"INSERT INTO {self.tablename}({self.Name},{self.Email},{self.Password},{self.SpotUrl}," \
+                          f"{self.SpotToken})" \
+                          f" VALUES('{Name}','{Email}','{Password}','{SpotUrl}','{SpotToken}')"
+                conn.execute(command)
+                conn.commit()
+                conn.close()
+                print("Add User successfully")
+                return True
+            else:
+                print("User exist so insert failed")
+                return False
+        except:
+            print("Failed to insert user")
             return False
-        # except:
-        #     print("Failed to insert user")
-        #     return False
 
     def delete_user(self, Email):
         try:
@@ -209,3 +209,13 @@ class Users:  # main tbl with persons with their income&&outcome
         except:
             print('not')
             return False
+
+    def name_by_email(self, Email):
+        conn = sqlite3.connect('MoodMusic.db')
+        print("Opened database successfully")
+        cursor = conn.execute(f"select {self.Name} from {self.tablename} WHERE {self.Email} == '{Email}'")
+        print(cursor)
+        name =''
+        for row in cursor:
+            name = row[0]
+        return name

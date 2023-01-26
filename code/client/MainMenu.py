@@ -12,7 +12,6 @@ class MainFrame(wx.Frame):
         self.parent = parent
         self.SetIcon(wx.Icon("images/black logo2.ico"))
         font = wx.Font(20, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Garamond")
-
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
 
         bSizer32 = wx.BoxSizer(wx.VERTICAL)
@@ -74,7 +73,7 @@ class MainFrame(wx.Frame):
         frame = cv2.resize(frame, (400, 320))
         height, width = frame.shape[:2]
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        self.bmp = wx.BitmapFromBuffer(width, height, frame)
+        self.bmp = wx.Bitmap.FromBuffer(width, height, frame)
         self.timer = wx.Timer(self)
         self.fps = 60
         self.timer.Start(int(self.timer.Start(int())))
@@ -90,7 +89,7 @@ class MainFrame(wx.Frame):
 
         xd_box = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.username_text = wx.StaticText(self.m_panel9, wx.ID_ANY, u"Username", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.username_text = wx.StaticText(self.m_panel9, wx.ID_ANY, "", wx.DefaultPosition, wx.DefaultSize, 0)
         self.username_text.Wrap(-1)
 
         self.username_text.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW))
@@ -204,8 +203,6 @@ class MainFrame(wx.Frame):
     def Go_To_CreatedPlaylist(self, event):
         event.Skip()
 
-    def CAMERA(self, event):
-        event.Skip()
 
     def OnCamera(self, event):
         self.capture = cv2.VideoCapture(0)
@@ -221,3 +218,5 @@ class MainFrame(wx.Frame):
 
     def GoToSettings(self, event):
         event.Skip()
+
+
