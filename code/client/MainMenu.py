@@ -2,6 +2,8 @@ import wx
 import wx.xrc
 from wx.lib import statbmp
 import cv2
+from PIL import Image
+import numpy as np
 
 
 class MainFrame(wx.Frame):
@@ -10,8 +12,9 @@ class MainFrame(wx.Frame):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=u"Mood Music", pos=wx.DefaultPosition,
                           size=wx.Size(840, 660), style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
         self.parent = parent
+        self.camStatus = False
         self.SetIcon(wx.Icon("images/black logo2.ico"))
-        font = wx.Font(20, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Garamond")
+        font = wx.Font(20, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Poppins")
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
 
         bSizer32 = wx.BoxSizer(wx.VERTICAL)
@@ -69,14 +72,17 @@ class MainFrame(wx.Frame):
         self.capture = cv2.VideoCapture(0)
         self.face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
-        ret, frame = self.capture.read()
-        frame = cv2.resize(frame, (400, 320))
-        height, width = frame.shape[:2]
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        self.bmp = wx.Bitmap.FromBuffer(width, height, frame)
+        # ret, frame = self.capture.read()
+        # frame = cv2.resize(frame, (400, 320))
+        # height, width = frame.shape[:2]
+
+        self.image = cv2.imread('images/nocam.jpg')
+        self.image = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
+        self.bmp = wx.Bitmap.FromBuffer(400, 320, self.image)
+        # print(f"{width} + {height}")
         self.timer = wx.Timer(self)
         self.fps = 60
-        self.timer.Start(int(self.timer.Start(int())))
+        # self.timer.Start(int(self.timer.Start(int())))
         self.userCam = statbmp.GenStaticBitmap(self.m_panel9, wx.ID_ANY, self.bmp)
 
         # self.Button_Cam = wx.BitmapButton(self.m_panel9, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize,
@@ -84,14 +90,24 @@ class MainFrame(wx.Frame):
         #
         # self.Button_Cam.SetBitmap(wx.Bitmap(u"images/face2.png", wx.BITMAP_TYPE_ANY))
         # Sizer_userCam.Add(self.Button_Cam, 0, wx.ALL, 5)
-
         gbSizer_allitems.Add(self.userCam, wx.GBPosition(1, 3), wx.GBSpan(5, 7), wx.ALIGN_CENTER, 5)
+
+        error_box_sizer = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.error_box_text = wx.StaticText(self.m_panel9, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.error_box_text.Wrap(-1)
+
+        self.error_box_text.SetBackgroundColour(wx.Colour(53, 53, 53))
+
+        error_box_sizer.Add(self.error_box_text, 1, wx.ALIGN_CENTER, 5)
+
+        gbSizer_allitems.Add(error_box_sizer, wx.GBPosition(6, 5), wx.GBSpan(1, 1), wx.ALIGN_CENTER, 5)
 
         xd_box = wx.BoxSizer(wx.HORIZONTAL)
 
         self.username_text = wx.StaticText(self.m_panel9, wx.ID_ANY, "", wx.DefaultPosition, wx.DefaultSize, 0)
         self.username_text.Wrap(-1)
-
+        self.username_text.SetFont(wx.Font(28, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Poppins"))
         self.username_text.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW))
 
         xd_box.Add(self.username_text, 0, wx.EXPAND, 5)
@@ -107,7 +123,7 @@ class MainFrame(wx.Frame):
 
         xd_box1.Add(self.username_text1, 0, wx.EXPAND, 5)
 
-        gbSizer_allitems.Add(xd_box1, wx.GBPosition(6, 5), wx.GBSpan(1, 3), wx.ALIGN_CENTER, 5)
+        gbSizer_allitems.Add(xd_box1, wx.GBPosition(7, 5), wx.GBSpan(1, 3), wx.ALIGN_CENTER, 5)
 
         Sizer_login = wx.BoxSizer(wx.HORIZONTAL)
 
@@ -118,7 +134,7 @@ class MainFrame(wx.Frame):
 
         Sizer_login.Add(self.Button_login, 0, wx.ALL, 5)
 
-        gbSizer_allitems.Add(Sizer_login, wx.GBPosition(7, 5), wx.GBSpan(1, 1), wx.ALIGN_CENTER, 5)
+        gbSizer_allitems.Add(Sizer_login, wx.GBPosition(8, 5), wx.GBSpan(1, 1), wx.ALIGN_CENTER, 5)
 
         Sizer_login1 = wx.BoxSizer(wx.HORIZONTAL)
 
@@ -129,7 +145,7 @@ class MainFrame(wx.Frame):
 
         Sizer_login1.Add(self.Button_login1, 0, wx.ALL, 5)
 
-        gbSizer_allitems.Add(Sizer_login1, wx.GBPosition(7, 7), wx.GBSpan(1, 1), wx.EXPAND, 5)
+        gbSizer_allitems.Add(Sizer_login1, wx.GBPosition(8, 7), wx.GBSpan(1, 1), wx.EXPAND, 5)
 
         Sizer_back = wx.BoxSizer(wx.VERTICAL)
 
@@ -184,17 +200,23 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_TIMER, self.NextFrame)
 
     def NextFrame(self, event):
-        ret, frame = self.capture.read()
-        frame = cv2.resize(frame, (400, 320))
-        if ret:
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            faces = self.face_cascade.detectMultiScale(gray, 1.1, 4)
-            for (x, y, w, h) in faces:
-                cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+        try:
+            ret, frame = self.capture.read()
+            frame = cv2.resize(frame, (400, 320))
+            if ret:
+                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                faces = self.face_cascade.detectMultiScale(gray, 1.1, 4)
+                for (x, y, w, h) in faces:
+                    cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
 
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            self.bmp.CopyFromBuffer(frame)
-            self.userCam.SetBitmap(self.bmp)
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                self.bmp.CopyFromBuffer(frame)
+                self.userCam.SetBitmap(self.bmp)
+        except Exception as e:
+            self.error_box_text.SetLabelText("cant grab image from cam")
+            self.error_box_text.SetForegroundColour(colour='red')
+            self.timer.Stop()
+            print(e)
 
     # Virtual event handlers, override them in your derived class
     def Go_To_CreatePlaylist(self, event):
@@ -205,12 +227,23 @@ class MainFrame(wx.Frame):
 
 
     def OnCamera(self, event):
-        self.capture = cv2.VideoCapture(0)
-        self.timer.Start()
+        try:
+            self.capture = cv2.VideoCapture(0)
+            self.timer.Start()
+            self.error_box_text.SetLabelText('Camera On')
+            self.error_box_text.SetForegroundColour(colour='green')
+        except Exception as e:
+            self.error_box_text.SetLabelText("cant grab image from cam")
+            self.error_box_text.SetForegroundColour(colour='red')
+            self.timer.Stop()
+            print(e)
 
     def OffCamera(self, event):
         self.capture.release()
         self.timer.Stop()
+        self.userCam.SetBitmap(wx.Bitmap.FromBuffer(400, 320, self.image))
+        self.error_box_text.SetLabelText('Camera Off')
+        self.error_box_text.SetForegroundColour(colour='Black')
 
     def GoBack(self, event):
         self.Hide()  # hide the register frame
