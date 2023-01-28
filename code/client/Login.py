@@ -7,6 +7,7 @@ from MainMenu import MainFrame
 from tcp_by_size import recv_by_size
 from tcp_by_size import send_with_size
 from ForgotPassword import ForgotFrame
+from Settings import SettingsFrame
 from validators import email
 import json
 
@@ -25,6 +26,7 @@ class LoginFrame(wx.Frame):
         self.register_frame = RegisterFrame(self)
         self.MainFrame = MainFrame(self)
         self.ForgotFrame = ForgotFrame(self)
+        self.SettingsFrame = SettingsFrame(self)
 
         self.SetIcon(wx.Icon("images/black logo2.ico"))
         font = wx.Font(15, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Poppins")
@@ -326,7 +328,9 @@ class LoginFrame(wx.Frame):
         self.MainFrame.Show()  # show the register frame
 
     def GoToSettings(self, event):
-        event.Skip()
+        self.Hide()
+        self.SettingsFrame.Centre()
+        self.SettingsFrame.Show()
 
     def GoToForgot(self, event):
         self.Hide()  # hide the login frame

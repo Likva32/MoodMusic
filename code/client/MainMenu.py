@@ -2,8 +2,7 @@ import wx
 import wx.xrc
 from wx.lib import statbmp
 import cv2
-from PIL import Image
-import numpy as np
+import threading
 
 
 class MainFrame(wx.Frame):
@@ -11,6 +10,7 @@ class MainFrame(wx.Frame):
     def __init__(self, parent):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=u"Mood Music", pos=wx.DefaultPosition,
                           size=wx.Size(840, 660), style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
+
         self.parent = parent
         self.camStatus = False
         self.SetIcon(wx.Icon("images/black logo2.ico"))
@@ -65,11 +65,9 @@ class MainFrame(wx.Frame):
 
         gbSizer_allitems.Add(bSizer_accType, wx.GBPosition(5, 0), wx.GBSpan(1, 1), wx.ALIGN_CENTER, 5)
 
-        Sizer_userCam = wx.BoxSizer(wx.HORIZONTAL)
-
         #################################
 
-        self.capture = cv2.VideoCapture(0)
+        # self.capture = cv2.VideoCapture(0)
         self.face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
         # ret, frame = self.capture.read()
@@ -107,7 +105,8 @@ class MainFrame(wx.Frame):
 
         self.username_text = wx.StaticText(self.m_panel9, wx.ID_ANY, "", wx.DefaultPosition, wx.DefaultSize, 0)
         self.username_text.Wrap(-1)
-        self.username_text.SetFont(wx.Font(28, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Poppins"))
+        self.username_text.SetFont(
+            wx.Font(28, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Poppins"))
         self.username_text.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW))
 
         xd_box.Add(self.username_text, 0, wx.EXPAND, 5)
@@ -193,7 +192,7 @@ class MainFrame(wx.Frame):
         # Connect Events
         self.button_Create.Bind(wx.EVT_BUTTON, self.Go_To_CreatePlaylist)
         self.button_Created.Bind(wx.EVT_BUTTON, self.Go_To_CreatedPlaylist)
-        self.Button_login.Bind(wx.EVT_BUTTON, self.OnCamera)
+        self.Button_login.Bind(wx.EVT_BUTTON, self.camera_on_thread)
         self.Button_login1.Bind(wx.EVT_BUTTON, self.OffCamera)
         self.Button_back.Bind(wx.EVT_BUTTON, self.GoBack)
         self.m_bpButton33.Bind(wx.EVT_BUTTON, self.GoToSettings)
@@ -225,11 +224,15 @@ class MainFrame(wx.Frame):
     def Go_To_CreatedPlaylist(self, event):
         event.Skip()
 
+    def camera_on_thread(self, event):
+        thread = threading.Thread(target=self.OnCamera)
+        thread.start()
 
-    def OnCamera(self, event):
+    def OnCamera(self):
         try:
             self.capture = cv2.VideoCapture(0)
-            self.timer.Start()
+            wx.CallAfter(self.timer.Start)
+            # self.timer.Start()
             self.error_box_text.SetLabelText('Camera On')
             self.error_box_text.SetForegroundColour(colour='green')
         except Exception as e:
@@ -251,5 +254,3 @@ class MainFrame(wx.Frame):
 
     def GoToSettings(self, event):
         event.Skip()
-
-
