@@ -5,6 +5,7 @@ import threading
 
 class Users:  # main tbl with persons with their income&&outcome
     """קלאס של טבלה IncomeOutcome"""
+
     def __init__(self, tablename="Users", Name='Name', UserId="UserId", Email="Email",
                  Password="Password", SpotUrl="SpotUrl", SpotToken="token", Code="Code"):
         self.tablename = tablename
@@ -34,10 +35,10 @@ class Users:  # main tbl with persons with their income&&outcome
         for row in cursor:
             query += f"UserId: {row[0]},\n" \
                      f"Name: {row[1,]},\n" \
-                    f"Email: {row[2]},\n" \
-                    f"password: {row[3]},\n" \
-                    f"SpotUrl: {row[4]},\n" \
-                    f"SpotToken: {row[5]},\n"
+                     f"Email: {row[2]},\n" \
+                     f"password: {row[3]},\n" \
+                     f"SpotUrl: {row[4]},\n" \
+                     f"SpotToken: {row[5]},\n"
         return query
 
     def insert_user(self, Name, Email, Password, SpotUrl='', SpotToken=''):
@@ -48,8 +49,9 @@ class Users:  # main tbl with persons with their income&&outcome
                 print("u open database successfully")
                 command = f"INSERT INTO {self.tablename}({self.Name},{self.Email},{self.Password},{self.SpotUrl}," \
                           f"{self.SpotToken})" \
-                          f" VALUES('{Name}','{Email}','{Password}','{SpotUrl}','{SpotToken}')"
-                conn.execute(command)
+                          f" VALUES((?),(?),(?),(?),(?))"
+                values = (Name, Email, Password, SpotUrl, SpotToken)
+                conn.execute(command, values)
                 conn.commit()
                 conn.close()
                 print("Add User successfully")
@@ -65,8 +67,9 @@ class Users:  # main tbl with persons with their income&&outcome
         try:
             conn = sqlite3.connect('MoodMusic.db')
             print("Opened database successfully")
-            query = f"DELETE FROM Users WHERE {self.Email} = '{Email}'"
-            conn.execute(query)
+            query = f"DELETE FROM Users WHERE {self.Email} = (?)"
+            values = Email
+            conn.execute(query, values)
             conn.commit()
             conn.close()
             print("Delete User successfully")
@@ -80,8 +83,11 @@ class Users:  # main tbl with persons with their income&&outcome
             conn = sqlite3.connect('MoodMusic.db')
             print("Opened database successfully")
             query = f"SELECT * from {self.tablename} where {self.Email} = '{Email}'"
+            print(query)
             cursor = conn.execute(query)
-            row = cursor.fetchall()
+            row = ''
+            for row in cursor:
+                print(row[0])
             conn.commit()
             conn.close()
             if row:
@@ -90,6 +96,7 @@ class Users:  # main tbl with persons with their income&&outcome
             else:
                 print("Not exist")
                 return False
+
         except:
             return False
 
@@ -97,8 +104,9 @@ class Users:  # main tbl with persons with their income&&outcome
         try:
             conn = sqlite3.connect('MoodMusic.db')
             print("Opened database successfully")
-            query = f"SELECT * from {self.tablename} where {self.Email} = '{Email}' and {self.Password} = '{Password}'"
-            cursor = conn.execute(query)
+            query = f"SELECT * from {self.tablename} where {self.Email} = (?) and {self.Password} = (?)"
+            values = (Email, Password)
+            cursor = conn.execute(query, values)
             row = cursor.fetchall()
             conn.commit()
             conn.close()
@@ -117,10 +125,11 @@ class Users:  # main tbl with persons with their income&&outcome
             print("Opened database successfully")
             query = f"""
                         UPDATE Users
-                        SET {self.Password} = '{Password}'
-                        WHERE {self.Email} = '{Email}'
+                        SET {self.Password} = (?)
+                        WHERE {self.Email} = (?)
                     """
-            conn.execute(query)
+            values = (Password, Email)
+            conn.execute(query, values)
             conn.commit()
             conn.close()
             print("Update User successfully")
@@ -135,10 +144,11 @@ class Users:  # main tbl with persons with their income&&outcome
             print("Opened database successfully")
             query = f"""
                         UPDATE Users
-                        SET {self.SpotUrl} = '{SpotUrl}', {self.SpotToken} = '{SpotToken}'
-                        WHERE {self.Email} = '{Email}' AND {self.Password} = '{Password}'
+                        SET {self.SpotUrl} = (?), {self.SpotToken} = (?)
+                        WHERE {self.Email} = (?) AND {self.Password} = (?)
                     """
-            conn.execute(query)
+            values = (SpotUrl, SpotToken, Email, Password)
+            conn.execute(query, values)
             conn.commit()
             conn.close()
             print("Update User successfully")
@@ -154,10 +164,11 @@ class Users:  # main tbl with persons with their income&&outcome
             print("Opened database successfully")
             query = f"""
                                                         UPDATE Users
-                                                        SET {self.Code} = '{Code}'
-                                                        WHERE {self.Email} = '{Email}'
+                                                        SET {self.Code} = (?)
+                                                        WHERE {self.Email} = (?)
                                                     """
-            conn.execute(query)
+            values = (Code, Email)
+            conn.execute(query, values)
             conn.commit()
             conn.close()
             print("Update code successfully")
@@ -174,8 +185,9 @@ class Users:  # main tbl with persons with their income&&outcome
         try:
             conn = sqlite3.connect('MoodMusic.db')
             print("Opened database successfully")
-            query = f"SELECT * from {self.tablename} where {self.Email} = '{Email}' and {self.Code} = '{Code}'"
-            cursor = conn.execute(query)
+            query = f"SELECT * from {self.tablename} where {self.Email} = (?) and {self.Code} = (?)"
+            values = (Email, Code)
+            cursor = conn.execute(query, values)
             row = cursor.fetchall()
             conn.commit()
             conn.close()
@@ -197,9 +209,9 @@ class Users:  # main tbl with persons with their income&&outcome
             query = f"""
                     UPDATE Users
                                     SET Code = NULL
-                                    WHERE Email = '{Email}' AND {self.Code} = '{Code}'
+                                    WHERE Email = (?) AND {self.Code} = (?)
             """
-
+            values = (Email, Code)
             conn.execute(query)
             conn.commit()
             conn.close()
@@ -213,9 +225,10 @@ class Users:  # main tbl with persons with their income&&outcome
     def name_by_email(self, Email):
         conn = sqlite3.connect('MoodMusic.db')
         print("Opened database successfully")
-        cursor = conn.execute(f"select {self.Name} from {self.tablename} WHERE {self.Email} == '{Email}'")
+        f = f"select {self.Name} from {self.tablename} WHERE {self.Email} == (?)"
+        cursor = conn.execute(f, (Email,))
         print(cursor)
-        name =''
+        name = ''
         for row in cursor:
             name = row[0]
         return name

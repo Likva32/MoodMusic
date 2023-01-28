@@ -2,6 +2,7 @@ import wx
 import wx.xrc
 import json
 from validators import email
+from Settings import SettingsFrame
 
 
 class RegisterFrame(wx.Frame):
@@ -9,6 +10,7 @@ class RegisterFrame(wx.Frame):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=u"Mood Music", pos=wx.DefaultPosition,
                           size=wx.Size(620, 635), style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER | wx.TAB_TRAVERSAL)
         self.parent = parent
+        self.SettingsFrame = SettingsFrame(self)
         self.SetIcon(wx.Icon("images/black logo2.ico"))
         font = wx.Font(15, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Poppins")
 
@@ -117,14 +119,14 @@ class RegisterFrame(wx.Frame):
         self.textCtrl_password.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW))
         self.textCtrl_password.SetHint('Password')
 
-        Sizer_password.Add(self.textCtrl_password, 1,wx.EXPAND| wx.ALL, 5)
+        Sizer_password.Add(self.textCtrl_password, 1, wx.EXPAND | wx.ALL, 5)
 
-        gbSizer_allitems.Add(Sizer_password, wx.GBPosition(5, 1), wx.GBSpan(1, 2),  wx.EXPAND, 5)
+        gbSizer_allitems.Add(Sizer_password, wx.GBPosition(5, 1), wx.GBSpan(1, 2), wx.EXPAND, 5)
 
         Sizer_Email = wx.BoxSizer(wx.HORIZONTAL)
 
         self.textCtrl_Email = wx.TextCtrl(self.m_panel9, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition,
-                                             wx.DefaultSize, wx.TE_CENTER | wx.BORDER_STATIC)
+                                          wx.DefaultSize, wx.TE_CENTER | wx.BORDER_STATIC)
         self.textCtrl_Email.SetFont(font)
         self.textCtrl_Email.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT))
         self.textCtrl_Email.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW))
@@ -132,7 +134,7 @@ class RegisterFrame(wx.Frame):
 
         Sizer_Email.Add(self.textCtrl_Email, 1, wx.ALL, 5)
 
-        gbSizer_allitems.Add(Sizer_Email, wx.GBPosition(4, 1), wx.GBSpan(1, 1),  wx.EXPAND, 5)
+        gbSizer_allitems.Add(Sizer_Email, wx.GBPosition(4, 1), wx.GBSpan(1, 1), wx.EXPAND, 5)
 
         status_box = wx.BoxSizer(wx.HORIZONTAL)
 
@@ -140,10 +142,10 @@ class RegisterFrame(wx.Frame):
         self.status_text.Wrap(-1)
         self.status_text.SetFont(font)
 
+        status_box.Add(self.status_text, 0, wx.ALIGN_CENTER, 0)
 
-        status_box.Add(self.status_text, 0,  wx.ALIGN_CENTER, 0)
-
-        gbSizer_allitems.Add(status_box, wx.GBPosition(6, 1), wx.GBSpan(1, 1), wx.ALIGN_CENTER_HORIZONTAL | wx.RIGHT, 75)
+        gbSizer_allitems.Add(status_box, wx.GBPosition(6, 1), wx.GBSpan(1, 1), wx.ALIGN_CENTER_HORIZONTAL | wx.RIGHT,
+                             75)
 
         Sizer_login = wx.BoxSizer(wx.HORIZONTAL)
 
@@ -170,13 +172,14 @@ class RegisterFrame(wx.Frame):
 
         bSizer185 = wx.BoxSizer(wx.VERTICAL)
 
-        self.m_bpButton33 = wx.BitmapButton(self.m_panel9, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize,
-                                            wx.BU_AUTODRAW | 0 | wx.BORDER_NONE)
+        self.Button_settings = wx.BitmapButton(self.m_panel9, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition,
+                                               wx.DefaultSize,
+                                               wx.BU_AUTODRAW | 0 | wx.BORDER_NONE)
 
-        self.m_bpButton33.SetBitmap(wx.Bitmap(u"images/setting icon resized.png", wx.BITMAP_TYPE_ANY))
-        self.m_bpButton33.SetBackgroundColour(wx.Colour(53, 53, 53))
+        self.Button_settings.SetBitmap(wx.Bitmap(u"images/setting icon resized.png", wx.BITMAP_TYPE_ANY))
+        self.Button_settings.SetBackgroundColour(wx.Colour(53, 53, 53))
 
-        bSizer185.Add(self.m_bpButton33, 0, wx.ALL, 5)
+        bSizer185.Add(self.Button_settings, 0, wx.ALL, 5)
 
         gbSizer_allitems.Add(bSizer185, wx.GBPosition(1, 3), wx.GBSpan(1, 1), wx.ALIGN_CENTER | wx.EXPAND, 5)
 
@@ -204,7 +207,7 @@ class RegisterFrame(wx.Frame):
         self.Button_dev.Bind(wx.EVT_BUTTON, self.typeDev)
         self.Button_login.Bind(wx.EVT_BUTTON, self.Register)
         self.Button_back.Bind(wx.EVT_BUTTON, self.GoBack)
-        self.m_bpButton33.Bind(wx.EVT_BUTTON, self.GoToSettings)
+        self.Button_settings.Bind(wx.EVT_BUTTON, self.GoToSettings)
 
     def __del__(self):
         pass
@@ -252,7 +255,9 @@ class RegisterFrame(wx.Frame):
         self.parent.Show()  # show the login frame
 
     def GoToSettings(self, event):
-        event.Skip()
+        self.Hide()
+        self.SettingsFrame.Centre()
+        self.SettingsFrame.Show()
 
 # app = wx.App()
 # frame = RegisterFrame(None)
