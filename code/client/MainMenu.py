@@ -3,6 +3,7 @@ import wx.xrc
 from wx.lib import statbmp
 import cv2
 import threading
+from Settings import SettingsFrame
 
 
 class MainFrame(wx.Frame):
@@ -10,9 +11,9 @@ class MainFrame(wx.Frame):
     def __init__(self, parent):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=u"Mood Music", pos=wx.DefaultPosition,
                           size=wx.Size(840, 660), style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
-
         self.parent = parent
         self.camStatus = False
+        self.SettingsFrame = SettingsFrame(self)
         self.SetIcon(wx.Icon("images/black logo2.ico"))
         font = wx.Font(20, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Poppins")
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
@@ -74,7 +75,7 @@ class MainFrame(wx.Frame):
         # frame = cv2.resize(frame, (400, 320))
         # height, width = frame.shape[:2]
 
-        self.image = cv2.imread('images/nocam.jpg')
+        self.image = cv2.imread('images/nocamblack.jpg')
         self.image = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
         self.bmp = wx.Bitmap.FromBuffer(400, 320, self.image)
         # print(f"{width} + {height}")
@@ -95,8 +96,6 @@ class MainFrame(wx.Frame):
         self.error_box_text = wx.StaticText(self.m_panel9, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0)
         self.error_box_text.Wrap(-1)
 
-        self.error_box_text.SetBackgroundColour(wx.Colour(53, 53, 53))
-
         error_box_sizer.Add(self.error_box_text, 1, wx.ALIGN_CENTER, 5)
 
         gbSizer_allitems.Add(error_box_sizer, wx.GBPosition(6, 5), wx.GBSpan(1, 1), wx.ALIGN_CENTER, 5)
@@ -107,7 +106,6 @@ class MainFrame(wx.Frame):
         self.username_text.Wrap(-1)
         self.username_text.SetFont(
             wx.Font(28, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Poppins"))
-        self.username_text.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW))
 
         xd_box.Add(self.username_text, 0, wx.EXPAND, 5)
 
@@ -115,34 +113,34 @@ class MainFrame(wx.Frame):
 
         xd_box1 = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.username_text1 = wx.StaticText(self.m_panel9, wx.ID_ANY, u"Camera", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.username_text1.Wrap(-1)
+        self.text_camera = wx.StaticText(self.m_panel9, wx.ID_ANY, u"Camera", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.text_camera.Wrap(-1)
 
-        self.username_text1.SetBackgroundColour(wx.Colour(53, 53, 53))
+        self.text_camera.SetBackgroundColour(wx.Colour(53, 53, 53))
 
-        xd_box1.Add(self.username_text1, 0, wx.EXPAND, 5)
+        xd_box1.Add(self.text_camera, 0, wx.EXPAND, 5)
 
         gbSizer_allitems.Add(xd_box1, wx.GBPosition(7, 5), wx.GBSpan(1, 3), wx.ALIGN_CENTER, 5)
 
         Sizer_login = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.Button_login = wx.Button(self.m_panel9, wx.ID_ANY, u"On", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.Button_login.SetLabelMarkup(u"On")
-        self.Button_login.SetFont(font)
-        self.Button_login.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW))
+        self.Button_on = wx.Button(self.m_panel9, wx.ID_ANY, u"On", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.Button_on.SetLabelMarkup(u"On")
+        self.Button_on.SetFont(font)
+        self.Button_on.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW))
 
-        Sizer_login.Add(self.Button_login, 0, wx.ALL, 5)
+        Sizer_login.Add(self.Button_on, 0, wx.ALL, 5)
 
         gbSizer_allitems.Add(Sizer_login, wx.GBPosition(8, 5), wx.GBSpan(1, 1), wx.ALIGN_CENTER, 5)
 
         Sizer_login1 = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.Button_login1 = wx.Button(self.m_panel9, wx.ID_ANY, u"Off", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.Button_login1.SetLabelMarkup(u"Off")
-        self.Button_login1.SetFont(font)
-        self.Button_login1.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW))
+        self.Button_off = wx.Button(self.m_panel9, wx.ID_ANY, u"Off", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.Button_off.SetLabelMarkup(u"Off")
+        self.Button_off.SetFont(font)
+        self.Button_off.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW))
 
-        Sizer_login1.Add(self.Button_login1, 0, wx.ALL, 5)
+        Sizer_login1.Add(self.Button_off, 0, wx.ALL, 5)
 
         gbSizer_allitems.Add(Sizer_login1, wx.GBPosition(8, 7), wx.GBSpan(1, 1), wx.EXPAND, 5)
 
@@ -160,13 +158,14 @@ class MainFrame(wx.Frame):
 
         bSizer185 = wx.BoxSizer(wx.VERTICAL)
 
-        self.m_bpButton33 = wx.BitmapButton(self.m_panel9, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize,
-                                            wx.BU_AUTODRAW | 0 | wx.BORDER_NONE)
+        self.Button_settings = wx.BitmapButton(self.m_panel9, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition,
+                                               wx.DefaultSize,
+                                               wx.BU_AUTODRAW | 0 | wx.BORDER_NONE)
 
-        self.m_bpButton33.SetBitmap(wx.Bitmap(u"images/setting icon resized.png", wx.BITMAP_TYPE_ANY))
-        self.m_bpButton33.SetBackgroundColour(wx.Colour(53, 53, 53))
+        self.Button_settings.SetBitmap(wx.Bitmap(u"images/setting icon resized.png", wx.BITMAP_TYPE_ANY))
+        self.Button_settings.SetBackgroundColour(wx.Colour(53, 53, 53))
 
-        bSizer185.Add(self.m_bpButton33, 0, wx.ALL, 5)
+        bSizer185.Add(self.Button_settings, 0, wx.ALL, 5)
 
         gbSizer_allitems.Add(bSizer185, wx.GBPosition(0, 9), wx.GBSpan(1, 1), wx.ALIGN_CENTER, 5)
 
@@ -192,10 +191,10 @@ class MainFrame(wx.Frame):
         # Connect Events
         self.button_Create.Bind(wx.EVT_BUTTON, self.Go_To_CreatePlaylist)
         self.button_Created.Bind(wx.EVT_BUTTON, self.Go_To_CreatedPlaylist)
-        self.Button_login.Bind(wx.EVT_BUTTON, self.camera_on_thread)
-        self.Button_login1.Bind(wx.EVT_BUTTON, self.OffCamera)
+        self.Button_on.Bind(wx.EVT_BUTTON, self.camera_on_thread)
+        self.Button_off.Bind(wx.EVT_BUTTON, self.OffCamera)
         self.Button_back.Bind(wx.EVT_BUTTON, self.GoBack)
-        self.m_bpButton33.Bind(wx.EVT_BUTTON, self.GoToSettings)
+        self.Button_settings.Bind(wx.EVT_BUTTON, self.GoToSettings)
         self.Bind(wx.EVT_TIMER, self.NextFrame)
 
     def NextFrame(self, event):
@@ -242,15 +241,20 @@ class MainFrame(wx.Frame):
             print(e)
 
     def OffCamera(self, event):
-        self.capture.release()
-        self.timer.Stop()
-        self.userCam.SetBitmap(wx.Bitmap.FromBuffer(400, 320, self.image))
-        self.error_box_text.SetLabelText('Camera Off')
-        self.error_box_text.SetForegroundColour(colour='Black')
+        try:
+            self.capture.release()
+            self.timer.Stop()
+            self.userCam.SetBitmap(wx.Bitmap.FromBuffer(400, 320, self.image))
+            self.error_box_text.SetLabelText('Camera Off')
+            self.error_box_text.SetForegroundColour(colour='Black')
+        except:
+            pass
 
     def GoBack(self, event):
         self.Hide()  # hide the register frame
         self.parent.Show()  # show the login frame
 
     def GoToSettings(self, event):
-        event.Skip()
+        self.Hide()
+        self.SettingsFrame.Centre()
+        self.SettingsFrame.Show()

@@ -68,6 +68,7 @@ class server:
                     send_with_size(conn, 'Login NOT success')
                     print('Login NOT success')
             if data_recv['Func'] == 'Sendmail':
+                print(data_recv['Email'])
                 if self.UsersDb.is_exist(data_recv['Email']):
                     sendmail = SendVerificationCode(data_recv['Email'])
                     sendmail.SendMail()

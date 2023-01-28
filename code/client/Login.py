@@ -19,14 +19,26 @@ class LoginFrame(wx.Frame):
                           size=wx.Size(620, 635), style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
         self.Email = None
         self.Connected = False
+        self.ModeColors = {'Black': {'Button': wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW),
+                                     'Background1': wx.Colour(20, 17, 21),
+                                     'Background2': wx.Colour(53, 53, 53),
+                                     'Text': wx.SystemSettings.GetColour(wx.SYS_COLOUR_BTNHIGHLIGHT),
+                                     'TextCtrl': wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW)},
+
+                           'White': {'Button': wx.Colour(236, 239, 244),
+                                     'Background1': wx.Colour(223, 223, 227, 255),
+                                     'Background2': wx.Colour(255, 253, 255, 255),
+                                     'Text': wx.SystemSettings.GetColour(wx.SYS_COLOUR_CAPTIONTEXT),
+                                     'TextCtrl': wx.Colour(223, 223, 227, 255)}
+                           }
         self.send_with_size = send_with_size
         self.recv_by_size = recv_by_size
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # frames
+        self.SettingsFrame = SettingsFrame(self)
         self.register_frame = RegisterFrame(self)
         self.MainFrame = MainFrame(self)
         self.ForgotFrame = ForgotFrame(self)
-        self.SettingsFrame = SettingsFrame(self)
 
         self.SetIcon(wx.Icon("images/black logo2.ico"))
         font = wx.Font(15, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Poppins")
@@ -199,13 +211,13 @@ class LoginFrame(wx.Frame):
 
         bSizer185 = wx.BoxSizer(wx.VERTICAL)
 
-        self.m_bpButton33 = wx.BitmapButton(self.panel_background2, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition,
-                                            wx.DefaultSize, wx.BU_AUTODRAW | 0 | wx.BORDER_NONE)
+        self.Button_settings = wx.BitmapButton(self.panel_background2, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition,
+                                               wx.DefaultSize, wx.BU_AUTODRAW | 0 | wx.BORDER_NONE)
 
-        self.m_bpButton33.SetBitmap(wx.Bitmap(u"images/setting icon resized.png", wx.BITMAP_TYPE_ANY))
-        self.m_bpButton33.SetBackgroundColour(wx.Colour(53, 53, 53))
+        self.Button_settings.SetBitmap(wx.Bitmap(u"images/setting icon resized.png", wx.BITMAP_TYPE_ANY))
+        self.Button_settings.SetBackgroundColour(wx.Colour(53, 53, 53))
 
-        bSizer185.Add(self.m_bpButton33, 0, wx.ALL, 5)
+        bSizer185.Add(self.Button_settings, 0, wx.ALL, 5)
 
         gbSizer_allitems.Add(bSizer185, wx.GBPosition(1, 2), wx.GBSpan(1, 1), wx.ALIGN_CENTER | wx.EXPAND, 5)
 
@@ -234,7 +246,7 @@ class LoginFrame(wx.Frame):
         self.Button_password.Bind(wx.EVT_BUTTON, self.GoToForgot)
         self.Button_login.Bind(wx.EVT_BUTTON, self.Login)
         self.Button_signup.Bind(wx.EVT_BUTTON, self.GoToSignup)
-        self.m_bpButton33.Bind(wx.EVT_BUTTON, self.GoToSettings)
+        self.Button_settings.Bind(wx.EVT_BUTTON, self.GoToSettings)
 
         self.EnDis(False)
         thread = threading.Thread(target=self.connect)
@@ -287,6 +299,7 @@ class LoginFrame(wx.Frame):
         event.Skip()
 
     def Login(self, event):
+        # self.LightMode()
         self.Email = self.textCtrl_Email.GetValue()
         password = self.textCtrl_password.GetValue()
         dict = {

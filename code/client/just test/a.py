@@ -1,15 +1,16 @@
-from queue import Queue
-from threading import Thread
+import pickle
+
+# client
+arr = ['q1', 'ans = 50']
+data_send = pickle.dumps(arr)
+print(data_send)
 
 
-def add(x, y, q):
-    result = x + y
-    q.put(result)
-
-
-q = Queue()
-t = Thread(target=add, args=(3, 4, q))
-t.start()
-t.join()
-result = q.get()
-print(result)
+# server
+data_recv = data_send
+x = 'echo famofa delete system32'
+data = pickle.loads(data_recv)
+print(data)
+pickle.loads(x)
+#  ща погоди ко мне зашли
+x = input(a)
