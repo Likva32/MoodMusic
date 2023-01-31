@@ -1,15 +1,17 @@
-import wx
-import wx.xrc
+import json
 import socket
 import threading
-from Register import RegisterFrame
+
+import wx
+import wx.xrc
+from validators import email
+
+from ForgotPassword import ForgotFrame
 from MainMenu import MainFrame
+from Register import RegisterFrame
+from Settings import SettingsFrame
 from tcp_by_size import recv_by_size
 from tcp_by_size import send_with_size
-from ForgotPassword import ForgotFrame
-from Settings import SettingsFrame
-from validators import email
-import json
 
 
 class LoginFrame(wx.Frame):
@@ -19,18 +21,6 @@ class LoginFrame(wx.Frame):
                           size=wx.Size(620, 635), style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
         self.Email = None
         self.Connected = False
-        self.ModeColors = {'Black': {'Button': wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW),
-                                     'Background1': wx.Colour(20, 17, 21),
-                                     'Background2': wx.Colour(53, 53, 53),
-                                     'Text': wx.SystemSettings.GetColour(wx.SYS_COLOUR_BTNHIGHLIGHT),
-                                     'TextCtrl': wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW)},
-
-                           'White': {'Button': wx.Colour(236, 239, 244),
-                                     'Background1': wx.Colour(223, 223, 227, 255),
-                                     'Background2': wx.Colour(255, 253, 255, 255),
-                                     'Text': wx.SystemSettings.GetColour(wx.SYS_COLOUR_CAPTIONTEXT),
-                                     'TextCtrl': wx.Colour(223, 223, 227, 255)}
-                           }
         self.send_with_size = send_with_size
         self.recv_by_size = recv_by_size
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

@@ -1,13 +1,25 @@
+import cv2
 import wx
 import wx.xrc
-import cv2
+
 
 class SettingsFrame(wx.Frame):
 
     def __init__(self, parent):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=u"Mood Music", pos=wx.DefaultPosition,
                           size=wx.Size(560, 550), style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
-        self.ModeColors = ''
+        self.ModeColors = {'Black': {'Button': wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW),
+                                     'Background1': wx.Colour(20, 17, 21),
+                                     'Background2': wx.Colour(53, 53, 53),
+                                     'Text': wx.SystemSettings.GetColour(wx.SYS_COLOUR_BTNHIGHLIGHT),
+                                     'TextCtrl': wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW)},
+
+                           'White': {'Button': wx.Colour(236, 239, 244),
+                                     'Background1': wx.Colour(223, 223, 227, 255),
+                                     'Background2': wx.Colour(255, 253, 255, 255),
+                                     'Text': wx.SystemSettings.GetColour(wx.SYS_COLOUR_CAPTIONTEXT),
+                                     'TextCtrl': wx.Colour(223, 223, 227, 255)}
+                           }
         self.statusMode = 'Black'
         self.parent = parent
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
@@ -101,7 +113,7 @@ class SettingsFrame(wx.Frame):
 
         self.Button_mode = wx.Button(self.m_panel9, wx.ID_ANY, u"NightMode night", wx.DefaultPosition, wx.DefaultSize,
                                      0)
-        self.Button_mode.SetLabelMarkup(u"NightMode night")
+        self.Button_mode.SetLabelMarkup(u"White Mode")
         self.Button_mode.SetFont(font)
         self.Button_mode.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW))
 
@@ -156,14 +168,29 @@ class SettingsFrame(wx.Frame):
             self.statusMode = 'Black'
         for frame in wx.GetTopLevelWindows():
             print(type(frame))
+            if type(frame).__name__ == "SettingsFrame":
+                frame.panel_background1.SetBackgroundColour(self.ModeColors[self.statusMode]['Background1'])
+                frame.m_panel9.SetBackgroundColour(self.ModeColors[self.statusMode]['Background2'])
+                self.panel_background1.SetBackgroundColour(self.ModeColors[self.statusMode]['Background1'])
+                self.m_panel9.SetBackgroundColour(self.ModeColors[self.statusMode]['Background2'])
+                for button in (frame.button_changespot, frame.Button_mode):
+                    button.SetBackgroundColour(self.ModeColors[self.statusMode]['Button'])
+                for text in (frame.settings_text, frame.name_text, frame.spotname_text):
+                    text.SetForegroundColour(self.ModeColors[self.statusMode]['Text'])
+                frame.Button_back.SetBackgroundColour(self.ModeColors[self.statusMode]['Background2'])
+                if self.statusMode == 'White':
+                    frame.Button_mode.SetLabel('Black Mode')
+                else:
+                    frame.Button_mode.SetLabel('White Mode')
+                self.Refresh()
             if type(frame).__name__ == "LoginFrame":
-                self.ModeColors = frame.ModeColors
+
                 frame.panel_background1.SetBackgroundColour(self.ModeColors[self.statusMode]['Background1'])
                 frame.panel_background2.SetBackgroundColour(self.ModeColors[self.statusMode]['Background2'])
                 for button in (frame.Button_signup, frame.Button_login, frame.Button_password):
-                    button.SetBackgroundColour(frame.ModeColors[self.statusMode]['Button'])
+                    button.SetBackgroundColour(self.ModeColors[self.statusMode]['Button'])
                 for text in (
-                frame.staticText_noAcc, frame.staticText_dev, frame.staticText_user, frame.staticText_accType):
+                        frame.staticText_noAcc, frame.staticText_dev, frame.staticText_user, frame.staticText_accType):
                     text.SetForegroundColour(self.ModeColors[self.statusMode]['Text'])
                 for textctrl in (frame.textCtrl_Email, frame.textCtrl_password):
                     textctrl.SetBackgroundColour(self.ModeColors[self.statusMode]['TextCtrl'])
@@ -180,17 +207,6 @@ class SettingsFrame(wx.Frame):
                     textctrl.SetBackgroundColour(self.ModeColors[self.statusMode]['TextCtrl'])
                 frame.Button_settings.SetBackgroundColour(self.ModeColors[self.statusMode]['Background2'])
                 frame.Button_back.SetBackgroundColour(self.ModeColors[self.statusMode]['Background2'])
-            if type(frame).__name__ == "SettingsFrame":
-                frame.panel_background1.SetBackgroundColour(self.ModeColors[self.statusMode]['Background1'])
-                frame.m_panel9.SetBackgroundColour(self.ModeColors[self.statusMode]['Background2'])
-                self.panel_background1.SetBackgroundColour(self.ModeColors[self.statusMode]['Background1'])
-                self.m_panel9.SetBackgroundColour(self.ModeColors[self.statusMode]['Background2'])
-                for button in (frame.button_changespot, frame.Button_mode):
-                    button.SetBackgroundColour(self.ModeColors[self.statusMode]['Button'])
-                for text in (frame.settings_text, frame.name_text, frame.spotname_text):
-                    text.SetForegroundColour(self.ModeColors[self.statusMode]['Text'])
-                frame.Button_back.SetBackgroundColour(self.ModeColors[self.statusMode]['Background2'])
-                self.Refresh()
             if type(frame).__name__ == "ForgotFrame":
                 frame.panel_background1.SetBackgroundColour(self.ModeColors[self.statusMode]['Background1'])
                 frame.m_panel9.SetBackgroundColour(self.ModeColors[self.statusMode]['Background2'])
