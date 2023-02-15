@@ -131,13 +131,13 @@ class SpotifyAPI(object):
 client = SpotifyAPI(client_id, client_secret)
 track = client.search({'track': 'хочу перемен'}, search_type='track')
 
-# track = client.search({'album': 'Третья жизнь'}, search_type='album')
-# x = client.get_album('2LVpEKk26LDKoEV5aZipL5')
+track = client.search({'album': 'Третья жизнь'}, search_type='album')
+x = client.get_album('2LVpEKk26LDKoEV5aZipL5')
 
-# print(json.dumps(track, indent=4))
+print(json.dumps(track, indent=4))
 
-artist = client.get_artist('2jkl2xJVm71azWAgZKyf42')
-print(json.dumps(artist, indent=4))
+# artist = client.get_artist('2jkl2xJVm71azWAgZKyf42')
+# print(json.dumps(artist, indent=4))
 # method = "POST"
 # print(artist["name"])
 

@@ -78,7 +78,7 @@ class SpotifyAPI:
         return response_json
 
 
-# Initialize the SpotifyAPI object with your client ID, client secret, and redirect URI
+# Initialize the SpotifyAPI object with your client ID, client secret.py, and redirect URI
 spotify = SpotifyAPI(client_id, client_secret, 'https://www.google.com/')
 
 # Get the authorization URL for the user to grant access

@@ -65,7 +65,7 @@ print(client.perform_auth())
 print(client.access_token)
 # method = "POST"
 
-# # Initialize the Spotify client with your client ID and client secret
+# # Initialize the Spotify client with your client ID and client secret.py
 # sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id='your_client_id',
 #                                                client_secret='your_client_secret',
 #                                                redirect_uri='your_redirect_uri',
