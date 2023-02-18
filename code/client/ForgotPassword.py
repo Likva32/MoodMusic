@@ -1,7 +1,9 @@
+import json
+
 import wx
 import wx.xrc
 from validators import email
-import json
+
 from Settings import SettingsFrame
 
 
@@ -11,6 +13,7 @@ class ForgotFrame(wx.Frame):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=u"Mood Music", pos=wx.DefaultPosition,
                           size=wx.Size(500, 500), style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
         self.parent = parent
+        self.client = parent.client
         self.Email = ''
         self.Code = ''
         self.SettingsFrame = SettingsFrame(self)
@@ -250,5 +253,6 @@ class ForgotFrame(wx.Frame):
 
     def GoToSettings(self, event):
         self.Hide()
+        self.SettingsFrame.button_changespot.Hide()
         self.SettingsFrame.Centre()
         self.SettingsFrame.Show()

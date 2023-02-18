@@ -1,11 +1,15 @@
+import json
 import socket
 import threading
-from tcp_by_size import recv_by_size
-from tcp_by_size import send_with_size
-from DataBase.Users import Users
-from SendMail import SendVerificationCode
+
 from validators import email
-import json
+
+from DataBase.Users import Users
+from Spotifyfunc import MySpotifyFunc
+from lib.SendMail import SendVerificationCode
+from lib.tcp_by_size import recv_by_size
+from lib.tcp_by_size import send_with_size
+from workedFlask import MyFlaskApp
 
 
 class server:
@@ -15,7 +19,7 @@ class server:
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.running = True
         self.IP = socket.gethostbyname(socket.gethostname())
-        self.PORT = 5057
+        self.PORT = 5059
         self.ADDR = (self.IP, self.PORT)
         self.FORMAT = 'utf-8'
         self.server.bind(self.ADDR)
@@ -97,6 +101,16 @@ class server:
             if data_recv['Func'] == 'GetName':
                 data_send = self.UsersDb.name_by_email(data_recv['Email'])
                 send_with_size(conn, data_send)
+
+            if data_recv['Func'] == 'SpotAuth':
+                app = MyFlaskApp('xui', data_recv['Email'])
+                thread = threading.Thread(target=app.run)
+                thread.start()
+                send_with_size(conn, "enter the site")
+            if data_recv['Func'] == 'GetAllTracks':
+                sp = MySpotifyFunc(data_recv['Email'])
+                x = sp.get_all_tracks()
+                send_with_size(conn, x)
             if data_recv['Func'] == '':
                 pass
 

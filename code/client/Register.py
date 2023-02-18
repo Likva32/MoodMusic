@@ -1,7 +1,9 @@
+import json
+
 import wx
 import wx.xrc
-import json
 from validators import email
+
 from Settings import SettingsFrame
 
 
@@ -10,6 +12,9 @@ class RegisterFrame(wx.Frame):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=u"Mood Music", pos=wx.DefaultPosition,
                           size=wx.Size(620, 635), style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER | wx.TAB_TRAVERSAL)
         self.parent = parent
+        self.client = parent.client
+        self.name = None
+        self.Email = None
         self.SettingsFrame = SettingsFrame(self)
         self.SetIcon(wx.Icon("images/black logo2.ico"))
         font = wx.Font(15, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Poppins")
@@ -256,6 +261,7 @@ class RegisterFrame(wx.Frame):
 
     def GoToSettings(self, event):
         self.Hide()
+        self.SettingsFrame.button_changespot.Hide()
         self.SettingsFrame.Centre()
         self.SettingsFrame.Show()
 

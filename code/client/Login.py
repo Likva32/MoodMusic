@@ -20,6 +20,7 @@ class LoginFrame(wx.Frame):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=u"Mood Music", pos=wx.DefaultPosition,
                           size=wx.Size(620, 635), style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
         self.Email = None
+        self.name = None
         self.Connected = False
         self.send_with_size = send_with_size
         self.recv_by_size = recv_by_size
@@ -246,7 +247,7 @@ class LoginFrame(wx.Frame):
     def connect(self):
 
         my_ip = socket.gethostbyname(socket.gethostname())
-        PORT = 5057
+        PORT = 5059
         ADDR = (my_ip, PORT)
         while True:
             try:
@@ -305,6 +306,8 @@ class LoginFrame(wx.Frame):
                 msg = recv_by_size(self.client)
                 if msg == 'Login success':
                     self.MainFrame.username_text.SetLabel(self.GetName())
+                    self.MainFrame.name = self.GetName()
+                    self.MainFrame.Email = self.Email
                     self.GoToMain()
                     self.status_text.SetLabelText(msg)
                     self.status_text.SetForegroundColour(colour='green')
@@ -332,6 +335,7 @@ class LoginFrame(wx.Frame):
 
     def GoToSettings(self, event):
         self.Hide()
+        self.SettingsFrame.button_changespot.Hide()
         self.SettingsFrame.Centre()
         self.SettingsFrame.Show()
 

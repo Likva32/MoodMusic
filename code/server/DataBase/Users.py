@@ -1,9 +1,9 @@
 import sqlite3
-import time
 import threading
+import time
 
 
-class Users:  # main tbl with persons with their income&&outcome
+class Users:  # main.html tbl with persons with their income&&outcome
     """קלאס של טבלה IncomeOutcome"""
 
     def __init__(self, tablename="Users", Name='Name', UserId="UserId", Email="Email",
@@ -227,8 +227,40 @@ class Users:  # main tbl with persons with their income&&outcome
         print("Opened database successfully")
         f = f"select {self.Name} from {self.tablename} WHERE {self.Email} == (?)"
         cursor = conn.execute(f, (Email,))
-        print(cursor)
         name = ''
         for row in cursor:
             name = row[0]
         return name
+
+    def insert_token(self, Email, TokenInfo):
+        try:
+            if self.is_exist(Email):
+                conn = sqlite3.connect('MoodMusic.db')
+                print("u open database successfully")
+                query = f"""
+                                UPDATE Users
+                                SET {self.SpotToken} = (?)
+                                WHERE {self.Email} = (?)
+                         """
+                values = (TokenInfo, Email)
+                conn.execute(query, values)
+                conn.commit()
+                conn.close()
+                print("Add User successfully")
+                return True
+            else:
+                print("User Not Exist")
+                return False
+        except:
+            print("Failed to update token")
+            return False
+
+    def get_token(self, Email):
+        conn = sqlite3.connect('MoodMusic.db')
+        print("Opened database successfully")
+        f = f"select {self.SpotToken} from {self.tablename} WHERE {self.Email} == (?)"
+        cursor = conn.execute(f, (Email,))
+        token = ''
+        for row in cursor:
+            token = row[0]
+        return token

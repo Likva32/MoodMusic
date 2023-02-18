@@ -1,7 +1,7 @@
 import sqlite3
 
 
-class ModuleLearning:  # main tbl with persons with their income&&outcome
+class ModuleLearning:  # main.html tbl with persons with their income&&outcome
     """קלאס של טבלה IncomeOutcome"""
 
     def __init__(self, tablename="ModuleLearning", PhotoId="PhotoId", Mood="Mood",

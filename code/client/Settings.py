@@ -1,6 +1,11 @@
+import json
+
 import cv2
 import wx
 import wx.xrc
+
+from tcp_by_size import recv_by_size
+from tcp_by_size import send_with_size
 
 
 class SettingsFrame(wx.Frame):
@@ -22,6 +27,7 @@ class SettingsFrame(wx.Frame):
                            }
         self.statusMode = 'Black'
         self.parent = parent
+        self.client = parent.client
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
         self.SetIcon(wx.Icon("images/black logo2.ico"))
         font = wx.Font(16, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Poppins")
@@ -73,7 +79,7 @@ class SettingsFrame(wx.Frame):
 
         Sizer_info = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.name_text = wx.StaticText(self.m_panel9, wx.ID_ANY, u"Artur", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.name_text = wx.StaticText(self.m_panel9, wx.ID_ANY, u"", wx.DefaultPosition, wx.DefaultSize, 0)
         self.name_text.Wrap(-1)
 
         self.name_text.SetFont(font)
@@ -85,7 +91,7 @@ class SettingsFrame(wx.Frame):
 
         Sizer_info1 = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.spotname_text = wx.StaticText(self.m_panel9, wx.ID_ANY, u"Likva32(spotify)", wx.DefaultPosition,
+        self.spotname_text = wx.StaticText(self.m_panel9, wx.ID_ANY, u"No Spotify linked", wx.DefaultPosition,
                                            wx.DefaultSize, 0)
         self.spotname_text.Wrap(-1)
 
@@ -157,10 +163,6 @@ class SettingsFrame(wx.Frame):
         self.Button_mode.Bind(wx.EVT_BUTTON, self.ChangeMode)
         self.Button_back.Bind(wx.EVT_BUTTON, self.GoBack)
 
-    # Virtual event handlers, override them in your derived class
-    def ChangeSpotAcc(self, event):
-        event.Skip()
-
     def ChangeMode(self, event):
         if self.statusMode == 'Black':
             self.statusMode = 'White'
@@ -201,7 +203,8 @@ class SettingsFrame(wx.Frame):
                 for button in (frame.Button_user, frame.Button_login):
                     button.SetBackgroundColour(self.ModeColors[self.statusMode]['Button'])
                 for text in (
-                frame.staticText_accType, frame.staticText_user, frame.staticText_dev, frame.staticText_accType):
+                        frame.staticText_accType, frame.staticText_user, frame.staticText_dev,
+                        frame.staticText_accType):
                     text.SetForegroundColour(self.ModeColors[self.statusMode]['Text'])
                 for textctrl in (frame.textCtrl_name, frame.textCtrl_Email, frame.textCtrl_password):
                     textctrl.SetBackgroundColour(self.ModeColors[self.statusMode]['TextCtrl'])
@@ -240,7 +243,18 @@ class SettingsFrame(wx.Frame):
                     frame.userCam.SetBitmap(wx.Bitmap.FromBuffer(400, 320, frame.image))
                 frame.Refresh()
 
-
     def GoBack(self, event):
         self.Hide()  # hide the register frame
         self.parent.Show()  # show the login frame
+
+    def ChangeSpotAcc(self, event):
+        dict = {
+            'Func': 'SpotAuth',
+            'Name': self.parent.name,
+            'Email': self.parent.Email
+        }
+        data_send = json.dumps(dict)
+        send_with_size(self.client, data_send)
+        msg = recv_by_size(self.client)
+        print(msg)
+        event.Skip()

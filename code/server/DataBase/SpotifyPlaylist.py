@@ -1,8 +1,9 @@
 import sqlite3
+
 import Users
 
 
-class SpotifyPlaylist:  # main tbl with persons with their income&&outcome
+class SpotifyPlaylist:  # main.html tbl with persons with their income&&outcome
     """קלאס של טבלה IncomeOutcome"""
 
     def __init__(self, tablename="SpotifyPlaylist", PlaylistId="PlaylistId", SpotUrl="SpotUrl",

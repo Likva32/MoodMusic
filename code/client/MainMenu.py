@@ -1,9 +1,14 @@
+import json
+import threading
+
+import cv2
 import wx
 import wx.xrc
 from wx.lib import statbmp
-import cv2
-import threading
+
 from Settings import SettingsFrame
+from tcp_by_size import recv_by_size
+from tcp_by_size import send_with_size
 
 
 class MainFrame(wx.Frame):
@@ -12,6 +17,9 @@ class MainFrame(wx.Frame):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=u"Mood Music", pos=wx.DefaultPosition,
                           size=wx.Size(840, 660), style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
         self.parent = parent
+        self.name = ''
+        self.Email = None
+        self.client = parent.client
         self.camStatus = False
         self.SettingsFrame = SettingsFrame(self)
         self.SetIcon(wx.Icon("images/black logo2.ico"))
@@ -102,7 +110,7 @@ class MainFrame(wx.Frame):
 
         xd_box = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.username_text = wx.StaticText(self.m_panel9, wx.ID_ANY, "", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.username_text = wx.StaticText(self.m_panel9, wx.ID_ANY, self.name, wx.DefaultPosition, wx.DefaultSize, 0)
         self.username_text.Wrap(-1)
         self.username_text.SetFont(
             wx.Font(28, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Poppins"))
@@ -218,7 +226,14 @@ class MainFrame(wx.Frame):
 
     # Virtual event handlers, override them in your derived class
     def Go_To_CreatePlaylist(self, event):
-        event.Skip()
+        dict = {
+            'Func': 'GetAllTracks',
+            'Email': self.Email,
+        }
+        data_send = json.dumps(dict)
+        send_with_size(self.client, data_send)
+        msg = recv_by_size(self.client)
+        print(msg)
 
     def Go_To_CreatedPlaylist(self, event):
         event.Skip()
@@ -255,6 +270,7 @@ class MainFrame(wx.Frame):
         self.parent.Show()  # show the login frame
 
     def GoToSettings(self, event):
+        self.SettingsFrame.name_text.SetLabel(self.name)
         self.Hide()
         self.SettingsFrame.Centre()
         self.SettingsFrame.Show()
