@@ -65,6 +65,16 @@ class MySpotifyFunc:
         token_valid = True
         return token_info, token_valid
 
+    def get_current_user(self):
+        self.token_info, authorized = self.get_token()
+        if not authorized:
+            print("error, u need to re-login to spotify again")
+            return "bad"
+        sp = spotipy.Spotify(auth=self.token_info['access_token'])
+        user = sp.current_user()
+        print(user)
+        return json.dumps(user)
+
     def create_spotify_oauth(self):
         return SpotifyOAuth(
             client_id=client_id,

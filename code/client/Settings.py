@@ -1,6 +1,8 @@
 import json
+import webbrowser
 
 import cv2
+import requests
 import wx
 import wx.xrc
 
@@ -246,6 +248,19 @@ class SettingsFrame(wx.Frame):
     def GoBack(self, event):
         self.Hide()  # hide the register frame
         self.parent.Show()  # show the login frame
+        dict = {
+            'Func': 'CheckUrl',
+            'Email': self.parent.Email
+        }
+        data_send = json.dumps(dict)
+        send_with_size(self.client, data_send)
+        msg = recv_by_size(self.client)
+        if msg == '1':
+            self.parent.button_Created.Enable()
+            self.parent.button_Create.Enable()
+        else:
+            self.parent.button_Created.Disable()
+            self.parent.button_Create.Disable()
 
     def ChangeSpotAcc(self, event):
         dict = {
@@ -256,5 +271,8 @@ class SettingsFrame(wx.Frame):
         data_send = json.dumps(dict)
         send_with_size(self.client, data_send)
         msg = recv_by_size(self.client)
+        webbrowser.open("http://127.0.0.1:5000")
+
+        data = {'Email': self.parent.Email}
+        response = requests.post('http://127.0.0.1:5000/getEmail', data=data)
         print(msg)
-        event.Skip()

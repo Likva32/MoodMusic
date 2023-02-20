@@ -329,6 +329,19 @@ class LoginFrame(wx.Frame):
         self.register_frame.Show()  # show the register frame
 
     def GoToMain(self):
+        dict = {
+            'Func': 'CheckUrl',
+            'Email': self.Email
+        }
+        data_send = json.dumps(dict)
+        send_with_size(self.client, data_send)
+        msg = recv_by_size(self.client)
+        if msg == '1':
+            self.MainFrame.button_Created.Enable()
+            self.MainFrame.button_Create.Enable()
+        else:
+            self.MainFrame.button_Created.Disable()
+            self.MainFrame.button_Create.Disable()
         self.Hide()  # hide the login frame
         self.MainFrame.Centre()
         self.MainFrame.Show()  # show the register frame

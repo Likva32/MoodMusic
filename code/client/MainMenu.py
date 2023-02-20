@@ -224,7 +224,6 @@ class MainFrame(wx.Frame):
             self.timer.Stop()
             print(e)
 
-    # Virtual event handlers, override them in your derived class
     def Go_To_CreatePlaylist(self, event):
         dict = {
             'Func': 'GetAllTracks',
@@ -236,7 +235,14 @@ class MainFrame(wx.Frame):
         print(msg)
 
     def Go_To_CreatedPlaylist(self, event):
-        event.Skip()
+        dict = {
+            'Func': 'GetUser',
+            'Email': self.Email,
+        }
+        data_send = json.dumps(dict)
+        send_with_size(self.client, data_send)
+        msg = recv_by_size(self.client)
+        print(msg)
 
     def camera_on_thread(self, event):
         thread = threading.Thread(target=self.OnCamera)

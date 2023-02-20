@@ -7,6 +7,7 @@ from validators import email
 from DataBase.Users import Users
 from Spotifyfunc import MySpotifyFunc
 from lib.SendMail import SendVerificationCode
+from lib.secretsId import email_sender, email_password
 from lib.tcp_by_size import recv_by_size
 from lib.tcp_by_size import send_with_size
 from workedFlask import MyFlaskApp
@@ -25,6 +26,8 @@ class server:
         self.server.bind(self.ADDR)
         self.server.listen()
         self.FORMAT = 'utf-8'
+        thread = threading.Thread(target=self.create_flask)
+        thread.start()
         print(f"[LISTENING] Server is listening on {self.server}")
         self.main()
 
@@ -74,7 +77,7 @@ class server:
             if data_recv['Func'] == 'Sendmail':
                 print(data_recv['Email'])
                 if self.UsersDb.is_exist(data_recv['Email']):
-                    sendmail = SendVerificationCode(data_recv['Email'])
+                    sendmail = SendVerificationCode(email_sender, email_password, data_recv['Email'])
                     sendmail.SendMail()
                     code = sendmail.security_code
                     self.UsersDb.update_code(data_recv['Email'], code)
@@ -103,16 +106,25 @@ class server:
                 send_with_size(conn, data_send)
 
             if data_recv['Func'] == 'SpotAuth':
-                app = MyFlaskApp('xui', data_recv['Email'])
-                thread = threading.Thread(target=app.run)
-                thread.start()
                 send_with_size(conn, "enter the site")
             if data_recv['Func'] == 'GetAllTracks':
                 sp = MySpotifyFunc(data_recv['Email'])
                 x = sp.get_all_tracks()
                 send_with_size(conn, x)
+            if data_recv['Func'] == 'GetUser':
+                sp = MySpotifyFunc(data_recv['Email'])
+                x = sp.get_current_user()
+                send_with_size(conn, x)
+            if data_recv['Func'] == 'CheckUrl':
+                x = self.UsersDb.check_url(data_recv['Email'])
+                print(x)
+                send_with_size(conn, x)
             if data_recv['Func'] == '':
                 pass
+
+    def create_flask(self):
+        app = MyFlaskApp('Mood Music')
+        app.run()
 
 
 if __name__ == '__main__':

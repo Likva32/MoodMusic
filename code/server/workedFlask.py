@@ -8,19 +8,50 @@ from spotipy.oauth2 import SpotifyOAuth
 
 from DataBase.Users import Users
 from lib.secretsId import client_id, client_secret
+from lib.secretsId import secret_key
 
 
-# App config
 class MyFlaskApp:
-    def __init__(self, name, Email):
+    def __init__(self, name):
         self.app = Flask(name)
-        self.Email = Email
         self.UsersDb = Users()
-        self.app.secret_key = 'SOMETHING-RANDOM'
         self.app.config['SESSION_COOKIE_NAME'] = 'spotify-login-session'
+        # self.app.config['EMAIL'] = 'email'
+        self.app.config['SESSION_TYPE'] = 'filesystem'
+        self.app.config['SECRET_KEY'] = "Shhh..ItsASecret"
+        self.app.secret_key = secret_key
 
-        @self.app.route('/')
+        @self.app.route('/', methods=["POST", "GET"])
+        def appLogin():
+            if request.method == "POST":
+                email = request.form["email"]
+                session["email"] = email
+                password = request.form["password"]
+                session["password"] = password
+                if self.UsersDb.Login(email, password):
+                    print('Login success')
+                    return redirect('/log')
+
+                else:
+                    print('Login NOT success')
+                print(email)
+                print(password)
+                return 'good'
+            else:
+                return render_template('email_form.html')
+
+        # @self.app.route('/getEmail', methods=['POST'])
+        # def get_Email():
+        #     email = request.form.get('Email')
+        #     print(type(email))
+        #     session["email"] = email
+        #     session["user"] = 'artur'
+        #     print(session.get("email") + ' aaaaaaaaaaaaaaaa')
+        #     return Response(status=204)
+
+        @self.app.route('/log')
         def login():
+            # session['email'] = self.Email
             sp_oauth = self.create_spotify_oauth()
             auth_url = sp_oauth.get_authorize_url()
             print(auth_url)
@@ -28,20 +59,33 @@ class MyFlaskApp:
 
         @self.app.route('/authorize')
         def authorize():
+            email = session.get('email')
+            print('bbbbbbbbbbbbbb: ')
+            print(email)
             sp_oauth = self.create_spotify_oauth()
-            session.clear()
+            # session.clear()
+            if session.get('token_info'):
+                print('tokeenn')
+                session.pop('token_info')
             code = request.args.get('code')
             if not code:
                 return redirect(url_for('login', _external=True))
             token_info = sp_oauth.get_access_token(code)
-            print('blabla')
             print(token_info)
-            print('blabla')
             session["token_info"] = token_info
-            # return redirect("/getTracks")
-            self.UsersDb.insert_token(self.Email, json.dumps(token_info))
-            print('good')
-            return render_template('main.html')
+
+            user = self.get_current_user(token_info)
+            user = json.loads(user)
+            url = user["external_urls"]["spotify"]
+            print(url)
+            # print(session.get('email'))
+
+            email = session.get('email')
+            print('session GET EMAIL: ')
+            print(email)
+
+            status, description = self.UsersDb.url_exist(email, url, json.dumps(token_info))
+            return render_template('main.html', status=status, description=description)
 
         @self.app.route('/logout')
         def logout():
@@ -96,6 +140,16 @@ class MyFlaskApp:
 
         token_valid = True
         return token_info, token_valid
+
+    def get_current_user(self, token_info):
+        token_info, authorized = self.get_token()
+        if not authorized:
+            print("error, u need to re-login to spotify again")
+            return "bad"
+        sp = spotipy.Spotify(auth=token_info['access_token'])
+        user = sp.current_user()
+        print(user)
+        return json.dumps(user)
 
     def create_spotify_oauth(self):
         return SpotifyOAuth(

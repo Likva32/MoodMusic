@@ -46,7 +46,6 @@ class Users:  # main.html tbl with persons with their income&&outcome
         try:
             if not self.is_exist(Email):
                 conn = sqlite3.connect('MoodMusic.db')
-                print("u open database successfully")
                 command = f"INSERT INTO {self.tablename}({self.Name},{self.Email},{self.Password},{self.SpotUrl}," \
                           f"{self.SpotToken})" \
                           f" VALUES((?),(?),(?),(?),(?))"
@@ -68,7 +67,7 @@ class Users:  # main.html tbl with persons with their income&&outcome
             conn = sqlite3.connect('MoodMusic.db')
             print("Opened database successfully")
             query = f"DELETE FROM Users WHERE {self.Email} = (?)"
-            values = Email
+            values = (Email,)
             conn.execute(query, values)
             conn.commit()
             conn.close()
@@ -82,9 +81,10 @@ class Users:  # main.html tbl with persons with their income&&outcome
         try:
             conn = sqlite3.connect('MoodMusic.db')
             print("Opened database successfully")
-            query = f"SELECT * from {self.tablename} where {self.Email} = '{Email}'"
+            query = f"SELECT * from {self.tablename} where {self.Email} = (?)"
+            values = (Email,)
             print(query)
-            cursor = conn.execute(query)
+            cursor = conn.execute(query, values)
             row = ''
             for row in cursor:
                 print(row[0])
@@ -96,7 +96,6 @@ class Users:  # main.html tbl with persons with their income&&outcome
             else:
                 print("Not exist")
                 return False
-
         except:
             return False
 
@@ -232,27 +231,81 @@ class Users:  # main.html tbl with persons with their income&&outcome
             name = row[0]
         return name
 
-    def insert_token(self, Email, TokenInfo):
+    def check_url(self, Email):
         try:
+            conn = sqlite3.connect('MoodMusic.db')
+            print("Opened database successfully")
+            query = f"SELECT * from {self.tablename} where {self.Email} = '{Email}'"
+            cursor = conn.execute(query)
+            row = ''
+            for row in cursor:
+                print(row[4])
+            conn.commit()
+            conn.close()
+            if row[4]:
+                return '1'
+            else:
+                return '0'
+        except:
+            return '0'
+
+    def url_exist(self, Email, SpotUrl, TokenInfo):
+        status = ''
+        description = ''
+        try:
+            conn = sqlite3.connect('MoodMusic.db')
+            print("Opened database successfully")
+            query = f"SELECT * from {self.tablename} where {self.SpotUrl} = '{SpotUrl}'"
+            cursor = conn.execute(query)
+            row = ''
+            for row in cursor:
+                print(row[2])
+            conn.commit()
+            conn.close()
+            if row:
+                if row[2] == Email:
+                    print('url == Email so insert token')
+                    self.insert_spot_Info(Email, SpotUrl, TokenInfo)
+                    status = 'Login Successes'
+                    description = 'u can go back to mood music app'
+
+                else:
+                    status = 'Login NOT Successes'
+                    description = 'This Spotify account already linked to another account'
+                    print("Url != Email so dont insert token")
+            else:
+                status = 'Login Successes'
+                description = 'u can go back to mood music app'
+                print("Url Not exist - so insert url")
+                self.insert_spot_Info(Email, SpotUrl, TokenInfo)
+        except:
+            status = 'Login NOT Successes'
+            description = 'ERROR'
+            print("error")
+        return status, description
+
+    def insert_spot_Info(self, Email, SpotUrl, TokenInfo):
+        try:
+            time.sleep(2)
             if self.is_exist(Email):
                 conn = sqlite3.connect('MoodMusic.db')
                 print("u open database successfully")
                 query = f"""
                                 UPDATE Users
-                                SET {self.SpotToken} = (?)
+                                SET {self.SpotUrl} = (?) , {self.SpotToken} = (?)
                                 WHERE {self.Email} = (?)
                          """
-                values = (TokenInfo, Email)
+                values = (SpotUrl, TokenInfo, Email)
                 conn.execute(query, values)
                 conn.commit()
                 conn.close()
-                print("Add User successfully")
+                print("insert SpotUrl successfully")
                 return True
             else:
                 print("User Not Exist")
                 return False
         except:
-            print("Failed to update token")
+            print("Failed to insert SpotUrl")
             return False
 
     def get_token(self, Email):
