@@ -13,7 +13,7 @@ from lib.secretsId import secret_key
 
 class MyFlaskApp:
     def __init__(self, name):
-        self.app = Flask(name)
+        self.app = Flask(name, static_url_path='/static')
         self.UsersDb = Users()
         self.app.config['SESSION_COOKIE_NAME'] = 'spotify-login-session'
         # self.app.config['EMAIL'] = 'email'
@@ -31,7 +31,6 @@ class MyFlaskApp:
                 if self.UsersDb.Login(email, password):
                     print('Login success')
                     return redirect('/log')
-
                 else:
                     print('Login NOT success')
                 print(email)

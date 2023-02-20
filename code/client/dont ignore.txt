@@ -1,0 +1,4 @@
++ MainMenu - before go to check if token exist in DB, if not, do labels untouchble 
+flask - it doesnt check email
+
+playlist by mood - search "mood" playlist, make csv with all songs that user liked (if the song include in AllSongsCSV)

@@ -248,19 +248,20 @@ class SettingsFrame(wx.Frame):
     def GoBack(self, event):
         self.Hide()  # hide the register frame
         self.parent.Show()  # show the login frame
-        dict = {
-            'Func': 'CheckUrl',
-            'Email': self.parent.Email
-        }
-        data_send = json.dumps(dict)
-        send_with_size(self.client, data_send)
-        msg = recv_by_size(self.client)
-        if msg == '1':
-            self.parent.button_Created.Enable()
-            self.parent.button_Create.Enable()
-        else:
-            self.parent.button_Created.Disable()
-            self.parent.button_Create.Disable()
+        if self.parent == 'MainFrame object':
+            dict = {
+                'Func': 'CheckUrl',
+                'Email': self.parent.Email
+            }
+            data_send = json.dumps(dict)
+            send_with_size(self.client, data_send)
+            msg = recv_by_size(self.client)
+            if msg == '1':
+                self.parent.button_Created.Enable()
+                self.parent.button_Create.Enable()
+            else:
+                self.parent.button_Created.Disable()
+                self.parent.button_Create.Disable()
 
     def ChangeSpotAcc(self, event):
         dict = {

@@ -3,16 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <title>Mood Music</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-<form action="#" id="email-form" method="post">
-    <p>
-    <h1>Login to Mood Music Account:</h1>
-    <p><input type="email" name="email" placeholder="Enter your email address"></p>
-    <p><input type="password" name="password" required placeholder="Enter your password"></p>
-    <p>
-        <button type="submit">Login</button>
-    </p>
-</form>
+<div class="center">
+    <h1>Login to Mood Music Account</h1>
+    <form action="#" id="email-form" method="post">
+        <div class="txt_field">
+            <input type="email" name="email" required>
+            <span></span>
+            <label>Email</label>
+        </div>
+        <div class="txt_field">
+            <input type="password" name="password" required>
+            <span></span>
+            <label>Password</label>
+        </div>
+        <input type="submit" value="Login">
+    </form>
+</div>
+
+
 </body>
 </html>

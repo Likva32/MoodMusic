@@ -12,7 +12,6 @@ from tcp_by_size import send_with_size
 
 
 class MainFrame(wx.Frame):
-
     def __init__(self, parent):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=u"Mood Music", pos=wx.DefaultPosition,
                           size=wx.Size(840, 660), style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
@@ -280,3 +279,6 @@ class MainFrame(wx.Frame):
         self.Hide()
         self.SettingsFrame.Centre()
         self.SettingsFrame.Show()
+
+    def __str__(self):
+        return "MainFrame object"
