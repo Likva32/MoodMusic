@@ -223,6 +223,10 @@ class MainFrame(wx.Frame):
             self.timer.Stop()
             print(e)
 
+    def test(self):
+        msg = recv_by_size(self.client)
+        print(msg)
+
     def Go_To_CreatePlaylist(self, event):
         dict = {
             'Func': 'GetAllTracks',
@@ -232,6 +236,8 @@ class MainFrame(wx.Frame):
         send_with_size(self.client, data_send)
         msg = recv_by_size(self.client)
         print(msg)
+        # thread = threading.Thread(target=self.test)
+        # thread.start()
 
     def Go_To_CreatedPlaylist(self, event):
         dict = {
