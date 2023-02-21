@@ -1,6 +1,4 @@
 import cv2
-import wx
-import numpy as np
 
 cap = cv2.VideoCapture(0)
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
