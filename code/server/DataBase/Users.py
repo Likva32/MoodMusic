@@ -266,20 +266,20 @@ class Users:  # main.html tbl with persons with their income&&outcome
                 if row[2] == Email:
                     print('url == Email so insert token')
                     self.insert_spot_Info(Email, SpotUrl, TokenInfo)
-                    status = 'Login Successes'
-                    description = 'u can go back to mood music app'
+                    status = 'Login Success'
+                    description = 'you can return to Mood Music'
 
                 else:
-                    status = 'Login NOT Successes'
+                    status = 'Login not Success'
                     description = 'This Spotify account already linked to another account'
                     print("Url != Email so dont insert token")
             else:
                 status = 'Login Successes'
-                description = 'u can go back to mood music app'
+                description = 'you can return to Mood Music'
                 print("Url Not exist - so insert url")
                 self.insert_spot_Info(Email, SpotUrl, TokenInfo)
         except:
-            status = 'Login NOT Successes'
+            status = 'Login not Success'
             description = 'ERROR'
             print("error")
         return status, description

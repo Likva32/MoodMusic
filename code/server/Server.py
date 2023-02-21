@@ -7,7 +7,7 @@ from validators import email
 from DataBase.Users import Users
 from Spotifyfunc import MySpotifyFunc
 from lib.SendMail import SendVerificationCode
-from lib.secretsId import email_sender, email_password
+from lib.secret import email_sender, email_password
 from lib.tcp_by_size import recv_by_size
 from lib.tcp_by_size import send_with_size
 from workedFlask import MyFlaskApp

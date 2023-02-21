@@ -6,7 +6,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
 from DataBase.Users import Users
-from lib.secretsId import client_id, client_secret
+from lib.secret import client_id, client_secret
 
 
 # App config

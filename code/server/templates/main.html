@@ -2,10 +2,11 @@
 <html lang="en">
 <head>
     <title>Mood Music</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href='css/style.css'>
 </head>
 <body>
-<div class="container">
+<div class="center">
     <h1>{{ status }}</h1>
     <h2>{{ description }}</h2>
 </div>

@@ -7,8 +7,8 @@ from flask import Flask, url_for, session, request, redirect, render_template
 from spotipy.oauth2 import SpotifyOAuth
 
 from DataBase.Users import Users
-from lib.secretsId import client_id, client_secret
-from lib.secretsId import secret_key
+from lib.secret import client_id, client_secret
+from lib.secret import secret_key
 
 
 class MyFlaskApp:
@@ -23,6 +23,7 @@ class MyFlaskApp:
 
         @self.app.route('/', methods=["POST", "GET"])
         def appLogin():
+            msg = ''
             if request.method == "POST":
                 email = request.form["email"]
                 session["email"] = email
@@ -33,20 +34,9 @@ class MyFlaskApp:
                     return redirect('/log')
                 else:
                     print('Login NOT success')
-                print(email)
-                print(password)
-                return 'good'
-            else:
-                return render_template('email_form.html')
-
-        # @self.app.route('/getEmail', methods=['POST'])
-        # def get_Email():
-        #     email = request.form.get('Email')
-        #     print(type(email))
-        #     session["email"] = email
-        #     session["user"] = 'artur'
-        #     print(session.get("email") + ' aaaaaaaaaaaaaaaa')
-        #     return Response(status=204)
+                    msg = 'Wrong Password or Email'
+                    return render_template('email_form.html', msg=msg)
+            return render_template('email_form.html', msg=msg)
 
         @self.app.route('/log')
         def login():
@@ -59,12 +49,9 @@ class MyFlaskApp:
         @self.app.route('/authorize')
         def authorize():
             email = session.get('email')
-            print('bbbbbbbbbbbbbb: ')
-            print(email)
             sp_oauth = self.create_spotify_oauth()
             # session.clear()
             if session.get('token_info'):
-                print('tokeenn')
                 session.pop('token_info')
             code = request.args.get('code')
             if not code:
@@ -77,7 +64,6 @@ class MyFlaskApp:
             user = json.loads(user)
             url = user["external_urls"]["spotify"]
             print(url)
-            # print(session.get('email'))
 
             email = session.get('email')
             print('session GET EMAIL: ')

@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <title>Mood Music</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href='css/style.css'>
 </head>
 <body>
 <div class="center">
-    <h1>Login to Mood Music Account</h1>
+    <h1>Mood Music</h1>
     <form action="#" id="email-form" method="post">
         <div class="txt_field">
-            <input type="email" name="email" required>
+            <input type="text" name="email" required>
             <span></span>
             <label>Email</label>
         </div>
@@ -19,6 +20,7 @@
             <span></span>
             <label>Password</label>
         </div>
+        <span class="error-msg">{{ msg }}</span>
         <input type="submit" value="Login">
     </form>
 </div>
