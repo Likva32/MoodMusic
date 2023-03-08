@@ -4,6 +4,7 @@ import threading
 import cv2
 import wx
 import wx.xrc
+import numpy as np
 from wx.lib import statbmp
 
 from Settings import SettingsFrame
@@ -73,29 +74,16 @@ class MainFrame(wx.Frame):
 
         gbSizer_allitems.Add(bSizer_accType, wx.GBPosition(5, 0), wx.GBSpan(1, 1), wx.ALIGN_CENTER, 5)
 
-        #################################
-
-        # self.capture = cv2.VideoCapture(0)
         self.face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
-
-        # ret, frame = self.capture.read()
-        # frame = cv2.resize(frame, (400, 320))
-        # height, width = frame.shape[:2]
 
         self.image = cv2.imread('images/nocamblack.jpg')
         self.image = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
         self.bmp = wx.Bitmap.FromBuffer(400, 320, self.image)
-        # print(f"{width} + {height}")
+
         self.timer = wx.Timer(self)
         self.fps = 60
-        # self.timer.Start(int(self.timer.Start(int())))
         self.userCam = statbmp.GenStaticBitmap(self.m_panel9, wx.ID_ANY, self.bmp)
 
-        # self.Button_Cam = wx.BitmapButton(self.m_panel9, wx.ID_ANY, wx.NullBitmap, wx.DefaultPosition, wx.DefaultSize,
-        #                                   wx.BU_AUTODRAW | 0)
-        #
-        # self.Button_Cam.SetBitmap(wx.Bitmap(u"images/face2.png", wx.BITMAP_TYPE_ANY))
-        # Sizer_userCam.Add(self.Button_Cam, 0, wx.ALL, 5)
         gbSizer_allitems.Add(self.userCam, wx.GBPosition(1, 3), wx.GBSpan(5, 7), wx.ALIGN_CENTER, 5)
 
         error_box_sizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -204,7 +192,7 @@ class MainFrame(wx.Frame):
         self.Button_settings.Bind(wx.EVT_BUTTON, self.GoToSettings)
         self.Bind(wx.EVT_TIMER, self.NextFrame)
 
-    def NextFrame(self, event):
+    def NextFrame2(self, event):
         try:
             ret, frame = self.capture.read()
             frame = cv2.resize(frame, (400, 320))
@@ -215,7 +203,36 @@ class MainFrame(wx.Frame):
                     cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
 
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                print(frame.shape)
+                print(type(frame))
                 self.bmp.CopyFromBuffer(frame)
+                self.userCam.SetBitmap(self.bmp)
+        except Exception as e:
+            self.error_box_text.SetLabelText("cant grab image from cam")
+            self.error_box_text.SetForegroundColour(colour='red')
+            self.timer.Stop()
+            print(e)
+
+    def NextFrame(self, event):
+        try:
+            ret, frame = self.capture.read()
+            frame = cv2.resize(frame, (400, 320))
+            if ret:
+                dict = {
+                    'Func': 'Predict',
+                    'Frame': frame.tolist(),
+                }
+                data_send = json.dumps(dict)
+                send_with_size(self.client, data_send)
+                data_recv = recv_by_size(self.client)
+                data_recv = json.loads(data_recv)
+                new_frame = data_recv['Frame']
+                new_frame = np.array(new_frame)
+                new_frame = new_frame.astype(np.uint8)
+                print(new_frame.shape)
+                print(type(new_frame))
+
+                self.bmp.CopyFromBuffer(new_frame)
                 self.userCam.SetBitmap(self.bmp)
         except Exception as e:
             self.error_box_text.SetLabelText("cant grab image from cam")

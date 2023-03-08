@@ -12,6 +12,10 @@ from lib.tcp_by_size import recv_by_size
 from lib.tcp_by_size import send_with_size
 from workedFlask import MyFlaskApp
 
+from keras.models import load_model
+import numpy as np
+import cv2
+
 
 class server:
     def __init__(self):
@@ -26,9 +30,20 @@ class server:
         self.server.bind(self.ADDR)
         self.server.listen()
         self.FORMAT = 'utf-8'
+        self.model = load_model('model\MAYBE_FINAL\model3.h5')
         thread = threading.Thread(target=self.create_flask)
         thread.start()
         print(f"[LISTENING] Server is listening on {self.server}")
+        self.emotion_labels = {
+            0: 'Angry',
+            1: 'Disgust',
+            2: 'Fear',
+            3: 'Happy',
+            4: 'Sad',
+            5: 'Surprise',
+            6: 'Neutral'
+        }
+        self.faceCascade = cv2.CascadeClassifier('model\MAYBE_FINAL\haarcascade_frontalface_default.xml')
         self.main()
 
     def main(self):
@@ -119,8 +134,77 @@ class server:
                 x = self.UsersDb.check_url(data_recv['Email'])
                 print(x)
                 send_with_size(conn, x)
+            if data_recv['Func'] == 'Predict':
+                frame = data_recv['Frame']
+                frame = np.array(frame)
+                frame = frame.astype(np.uint8)
+                new_frame = self.Predict(frame)
+
+                dict = {
+                    'Frame': new_frame.tolist(),
+                }
+                data_send = json.dumps(dict)
+                send_with_size(conn, data_send)
             if data_recv['Func'] == '':
                 pass
+
+    def Predict2(self, frame):
+        return frame
+    def Predict(self, frame):
+        font_scale = 1.5
+        font = cv2.FONT_HERSHEY_PLAIN
+
+        rectangle_bgr = (255, 0, 0)
+        img = np.zeros((400, 320))
+
+        text = 'some text'
+        (text_width, text_hieght) = cv2.getTextSize(text, font, font_scale, thickness=1)[0]
+        text_offset_x = 10
+        text_offset_y = img.shape[0] - 25
+
+        box_coords = ((text_offset_x, text_offset_y), (text_offset_x + text_width + 2, text_offset_y - text_hieght - 2))
+        cv2.rectangle(img, box_coords[0], box_coords[1], rectangle_bgr, cv2.FILLED)
+        cv2.putText(img, text, (text_offset_x, text_offset_y), font, fontScale=font_scale, color=(0, 0, 0), thickness=1)
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = self.faceCascade.detectMultiScale(gray, 1.1, 4)
+
+        face_roi_gray = None
+        x, y, w, h = 0, 0, 0, 0
+        for x1, y1, w1, h1 in faces:
+            x, y, w, h = x1, y1, w1, h1
+            roi_gray = gray[y1:y1 + h1, x:x1 + w1]
+            cv2.rectangle(frame, (x1, y1), (x1 + w1, y1 + h1), (255, 0, 0), 2)
+            faces = self.faceCascade.detectMultiScale(roi_gray)
+            face_roi_gray = roi_gray
+            if len(faces) == 0:
+
+                frame2 = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                return frame2
+            else:
+                for (ex, ey, ew, eh) in faces:
+                    face_roi_gray = roi_gray[ey:ey + eh, ex:ex + ew]
+        if face_roi_gray is None:
+            return cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        final_image = cv2.resize(face_roi_gray, (48, 48))
+        final_image = np.expand_dims(final_image, axis=0)
+        final_image = final_image.reshape(1, 48, 48, 1)
+        final_image = final_image / 255.0
+
+        Predict = self.model.predict(final_image)
+        predicted_label = np.argmax(Predict)
+        status = self.emotion_labels[int(predicted_label)]
+
+        x1, y1, w1, h1 = 0, 0, 175, 50
+        cv2.rectangle(frame, (x1, y1), (x1 + w1, y1 + h1), (0, 0, 0), -1)
+        cv2.putText(frame, status, (x1 + int(w1 / 10), y1 + int(h1 / 2)), cv2.FONT_HERSHEY_SIMPLEX, 0.7,
+                    (0, 0, 255), 2)
+
+        cv2.putText(frame, status, (x, y - 10), font, 3, (0, 0, 255), 2, cv2.LINE_4)
+        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255))
+        frame2 = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        return frame2
+
+
 
     def create_flask(self):
         app = MyFlaskApp('Mood Music')
