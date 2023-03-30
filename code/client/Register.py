@@ -213,11 +213,18 @@ class RegisterFrame(wx.Frame):
         self.Button_login.Bind(wx.EVT_BUTTON, self.Register)
         self.Button_back.Bind(wx.EVT_BUTTON, self.GoBack)
         self.Button_settings.Bind(wx.EVT_BUTTON, self.GoToSettings)
+        self.Bind(wx.EVT_CLOSE, self.on_close)
 
     def __del__(self):
         pass
 
-    # Virtual event handlers, override them in your derived class
+    def on_close(self, event):
+        try:
+            self.client.close()
+        except AttributeError:
+            pass
+        self.Destroy()
+
     def typeUser(self, event):
         self.parent.send_with_size(self.parent.client, 'CatUser')
         event.Skip()

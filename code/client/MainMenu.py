@@ -2,9 +2,9 @@ import json
 import threading
 
 import cv2
+import numpy as np
 import wx
 import wx.xrc
-import numpy as np
 from wx.lib import statbmp
 
 from Settings import SettingsFrame
@@ -17,6 +17,7 @@ class MainFrame(wx.Frame):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=u"Mood Music", pos=wx.DefaultPosition,
                           size=wx.Size(840, 660), style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
         self.parent = parent
+        self.mood = ''
         self.name = ''
         self.Email = None
         self.client = parent.client
@@ -191,6 +192,14 @@ class MainFrame(wx.Frame):
         self.Button_back.Bind(wx.EVT_BUTTON, self.GoBack)
         self.Button_settings.Bind(wx.EVT_BUTTON, self.GoToSettings)
         self.Bind(wx.EVT_TIMER, self.NextFrame)
+        self.Bind(wx.EVT_CLOSE, self.on_close)
+
+    def on_close(self, event):
+        try:
+            self.client.close()
+        except AttributeError:
+            pass
+        self.Destroy()
 
     def NextFrame2(self, event):
         try:
@@ -227,6 +236,7 @@ class MainFrame(wx.Frame):
                 data_recv = recv_by_size(self.client)
                 data_recv = json.loads(data_recv)
                 new_frame = data_recv['Frame']
+                self.mood = data_recv['Mood']
                 new_frame = np.array(new_frame)
                 new_frame = new_frame.astype(np.uint8)
                 print(new_frame.shape)

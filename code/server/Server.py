@@ -2,6 +2,9 @@ import json
 import socket
 import threading
 
+import cv2
+import numpy as np
+from keras.models import load_model
 from validators import email
 
 from DataBase.Users import Users
@@ -11,10 +14,6 @@ from lib.secret import email_sender, email_password
 from lib.tcp_by_size import recv_by_size
 from lib.tcp_by_size import send_with_size
 from workedFlask import MyFlaskApp
-
-from keras.models import load_model
-import numpy as np
-import cv2
 
 
 class server:
@@ -29,7 +28,6 @@ class server:
         self.FORMAT = 'utf-8'
         self.server.bind(self.ADDR)
         self.server.listen()
-        self.FORMAT = 'utf-8'
         self.model = load_model('model\MAYBE_FINAL\model3.h5')
         thread = threading.Thread(target=self.create_flask)
         thread.start()
@@ -61,11 +59,12 @@ class server:
     def case(self, conn, addr):
         while True:
             data_recv = recv_by_size(conn)
+            if len(data_recv) == 0:
+                print(f"client {addr} DISCONNECTED")
+                break
             data_recv = json.loads(data_recv)
             print(data_recv)
-            if len(data_recv) == 0:
-                print('disconnect')
-                break
+
             if data_recv['Func'] == 'Register':
                 if not self.UsersDb.is_exist(data_recv['Email']):
                     if email(data_recv['Email']):
@@ -138,10 +137,11 @@ class server:
                 frame = data_recv['Frame']
                 frame = np.array(frame)
                 frame = frame.astype(np.uint8)
-                new_frame = self.Predict(frame)
+                mood, new_frame = self.Predict(frame)
 
                 dict = {
                     'Frame': new_frame.tolist(),
+                    'Mood': mood
                 }
                 data_send = json.dumps(dict)
                 send_with_size(conn, data_send)
@@ -202,7 +202,7 @@ class server:
         cv2.putText(frame, status, (x, y - 10), font, 3, (0, 0, 255), 2, cv2.LINE_4)
         cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255))
         frame2 = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        return frame2
+        return status, frame2
 
 
 

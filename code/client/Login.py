@@ -238,11 +238,19 @@ class LoginFrame(wx.Frame):
         self.Button_login.Bind(wx.EVT_BUTTON, self.Login)
         self.Button_signup.Bind(wx.EVT_BUTTON, self.GoToSignup)
         self.Button_settings.Bind(wx.EVT_BUTTON, self.GoToSettings)
+        self.Bind(wx.EVT_CLOSE, self.on_close)
 
         self.EnDis(False)
         thread = threading.Thread(target=self.connect)
         thread.daemon = True
         thread.start()
+
+    def on_close(self, event):
+        try:
+            self.client.close()
+        except AttributeError:
+            pass
+        self.Destroy()
 
     def connect(self):
 

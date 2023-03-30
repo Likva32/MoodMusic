@@ -164,6 +164,14 @@ class SettingsFrame(wx.Frame):
         self.button_changespot.Bind(wx.EVT_BUTTON, self.ChangeSpotAcc)
         self.Button_mode.Bind(wx.EVT_BUTTON, self.ChangeMode)
         self.Button_back.Bind(wx.EVT_BUTTON, self.GoBack)
+        self.Bind(wx.EVT_CLOSE, self.on_close)
+
+    def on_close(self, event):
+        try:
+            self.client.close()
+        except AttributeError:
+            pass
+        self.Destroy()
 
     def ChangeMode(self, event):
         if self.statusMode == 'Black':

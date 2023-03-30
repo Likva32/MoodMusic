@@ -155,9 +155,17 @@ class ForgotFrame(wx.Frame):
         self.Button_login.Bind(wx.EVT_BUTTON, self.SendEmail)
         self.Button_back.Bind(wx.EVT_BUTTON, self.GoBack)
         self.Button_settings.Bind(wx.EVT_BUTTON, self.GoToSettings)
+        self.Bind(wx.EVT_CLOSE, self.on_close)
+
         self.EmailScreen()
 
-    # Virtual event handlers, override them in your derived class
+    def on_close(self, event):
+        try:
+            self.client.close()
+        except AttributeError:
+            pass
+        self.Destroy()
+
     def EmailScreen(self):
         self.Button_login.Bind(wx.EVT_BUTTON, self.SendEmail)
         self.textCtrl_second.Hide()
