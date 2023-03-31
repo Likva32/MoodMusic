@@ -33,13 +33,13 @@ class server:
         thread.start()
         print(f"[LISTENING] Server is listening on {self.server}")
         self.emotion_labels = {
-            0: 'Angry',
-            1: 'Disgust',
-            2: 'Fear',
-            3: 'Happy',
-            4: 'Sad',
-            5: 'Surprise',
-            6: 'Neutral'
+            0: 'Angry',  # +
+            1: 'Disgust',  #
+            2: 'Fear',  #
+            3: 'Happy',  # +
+            4: 'Sad',  # +
+            5: 'Surprise',  # -
+            6: 'Neutral'  # -
         }
         self.faceCascade = cv2.CascadeClassifier('model\MAYBE_FINAL\haarcascade_frontalface_default.xml')
         self.main()
@@ -125,6 +125,10 @@ class server:
                 sp = MySpotifyFunc(data_recv['Email'])
                 x = sp.get_all_tracks()
                 send_with_size(conn, x)
+            if data_recv['Func'] == 'CreatePlaylist':
+                sp = MySpotifyFunc(data_recv['Email'])
+                x = sp.create_playlist(data_recv['Mood'])
+                send_with_size(conn, x)
             if data_recv['Func'] == 'GetUser':
                 sp = MySpotifyFunc(data_recv['Email'])
                 x = sp.get_current_user()
@@ -137,8 +141,14 @@ class server:
                 frame = data_recv['Frame']
                 frame = np.array(frame)
                 frame = frame.astype(np.uint8)
-                mood, new_frame = self.Predict(frame)
-
+                result = self.Predict(frame)
+                if type(result) == type((0, 0)):
+                    mood = result[1]
+                    new_frame = result[0]
+                else:
+                    mood = "Neutral"
+                    new_frame = result
+                mood = 'Angry'
                 dict = {
                     'Frame': new_frame.tolist(),
                     'Mood': mood
@@ -150,7 +160,9 @@ class server:
 
     def Predict2(self, frame):
         return frame
+
     def Predict(self, frame):
+
         font_scale = 1.5
         font = cv2.FONT_HERSHEY_PLAIN
 
@@ -192,6 +204,7 @@ class server:
 
         Predict = self.model.predict(final_image)
         predicted_label = np.argmax(Predict)
+
         status = self.emotion_labels[int(predicted_label)]
 
         x1, y1, w1, h1 = 0, 0, 175, 50
@@ -202,9 +215,10 @@ class server:
         cv2.putText(frame, status, (x, y - 10), font, 3, (0, 0, 255), 2, cv2.LINE_4)
         cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255))
         frame2 = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        return status, frame2
-
-
+        print(status)
+        if not status:
+            status = 'Neutral'
+        return frame2, status
 
     def create_flask(self):
         app = MyFlaskApp('Mood Music')

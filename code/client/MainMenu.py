@@ -256,7 +256,8 @@ class MainFrame(wx.Frame):
 
     def Go_To_CreatePlaylist(self, event):
         dict = {
-            'Func': 'GetAllTracks',
+            'Func': 'CreatePlaylist',  # GetAllTracks
+            'Mood': self.mood,
             'Email': self.Email,
         }
         data_send = json.dumps(dict)

@@ -75,6 +75,41 @@ class MySpotifyFunc:
         print(user)
         return json.dumps(user)
 
+    def create_playlist(self, mood):
+        self.token_info, authorized = self.get_token()
+        print('----------')
+        print(authorized)
+        if not authorized:
+            print("error, u need to re-login to spotify again")
+            return "bad"
+            # raise "error, u need to re-login to spotify again"
+            # pass  go to login
+        scope = "playlist-modify-public"
+        sp = spotipy.Spotify(auth=self.token_info['access_token'])
+
+        # Create a new playlist
+        playlist_name = f"{mood} Playlist by MoodMusic"
+        playlist_description = "This is my new playlist"
+        user_id = sp.current_user()["id"]
+        # playlist = sp.user_playlist_create(user=sp.me()['id'], name=playlist_name, description=playlist_description)
+        playlists = sp.user_playlists(sp.me()['id'])
+        playlist = None
+        for pl in playlists['items']:
+            if pl['name'] == playlist_name:
+                playlist = pl
+                break
+        if not playlist:
+            playlist = sp.user_playlist_create(user=sp.me()['id'], name=playlist_name, description=playlist_description)
+        search_query = f"genre:{mood}"
+        results = sp.search(q=search_query, type='track', limit=50)
+
+        tracks = [item['uri'] for item in results['tracks']['items']]
+        if tracks:
+            sp.playlist_add_items(playlist_id=playlist['id'], items=tracks)
+            return f"Added {len(tracks)} {mood} songs to '{playlist_name}'!"
+        else:
+            return f"No {mood} songs found on Spotify."
+
     def create_spotify_oauth(self):
         return SpotifyOAuth(
             client_id=client_id,
