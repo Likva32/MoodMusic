@@ -7,6 +7,7 @@ import wx
 import wx.xrc
 from wx.lib import statbmp
 
+from CreatePlaylist import CreatePlaylistFrame
 from Settings import SettingsFrame
 from tcp_by_size import recv_by_size
 from tcp_by_size import send_with_size
@@ -23,6 +24,7 @@ class MainFrame(wx.Frame):
         self.client = parent.client
         self.camStatus = False
         self.SettingsFrame = SettingsFrame(self)
+        self.CreatePlaylistFrame = CreatePlaylistFrame(self)
         self.SetIcon(wx.Icon("images/black logo2.ico"))
         font = wx.Font(20, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Poppins")
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
@@ -185,7 +187,7 @@ class MainFrame(wx.Frame):
         self.Centre(wx.BOTH)
 
         # Connect Events
-        self.button_Create.Bind(wx.EVT_BUTTON, self.Go_To_CreatePlaylist)
+        self.button_Create.Bind(wx.EVT_BUTTON, self.GoToCreatePlaylist)
         self.button_Created.Bind(wx.EVT_BUTTON, self.Go_To_CreatedPlaylist)
         self.Button_on.Bind(wx.EVT_BUTTON, self.camera_on_thread)
         self.Button_off.Bind(wx.EVT_BUTTON, self.OffCamera)
@@ -196,7 +198,7 @@ class MainFrame(wx.Frame):
 
     def on_close(self, event):
         try:
-            self.client.close()
+            self.parent.on_close(event)
         except AttributeError:
             pass
         self.Destroy()
@@ -250,22 +252,30 @@ class MainFrame(wx.Frame):
             self.timer.Stop()
             print(e)
 
-    def test(self):
-        msg = recv_by_size(self.client)
-        print(msg)
+    # def Go_To_CreatePlaylist(self, event):
+    #     dlg = wx.MessageDialog(self, f"Are you sure you want to create playlist with name "
+    #                                  f"'{self.mood} Playlist by MoodMusic'{self.mood} Playlist by MoodMusic'?",
+    #                            "Confirmation", wx.YES_NO | wx.ICON_QUESTION)
+    #     result = dlg.ShowModal()
+    #     if result == wx.ID_YES:
+    #         print("You clicked Yes")
+    #         dict = {
+    #             'Func': 'CreatePlaylist',  # GetAllTracks
+    #             'Mood': self.mood,
+    #             'Email': self.Email,
+    #         }
+    #         data_send = json.dumps(dict)
+    #         send_with_size(self.client, data_send)
+    #         msg = recv_by_size(self.client)
+    #         print(msg)
+    #     else:
+    #         print("You clicked No")
+    #     dlg.Destroy()
 
-    def Go_To_CreatePlaylist(self, event):
-        dict = {
-            'Func': 'CreatePlaylist',  # GetAllTracks
-            'Mood': self.mood,
-            'Email': self.Email,
-        }
-        data_send = json.dumps(dict)
-        send_with_size(self.client, data_send)
-        msg = recv_by_size(self.client)
-        print(msg)
-        # thread = threading.Thread(target=self.test)
-        # thread.start()
+    def GoToCreatePlaylist(self, event):
+        self.Hide()
+        self.CreatePlaylistFrame.Centre()
+        self.CreatePlaylistFrame.Show()
 
     def Go_To_CreatedPlaylist(self, event):
         dict = {

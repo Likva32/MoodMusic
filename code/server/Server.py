@@ -33,13 +33,13 @@ class server:
         thread.start()
         print(f"[LISTENING] Server is listening on {self.server}")
         self.emotion_labels = {
-            0: 'Angry',  # +
-            1: 'Disgust',  #
-            2: 'Fear',  #
-            3: 'Happy',  # +
-            4: 'Sad',  # +
-            5: 'Surprise',  # -
-            6: 'Neutral'  # -
+            0: 'Angry',  # + Heavy Metal, Hardcore, Punk, Rap, Industrial
+            1: 'Disgust',  # Experimental, Noise, Grindcore, Death Metal
+            2: 'Fear',  # Dark Ambient, Horrorcore, Industrial, Darkwave, Drone
+            3: 'Happy',  # +  Pop, Dance, Electronic, Indie Pop, Reggae
+            4: 'Sad',  # +  Blues, Jazz, Folk, Indie, Ambient
+            5: 'Surprise',  # -  Classical, Jazz, World, Experimental
+            6: 'Neutral'  # - Classical, Ambient, New Age, Instrumental, Soundtrack
         }
         self.faceCascade = cv2.CascadeClassifier('model\MAYBE_FINAL\haarcascade_frontalface_default.xml')
         self.main()
@@ -63,7 +63,7 @@ class server:
                 print(f"client {addr} DISCONNECTED")
                 break
             data_recv = json.loads(data_recv)
-            print(data_recv)
+            # print(data_recv)
 
             if data_recv['Func'] == 'Register':
                 if not self.UsersDb.is_exist(data_recv['Email']):
@@ -148,7 +148,6 @@ class server:
                 else:
                     mood = "Neutral"
                     new_frame = result
-                mood = 'Angry'
                 dict = {
                     'Frame': new_frame.tolist(),
                     'Mood': mood

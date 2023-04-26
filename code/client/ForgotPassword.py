@@ -161,7 +161,7 @@ class ForgotFrame(wx.Frame):
 
     def on_close(self, event):
         try:
-            self.client.close()
+            self.parent.on_close(event)
         except AttributeError:
             pass
         self.Destroy()

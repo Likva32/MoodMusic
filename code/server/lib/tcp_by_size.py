@@ -3,7 +3,7 @@ import struct
 
 SIZE_HEADER_FORMAT = "000000000"  # n digits for data size + one delimiter
 size_header_size = len(SIZE_HEADER_FORMAT)
-TCP_DEBUG = True
+TCP_DEBUG = False
 
 
 def recv_by_size(sock, return_type="string"):
