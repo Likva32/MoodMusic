@@ -26,23 +26,9 @@ class Users:  # main.html tbl with persons with their income&&outcome
         conn.commit()
         conn.close()
 
-    def get_all_users(self):
-        """מחזיר סטרינג עם כל האנשים"""
-        conn = sqlite3.connect('MoodMusic.db')
-        print("Opened database successfully")
-        cursor = conn.execute(f"select*from {self.tablename}")
-        query = ""
-        for row in cursor:
-            query += f"UserId: {row[0]},\n" \
-                     f"Name: {row[1,]},\n" \
-                     f"Email: {row[2]},\n" \
-                     f"password: {row[3]},\n" \
-                     f"SpotUrl: {row[4]},\n" \
-                     f"SpotToken: {row[5]},\n"
-        return query
-
     def insert_user(self, Name, Email, Password, SpotUrl='', SpotToken=''):
         """מכניס בן אדם לטבלה"""
+        conn = None
         try:
             if not self.is_exist(Email):
                 conn = sqlite3.connect('MoodMusic.db')
@@ -61,23 +47,27 @@ class Users:  # main.html tbl with persons with their income&&outcome
         except:
             print("Failed to insert user")
             return False
+        finally:
+            if conn:
+                conn.close()
 
-    def delete_user(self, Email):
-        try:
-            conn = sqlite3.connect('MoodMusic.db')
-            print("Opened database successfully")
-            query = f"DELETE FROM Users WHERE {self.Email} = (?)"
-            values = (Email,)
-            conn.execute(query, values)
-            conn.commit()
-            conn.close()
-            print("Delete User successfully")
-            return True
-        except:
-            print("Failed to delete user")
-            return False
+    # def delete_user(self, Email):
+    #     try:
+    #         conn = sqlite3.connect('MoodMusic.db')
+    #         print("Opened database successfully")
+    #         query = f"DELETE FROM Users WHERE {self.Email} = (?)"
+    #         values = (Email,)
+    #         conn.execute(query, values)
+    #         conn.commit()
+    #         conn.close()
+    #         print("Delete User successfully")
+    #         return True
+    #     except:
+    #         print("Failed to delete user")
+    #         return False
 
     def is_exist(self, Email):
+        conn = None
         try:
             conn = sqlite3.connect('MoodMusic.db')
             print("Opened database successfully")
@@ -98,8 +88,12 @@ class Users:  # main.html tbl with persons with their income&&outcome
                 return False
         except:
             return False
+        finally:
+            if conn:
+                conn.close()
 
     def Login(self, Email, Password):
+        conn = None
         try:
             conn = sqlite3.connect('MoodMusic.db')
             print("Opened database successfully")
@@ -117,8 +111,12 @@ class Users:  # main.html tbl with persons with their income&&outcome
                 return False
         except:
             return False
+        finally:
+            if conn:
+                conn.close()
 
     def update_password(self, Email, Password):
+        conn = None
         try:
             conn = sqlite3.connect('MoodMusic.db')
             print("Opened database successfully")
@@ -136,8 +134,12 @@ class Users:  # main.html tbl with persons with their income&&outcome
         except:
             print("Failed to Update user")
             return False
+        finally:
+            if conn:
+                conn.close()
 
     def update_spotify(self, Email, Password, SpotUrl, SpotToken):
+        conn = None
         try:
             conn = sqlite3.connect('MoodMusic.db')
             print("Opened database successfully")
@@ -155,9 +157,13 @@ class Users:  # main.html tbl with persons with their income&&outcome
         except:
             print("Failed to Update user")
             return False
+        finally:
+            if conn:
+                conn.close()
 
     def update_code(self, Email, Code):
         """מכניס בן אדם לטבלה"""
+        conn = None
         try:
             conn = sqlite3.connect('MoodMusic.db')
             print("Opened database successfully")
@@ -179,8 +185,12 @@ class Users:  # main.html tbl with persons with their income&&outcome
         except:
             print("Failed to Update code")
             return False
+        finally:
+            if conn:
+                conn.close()
 
     def verify_code(self, Email, Code):
+        conn = None
         try:
             conn = sqlite3.connect('MoodMusic.db')
             print("Opened database successfully")
@@ -198,8 +208,12 @@ class Users:  # main.html tbl with persons with their income&&outcome
                 return False
         except:
             return False
+        finally:
+            if conn:
+                conn.close()
 
     def delete_code(self, Email, Code):
+        conn = None
         try:
             time.sleep(300)
             conn = sqlite3.connect('MoodMusic.db')
@@ -216,22 +230,33 @@ class Users:  # main.html tbl with persons with their income&&outcome
             conn.close()
             print('delete')
             return True
-
         except:
             print('not')
             return False
+        finally:
+            if conn:
+                conn.close()
 
     def name_by_email(self, Email):
-        conn = sqlite3.connect('MoodMusic.db')
-        print("Opened database successfully")
-        f = f"select {self.Name} from {self.tablename} WHERE {self.Email} == (?)"
-        cursor = conn.execute(f, (Email,))
         name = ''
-        for row in cursor:
-            name = row[0]
-        return name
+        conn = None
+        try:
+            conn = sqlite3.connect('MoodMusic.db')
+            print("Opened database successfully")
+            f = f"select {self.Name} from {self.tablename} WHERE {self.Email} == (?)"
+            cursor = conn.execute(f, (Email,))
+            name = ''
+            for row in cursor:
+                name = row[0]
+            return name
+        except:
+            return name
+        finally:
+            if conn:
+                conn.close()
 
     def check_url(self, Email):
+        conn = None
         try:
             conn = sqlite3.connect('MoodMusic.db')
             print("Opened database successfully")
@@ -248,10 +273,14 @@ class Users:  # main.html tbl with persons with their income&&outcome
                 return '0'
         except:
             return '0'
+        finally:
+            if conn:
+                conn.close()
 
     def url_exist(self, Email, SpotUrl, TokenInfo):
         status = ''
         description = ''
+        conn = None
         try:
             conn = sqlite3.connect('MoodMusic.db')
             print("Opened database successfully")
@@ -282,9 +311,14 @@ class Users:  # main.html tbl with persons with their income&&outcome
             status = 'Login not Success'
             description = 'ERROR'
             print("error")
+        finally:
+            if conn:
+                conn.close()
+
         return status, description
 
     def insert_spot_Info(self, Email, SpotUrl, TokenInfo):
+        conn = None
         try:
             time.sleep(2)
             if self.is_exist(Email):
@@ -307,13 +341,20 @@ class Users:  # main.html tbl with persons with their income&&outcome
         except:
             print("Failed to insert SpotUrl")
             return False
+        finally:
+            if conn:
+                conn.close()
 
     def get_token(self, Email):
         conn = sqlite3.connect('MoodMusic.db')
-        print("Opened database successfully")
-        f = f"select {self.SpotToken} from {self.tablename} WHERE {self.Email} == (?)"
-        cursor = conn.execute(f, (Email,))
-        token = ''
-        for row in cursor:
-            token = row[0]
-        return token
+        try:
+            print("Opened database successfully")
+            f = f"select {self.SpotToken} from {self.tablename} WHERE {self.Email} == (?)"
+            cursor = conn.execute(f, (Email,))
+            token = ''
+            for row in cursor:
+                token = row[0]
+            return token
+        finally:
+            if conn:
+                conn.close()

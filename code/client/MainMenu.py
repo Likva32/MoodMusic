@@ -7,7 +7,6 @@ import wx
 import wx.xrc
 from wx.lib import statbmp
 
-from CreatePlaylist import CreatePlaylistFrame
 from Settings import SettingsFrame
 from tcp_by_size import recv_by_size
 from tcp_by_size import send_with_size
@@ -24,7 +23,6 @@ class MainFrame(wx.Frame):
         self.client = parent.client
         self.camStatus = False
         self.SettingsFrame = SettingsFrame(self)
-        self.CreatePlaylistFrame = CreatePlaylistFrame(self)
         self.SetIcon(wx.Icon("images/black logo2.ico"))
         font = wx.Font(20, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Poppins")
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
@@ -187,7 +185,7 @@ class MainFrame(wx.Frame):
         self.Centre(wx.BOTH)
 
         # Connect Events
-        self.button_Create.Bind(wx.EVT_BUTTON, self.GoToCreatePlaylist)
+        self.button_Create.Bind(wx.EVT_BUTTON, self.Go_To_CreatePlaylist)
         self.button_Created.Bind(wx.EVT_BUTTON, self.Go_To_CreatedPlaylist)
         self.Button_on.Bind(wx.EVT_BUTTON, self.camera_on_thread)
         self.Button_off.Bind(wx.EVT_BUTTON, self.OffCamera)
@@ -202,27 +200,6 @@ class MainFrame(wx.Frame):
         except AttributeError:
             pass
         self.Destroy()
-
-    def NextFrame2(self, event):
-        try:
-            ret, frame = self.capture.read()
-            frame = cv2.resize(frame, (400, 320))
-            if ret:
-                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                faces = self.face_cascade.detectMultiScale(gray, 1.1, 4)
-                for (x, y, w, h) in faces:
-                    cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
-
-                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                print(frame.shape)
-                print(type(frame))
-                self.bmp.CopyFromBuffer(frame)
-                self.userCam.SetBitmap(self.bmp)
-        except Exception as e:
-            self.error_box_text.SetLabelText("cant grab image from cam")
-            self.error_box_text.SetForegroundColour(colour='red')
-            self.timer.Stop()
-            print(e)
 
     def NextFrame(self, event):
         try:
@@ -252,40 +229,26 @@ class MainFrame(wx.Frame):
             self.timer.Stop()
             print(e)
 
-    # def Go_To_CreatePlaylist(self, event):
-    #     dlg = wx.MessageDialog(self, f"Are you sure you want to create playlist with name "
-    #                                  f"'{self.mood} Playlist by MoodMusic'{self.mood} Playlist by MoodMusic'?",
-    #                            "Confirmation", wx.YES_NO | wx.ICON_QUESTION)
-    #     result = dlg.ShowModal()
-    #     if result == wx.ID_YES:
-    #         print("You clicked Yes")
-    #         dict = {
-    #             'Func': 'CreatePlaylist',  # GetAllTracks
-    #             'Mood': self.mood,
-    #             'Email': self.Email,
-    #         }
-    #         data_send = json.dumps(dict)
-    #         send_with_size(self.client, data_send)
-    #         msg = recv_by_size(self.client)
-    #         print(msg)
-    #     else:
-    #         print("You clicked No")
-    #     dlg.Destroy()
-
-    def GoToCreatePlaylist(self, event):
-        self.Hide()
-        self.CreatePlaylistFrame.Centre()
-        self.CreatePlaylistFrame.Show()
-
-    def Go_To_CreatedPlaylist(self, event):
-        dict = {
-            'Func': 'GetUser',
-            'Email': self.Email,
-        }
-        data_send = json.dumps(dict)
-        send_with_size(self.client, data_send)
-        msg = recv_by_size(self.client)
-        print(msg)
+    def Go_To_CreatePlaylist(self, event):
+        mood = self.mood
+        dlg = wx.MessageDialog(self, f"Are you sure you want to create playlist with name "
+                                     f"'{mood} Playlist by MoodMusic'?",
+                               "Confirmation", wx.YES_NO | wx.ICON_QUESTION)
+        result = dlg.ShowModal()
+        if result == wx.ID_YES:
+            print("You clicked Yes")
+            dict = {
+                'Func': 'CreatePlaylist',
+                'Mood': mood,
+                'Email': self.Email,
+            }
+            data_send = json.dumps(dict)
+            send_with_size(self.client, data_send)
+            msg = recv_by_size(self.client)
+            print(msg)
+        else:
+            print("You clicked No")
+        dlg.Destroy()
 
     def camera_on_thread(self, event):
         thread = threading.Thread(target=self.OnCamera)
@@ -319,6 +282,19 @@ class MainFrame(wx.Frame):
         self.parent.Show()  # show the login frame
 
     def GoToSettings(self, event):
+        dict = {
+            'Func': 'GetUser',
+            'Email': self.Email
+        }
+        data_send = json.dumps(dict)
+        send_with_size(self.client, data_send)
+        msg = recv_by_size(self.client)
+        try:
+            msg = json.loads(msg)
+            username = msg['display_name']
+        except:
+            username = msg
+        self.SettingsFrame.spotname_text.SetLabel(username)
         self.SettingsFrame.name_text.SetLabel(self.name)
         self.Hide()
         self.SettingsFrame.Centre()

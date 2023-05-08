@@ -23,12 +23,12 @@ class server:
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.running = True
         self.IP = socket.gethostbyname(socket.gethostname())
-        self.PORT = 5059
+        self.PORT = 5005
         self.ADDR = (self.IP, self.PORT)
         self.FORMAT = 'utf-8'
         self.server.bind(self.ADDR)
         self.server.listen()
-        self.model = load_model('model\MAYBE_FINAL\model3.h5')
+        self.model = load_model('model\\MAYBE_FINAL\\model3.h5')
         thread = threading.Thread(target=self.create_flask)
         thread.start()
         print(f"[LISTENING] Server is listening on {self.server}")
@@ -41,7 +41,7 @@ class server:
             5: 'Surprise',  # -  Classical, Jazz, World, Experimental
             6: 'Neutral'  # - Classical, Ambient, New Age, Instrumental, Soundtrack
         }
-        self.faceCascade = cv2.CascadeClassifier('model\MAYBE_FINAL\haarcascade_frontalface_default.xml')
+        self.faceCascade = cv2.CascadeClassifier('model\\MAYBE_FINAL\\haarcascade_frontalface_default.xml')
         self.main()
 
     def main(self):
@@ -121,20 +121,20 @@ class server:
 
             if data_recv['Func'] == 'SpotAuth':
                 send_with_size(conn, "enter the site")
-            if data_recv['Func'] == 'GetAllTracks':
-                sp = MySpotifyFunc(data_recv['Email'])
-                x = sp.get_all_tracks()
-                send_with_size(conn, x)
             if data_recv['Func'] == 'CreatePlaylist':
                 sp = MySpotifyFunc(data_recv['Email'])
                 x = sp.create_playlist(data_recv['Mood'])
                 send_with_size(conn, x)
             if data_recv['Func'] == 'GetUser':
-                sp = MySpotifyFunc(data_recv['Email'])
-                x = sp.get_current_user()
+                try:
+                    sp = MySpotifyFunc(data_recv['Email'])
+                    x = sp.get_current_user()
+                except:
+                    x = 'No Spotify linked'
                 send_with_size(conn, x)
             if data_recv['Func'] == 'CheckUrl':
                 x = self.UsersDb.check_url(data_recv['Email'])
+
                 print(x)
                 send_with_size(conn, x)
             if data_recv['Func'] == 'Predict':
@@ -156,9 +156,6 @@ class server:
                 send_with_size(conn, data_send)
             if data_recv['Func'] == '':
                 pass
-
-    def Predict2(self, frame):
-        return frame
 
     def Predict(self, frame):
 

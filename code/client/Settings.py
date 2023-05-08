@@ -87,7 +87,7 @@ class SettingsFrame(wx.Frame):
         self.name_text.SetFont(font)
         self.name_text.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BTNHIGHLIGHT))
 
-        Sizer_info.Add(self.name_text, 1, wx.ALIGN_CENTER | wx.ALL | wx.SHAPED, 5)
+        Sizer_info.Add(self.name_text, 1, wx.ALL, 5)
 
         bSizer70.Add(Sizer_info, 0, wx.ALIGN_CENTER, 5)
 
@@ -100,7 +100,7 @@ class SettingsFrame(wx.Frame):
         self.spotname_text.SetFont(font)
         self.spotname_text.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BTNHIGHLIGHT))
 
-        Sizer_info1.Add(self.spotname_text, 1, wx.ALIGN_CENTER | wx.ALL, 5)
+        Sizer_info1.Add(self.spotname_text, 1, wx.ALL, 5)
 
         bSizer70.Add(Sizer_info1, 1, 0, 5)
 

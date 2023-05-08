@@ -22,7 +22,6 @@ class LoginFrame(wx.Frame):
         self.Email = None
         self.name = None
         self.Connected = False
-        self.send_with_size = send_with_size
         self.recv_by_size = recv_by_size
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # frames
@@ -253,14 +252,13 @@ class LoginFrame(wx.Frame):
         self.Destroy()
 
     def connect(self):
-
         my_ip = socket.gethostbyname(socket.gethostname())
-        PORT = 5059
+        PORT = 5005
         ADDR = (my_ip, PORT)
         while True:
             try:
                 self.client.connect(ADDR)
-                print('good')
+                print('client connected')
                 self.status_text.SetForegroundColour(colour='green')
                 self.status_text.SetLabelText('U Connected to the server')
                 self.EnDis(True)
@@ -269,27 +267,17 @@ class LoginFrame(wx.Frame):
                 self.EnDis(False)
                 self.status_text.SetForegroundColour(colour='red')
                 self.status_text.SetLabelText('U not Connected to the server')
-                print('fail')
+                print('client connect fail')
 
     def EnDis(self, flag):  # enable or disable buttons and textctrl
-        if flag:
-            self.textCtrl_Email.SetEditable(True)
-            self.textCtrl_password.SetEditable(True)
-            self.Button_login.Enable(True)
-            self.Button_password.Enable(True)
-            self.Button_signup.Enable(True)
-            self.Button_password.Enable(True)
-            self.Button_dev.Enable(True)
-            self.Button_user.Enable(True)
-        else:
-            self.textCtrl_Email.SetEditable(False)
-            self.textCtrl_password.SetEditable(False)
-            self.Button_login.Enable(False)
-            self.Button_password.Enable(False)
-            self.Button_signup.Enable(False)
-            self.Button_password.Enable(False)
-            self.Button_dev.Enable(False)
-            self.Button_user.Enable(False)
+        self.textCtrl_Email.SetEditable(flag)
+        self.textCtrl_password.SetEditable(flag)
+        self.Button_login.Enable(flag)
+        self.Button_password.Enable(flag)
+        self.Button_signup.Enable(flag)
+        self.Button_password.Enable(flag)
+        self.Button_dev.Enable(flag)
+        self.Button_user.Enable(flag)
 
     def typeUser(self, event):
         event.Skip()
@@ -298,7 +286,6 @@ class LoginFrame(wx.Frame):
         event.Skip()
 
     def Login(self, event):
-        # self.LightMode()
         self.Email = self.textCtrl_Email.GetValue()
         password = self.textCtrl_password.GetValue()
         dict = {
@@ -365,10 +352,10 @@ class LoginFrame(wx.Frame):
         self.ForgotFrame.Centre()
         self.ForgotFrame.Show()
 
-    def on_text_change(self, event):
-        textctrl = event.GetEventObject()
-        size = textctrl.GetBestSize()
-        textctrl.SetSize(size)
+    # def on_text_change(self, event):
+    #     textctrl = event.GetEventObject()
+    #     size = textctrl.GetBestSize()
+    #     textctrl.SetSize(size)
 
     def GetName(self):
         dict = {
@@ -376,7 +363,7 @@ class LoginFrame(wx.Frame):
             'Email': self.Email
         }
         data_send = json.dumps(dict)
-        self.send_with_size(self.client, data_send)
+        send_with_size(self.client, data_send)
         msg = self.recv_by_size(self.client)
         return msg
 
