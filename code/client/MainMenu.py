@@ -75,7 +75,6 @@ class MainFrame(wx.Frame):
 
         gbSizer_allitems.Add(bSizer_accType, wx.GBPosition(5, 0), wx.GBSpan(1, 1), wx.ALIGN_CENTER, 5)
 
-        self.face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
         self.image = cv2.imread('images/nocamblack.jpg')
         self.image = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
