@@ -23,7 +23,7 @@ class server:
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.running = True
         self.IP = socket.gethostbyname(socket.gethostname())
-        self.PORT = 5005
+        self.PORT = 5007
         self.ADDR = (self.IP, self.PORT)
         self.FORMAT = 'utf-8'
         self.server.bind(self.ADDR)
@@ -59,7 +59,7 @@ class server:
     def case(self, conn, addr):
         while True:
             data_recv = recv_by_size(conn)
-            if len(data_recv) == 0:
+            if len(data_recv) == 0 or data_recv is None:
                 print(f"client {addr} DISCONNECTED")
                 break
             data_recv = json.loads(data_recv)
@@ -148,11 +148,11 @@ class server:
                 else:
                     mood = "Neutral"
                     new_frame = result
-                dict = {
+                msg = {
                     'Frame': new_frame.tolist(),
                     'Mood': mood
                 }
-                data_send = json.dumps(dict)
+                data_send = json.dumps(msg)
                 send_with_size(conn, data_send)
             if data_recv['Func'] == '':
                 pass

@@ -226,11 +226,9 @@ class RegisterFrame(wx.Frame):
         self.Destroy()
 
     def typeUser(self, event):
-        self.parent.send_with_size(self.parent.client, 'CatUser')
         event.Skip()
 
     def typeDev(self, event):
-        self.parent.send_with_size(self.parent.client, 'CatDev')
         event.Skip()
 
     def Register(self, event):

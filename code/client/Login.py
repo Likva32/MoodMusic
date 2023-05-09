@@ -23,6 +23,7 @@ class LoginFrame(wx.Frame):
         self.name = None
         self.Connected = False
         self.recv_by_size = recv_by_size
+        self.send_with_size = send_with_size
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # frames
         self.SettingsFrame = SettingsFrame(self)
@@ -253,7 +254,7 @@ class LoginFrame(wx.Frame):
 
     def connect(self):
         my_ip = socket.gethostbyname(socket.gethostname())
-        PORT = 5005
+        PORT = 5007
         ADDR = (my_ip, PORT)
         while True:
             try:
@@ -288,12 +289,12 @@ class LoginFrame(wx.Frame):
     def Login(self, event):
         self.Email = self.textCtrl_Email.GetValue()
         password = self.textCtrl_password.GetValue()
-        dict = {
+        send_msg = {
             'Func': 'Login',
             'Email': self.Email,
             'Password': password
         }
-        data_send = json.dumps(dict)
+        data_send = json.dumps(send_msg)
         self.status_text.SetForegroundColour(colour='red')
         if email(self.Email):
             if self.Email and password != '':
@@ -324,18 +325,16 @@ class LoginFrame(wx.Frame):
         self.register_frame.Show()  # show the register frame
 
     def GoToMain(self):
-        dict = {
+        send_msg = {
             'Func': 'CheckUrl',
             'Email': self.Email
         }
-        data_send = json.dumps(dict)
+        data_send = json.dumps(send_msg)
         send_with_size(self.client, data_send)
         msg = recv_by_size(self.client)
         if msg == '1':
-            self.MainFrame.button_Created.Enable()
             self.MainFrame.button_Create.Enable()
         else:
-            self.MainFrame.button_Created.Disable()
             self.MainFrame.button_Create.Disable()
         self.Hide()  # hide the login frame
         self.MainFrame.Centre()
@@ -358,11 +357,11 @@ class LoginFrame(wx.Frame):
     #     textctrl.SetSize(size)
 
     def GetName(self):
-        dict = {
+        send_msg = {
             'Func': 'GetName',
             'Email': self.Email
         }
-        data_send = json.dumps(dict)
+        data_send = json.dumps(send_msg)
         send_with_size(self.client, data_send)
         msg = self.recv_by_size(self.client)
         return msg

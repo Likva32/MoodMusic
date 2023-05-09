@@ -2,7 +2,6 @@ import json
 import webbrowser
 
 import cv2
-import requests
 import wx
 import wx.xrc
 
@@ -108,7 +107,7 @@ class SettingsFrame(wx.Frame):
 
         Sizer_changespot = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.button_changespot = wx.Button(self.m_panel9, wx.ID_ANY, u"change spotify acoount", wx.DefaultPosition,
+        self.button_changespot = wx.Button(self.m_panel9, wx.ID_ANY, u"change spotify account", wx.DefaultPosition,
                                            wx.DefaultSize, 0)
         self.button_changespot.SetFont(font)
         self.button_changespot.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW))
@@ -233,7 +232,7 @@ class SettingsFrame(wx.Frame):
             if type(frame).__name__ == "MainFrame":
                 frame.panel_background1.SetBackgroundColour(self.ModeColors[self.statusMode]['Background1'])
                 frame.m_panel9.SetBackgroundColour(self.ModeColors[self.statusMode]['Background2'])
-                for button in (frame.Button_on, frame.Button_off, frame.button_Create, frame.button_Created):
+                for button in (frame.Button_on, frame.Button_off, frame.button_Create):
                     button.SetBackgroundColour(self.ModeColors[self.statusMode]['Button'])
                 for text in (frame.error_box_text, frame.text_camera, frame.username_text):
                     text.SetBackgroundColour(self.ModeColors[self.statusMode]['Background2'])
@@ -257,11 +256,11 @@ class SettingsFrame(wx.Frame):
         self.Hide()  # hide the register frame
         self.parent.Show()  # show the login frame
         if self.parent == 'MainFrame object':
-            dict = {
+            send_msg = {
                 'Func': 'CheckUrl',
                 'Email': self.parent.Email
             }
-            data_send = json.dumps(dict)
+            data_send = json.dumps(send_msg)
             send_with_size(self.client, data_send)
             msg = recv_by_size(self.client)
             if msg == '1':
@@ -272,16 +271,16 @@ class SettingsFrame(wx.Frame):
                 self.parent.button_Create.Disable()
 
     def ChangeSpotAcc(self, event):
-        dict = {
+        send_msg = {
             'Func': 'SpotAuth',
             'Name': self.parent.name,
             'Email': self.parent.Email
         }
-        data_send = json.dumps(dict)
+        data_send = json.dumps(send_msg)
         send_with_size(self.client, data_send)
         msg = recv_by_size(self.client)
         webbrowser.open("http://127.0.0.1:5000")
 
-        data = {'Email': self.parent.Email}
-        response = requests.post('http://127.0.0.1:5000/getEmail', data=data)
+        # data = {'Email': self.parent.Email}
+        # response = requests.post('http://127.0.0.1:5000/getEmail', data=data)
         print(msg)

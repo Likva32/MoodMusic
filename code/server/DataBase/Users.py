@@ -53,7 +53,7 @@ class Users:  # main.html tbl with persons with their income&&outcome
 
     # def delete_user(self, Email):
     #     try:
-    #         conn = sqlite3.connect('MoodMusic.db')
+    #         conn = sqlite3.connect('DataBase\MoodMusic.db')
     #         print("Opened database successfully")
     #         query = f"DELETE FROM Users WHERE {self.Email} = (?)"
     #         values = (Email,)
@@ -218,14 +218,13 @@ class Users:  # main.html tbl with persons with their income&&outcome
             time.sleep(300)
             conn = sqlite3.connect('MoodMusic.db')
             print("Opened database successfully")
-            cur = conn.cursor()
             query = f"""
                     UPDATE Users
                                     SET Code = NULL
                                     WHERE Email = (?) AND {self.Code} = (?)
             """
             values = (Email, Code)
-            conn.execute(query)
+            conn.execute(query, values)
             conn.commit()
             conn.close()
             print('delete')

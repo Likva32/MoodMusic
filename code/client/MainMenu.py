@@ -16,6 +16,7 @@ class MainFrame(wx.Frame):
     def __init__(self, parent):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=u"Mood Music", pos=wx.DefaultPosition,
                           size=wx.Size(840, 660), style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
+        self.capture = None
         self.parent = parent
         self.mood = ''
         self.name = ''
@@ -67,14 +68,7 @@ class MainFrame(wx.Frame):
 
         bSizer_accType = wx.BoxSizer(wx.VERTICAL)
 
-        self.button_Created = wx.Button(self.m_panel9, wx.ID_ANY, u"Created Playlist", wx.DefaultPosition,
-                                        wx.DefaultSize, 0)
-        self.button_Created.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW))
-
-        bSizer_accType.Add(self.button_Created, 0, wx.ALL, 5)
-
         gbSizer_allitems.Add(bSizer_accType, wx.GBPosition(5, 0), wx.GBSpan(1, 1), wx.ALIGN_CENTER, 5)
-
 
         self.image = cv2.imread('images/nocamblack.jpg')
         self.image = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
@@ -185,7 +179,6 @@ class MainFrame(wx.Frame):
 
         # Connect Events
         self.button_Create.Bind(wx.EVT_BUTTON, self.Go_To_CreatePlaylist)
-        self.button_Created.Bind(wx.EVT_BUTTON, self.Go_To_CreatedPlaylist)
         self.Button_on.Bind(wx.EVT_BUTTON, self.camera_on_thread)
         self.Button_off.Bind(wx.EVT_BUTTON, self.OffCamera)
         self.Button_back.Bind(wx.EVT_BUTTON, self.GoBack)
@@ -205,11 +198,11 @@ class MainFrame(wx.Frame):
             ret, frame = self.capture.read()
             frame = cv2.resize(frame, (400, 320))
             if ret:
-                dict = {
+                send_msg = {
                     'Func': 'Predict',
                     'Frame': frame.tolist(),
                 }
-                data_send = json.dumps(dict)
+                data_send = json.dumps(send_msg)
                 send_with_size(self.client, data_send)
                 data_recv = recv_by_size(self.client)
                 data_recv = json.loads(data_recv)
@@ -236,12 +229,12 @@ class MainFrame(wx.Frame):
         result = dlg.ShowModal()
         if result == wx.ID_YES:
             print("You clicked Yes")
-            dict = {
+            send_msg = {
                 'Func': 'CreatePlaylist',
                 'Mood': mood,
                 'Email': self.Email,
             }
-            data_send = json.dumps(dict)
+            data_send = json.dumps(send_msg)
             send_with_size(self.client, data_send)
             msg = recv_by_size(self.client)
             print(msg)
@@ -281,11 +274,11 @@ class MainFrame(wx.Frame):
         self.parent.Show()  # show the login frame
 
     def GoToSettings(self, event):
-        dict = {
+        send_msg = {
             'Func': 'GetUser',
             'Email': self.Email
         }
-        data_send = json.dumps(dict)
+        data_send = json.dumps(send_msg)
         send_with_size(self.client, data_send)
         msg = recv_by_size(self.client)
         try:
