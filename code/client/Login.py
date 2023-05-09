@@ -1,5 +1,6 @@
 import json
 import socket
+import sys
 import threading
 
 import wx
@@ -253,8 +254,10 @@ class LoginFrame(wx.Frame):
         self.Destroy()
 
     def connect(self):
-        my_ip = socket.gethostbyname(socket.gethostname())
-        PORT = 5007
+        my_ip = sys.argv[1]
+        PORT = int(sys.argv[2])
+        # my_ip = socket.gethostbyname(socket.gethostname())
+        # PORT = 5005
         ADDR = (my_ip, PORT)
         while True:
             try:

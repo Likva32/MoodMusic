@@ -1,5 +1,6 @@
 import json
 import socket
+import sys
 import threading
 
 import cv2
@@ -7,6 +8,7 @@ import numpy as np
 from keras.models import load_model
 from validators import email
 
+from DataBase.SpotifyPlaylist import SpotifyStat
 from DataBase.Users import Users
 from Spotifyfunc import MySpotifyFunc
 from lib.SendMail import SendVerificationCode
@@ -20,10 +22,15 @@ class server:
     def __init__(self):
         print(socket.gethostbyname(socket.gethostname()))
         self.UsersDb = Users()
+        self.SpotifyStatDB = SpotifyStat()
+        self.SpotifyStatDB.insert_first_stat()
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.running = True
-        self.IP = socket.gethostbyname(socket.gethostname())
-        self.PORT = 5007
+
+        self.IP = sys.argv[1]
+        self.PORT = int(sys.argv[2])
+        # self.IP = socket.gethostbyname(socket.gethostname())
+        # self.PORT = 5005
         self.ADDR = (self.IP, self.PORT)
         self.FORMAT = 'utf-8'
         self.server.bind(self.ADDR)
@@ -121,9 +128,11 @@ class server:
 
             if data_recv['Func'] == 'SpotAuth':
                 send_with_size(conn, "enter the site")
+
             if data_recv['Func'] == 'CreatePlaylist':
                 sp = MySpotifyFunc(data_recv['Email'])
                 x = sp.create_playlist(data_recv['Mood'])
+                self.SpotifyStatDB.update_stat(data_recv['Mood'])
                 send_with_size(conn, x)
             if data_recv['Func'] == 'GetUser':
                 try:
