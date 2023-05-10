@@ -1,3 +1,4 @@
+import hashlib
 import json
 
 import wx
@@ -235,11 +236,13 @@ class RegisterFrame(wx.Frame):
         name = self.textCtrl_name.GetValue()
         Email = self.textCtrl_Email.GetValue()
         password = self.textCtrl_password.GetValue()
+        salt = 'MoodMusic'
+        hashed_pass = hashlib.md5(salt.encode('utf-8') + password.encode('utf-8')).hexdigest()
         dict = {
             'Func': 'Register',
             'Name': name,
             'Email': Email,
-            'Password': password
+            'Password': hashed_pass
         }
         data_send = json.dumps(dict)
         self.status_text.SetForegroundColour(colour='red')

@@ -1,3 +1,4 @@
+import hashlib
 import json
 
 import wx
@@ -232,12 +233,15 @@ class ForgotFrame(wx.Frame):
 
     def SendPassword(self, event):
         # send pass
+
         Password1 = self.textCtrl_first.GetValue()
         Password2 = self.textCtrl_second.GetValue()
+        salt = 'MoodMusic'
+        hashed_pass = hashlib.md5(salt.encode('utf-8') + Password1.encode('utf-8')).hexdigest()
         dict = {
             'Func': 'Sendpass',
             'Email': self.Email,
-            'Password': Password1,
+            'Password': hashed_pass,
         }
         data_send = json.dumps(dict)
         if Password1 == Password2:

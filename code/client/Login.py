@@ -1,3 +1,4 @@
+import hashlib
 import json
 import socket
 import sys
@@ -296,10 +297,12 @@ class LoginFrame(wx.Frame):
     def Login(self, event):
         self.Email = self.textCtrl_Email.GetValue()
         password = self.textCtrl_password.GetValue()
+        salt = 'MoodMusic'
+        hashed_pass = hashlib.md5(salt.encode('utf-8') + password.encode('utf-8')).hexdigest()
         send_msg = {
             'Func': 'Login',
             'Email': self.Email,
-            'Password': password
+            'Password': hashed_pass
         }
         data_send = json.dumps(send_msg)
         self.status_text.SetForegroundColour(colour='red')

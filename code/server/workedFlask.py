@@ -1,3 +1,4 @@
+import hashlib
 import json
 import time
 
@@ -29,7 +30,11 @@ class MyFlaskApp:
                 session["email"] = email
                 password = request.form["password"]
                 session["password"] = password
-                if self.UsersDb.Login(email, password):
+
+                salt = 'MoodMusic'
+                hashed_pass = hashlib.md5(salt.encode('utf-8') + password.encode('utf-8')).hexdigest()
+
+                if self.UsersDb.Login(email, hashed_pass):
                     logger.success('Login success (Flask)')
                     return redirect('/log')
                 else:
