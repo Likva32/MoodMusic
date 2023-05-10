@@ -3,6 +3,7 @@ import time
 
 import spotipy
 from flask import Flask, url_for, session, request, redirect, render_template
+from loguru import logger
 from spotipy.oauth2 import SpotifyOAuth
 
 from DataBase.Users import Users
@@ -29,10 +30,10 @@ class MyFlaskApp:
                 password = request.form["password"]
                 session["password"] = password
                 if self.UsersDb.Login(email, password):
-                    print('Login success')
+                    logger.success('Login success (Flask)')
                     return redirect('/log')
                 else:
-                    print('Login NOT success')
+                    logger.error('Login NOT success (Flask)')
                     msg = 'Wrong Password or Email'
                     return render_template('email_form.html', msg=msg)
             return render_template('email_form.html', msg=msg)
@@ -42,7 +43,6 @@ class MyFlaskApp:
             # session['email'] = self.Email
             sp_oauth = self.create_spotify_oauth()
             auth_url = sp_oauth.get_authorize_url()
-            print(auth_url)
             return redirect(auth_url)
 
         @self.app.route('/authorize')
@@ -56,17 +56,13 @@ class MyFlaskApp:
             if not code:
                 return redirect(url_for('login', _external=True))
             token_info = sp_oauth.get_access_token(code)
-            print(token_info)
             session["token_info"] = token_info
 
             user = self.get_current_user(token_info)
             user = json.loads(user)
             url = user["external_urls"]["spotify"]
-            print(url)
 
             email = session.get('email')
-            print('session GET EMAIL: ')
-            print(email)
 
             status, description = self.UsersDb.url_exist(email, url, json.dumps(token_info))
             return render_template('main.html', status=status, description=description)
@@ -97,11 +93,10 @@ class MyFlaskApp:
     def get_current_user(self, token_info):
         token_info, authorized = self.get_token()
         if not authorized:
-            print("error, u need to re-login to spotify again")
+            logger.error("error, u need to re-login to spotify again (Flask)")
             return "bad"
         sp = spotipy.Spotify(auth=token_info['access_token'])
         user = sp.current_user()
-        print(user)
         return json.dumps(user)
 
     def create_spotify_oauth(self):

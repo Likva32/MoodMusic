@@ -250,7 +250,6 @@ class RegisterFrame(wx.Frame):
                 if msg == 'Email inserted success':
                     self.status_text.SetForegroundColour(colour='green')
                 self.status_text.SetLabelText(msg)
-                print(msg)
             elif Email == '' and password == '':
                 self.status_text.SetLabelText('write Email and password')
             elif Email == '':

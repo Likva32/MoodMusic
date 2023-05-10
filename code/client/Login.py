@@ -5,6 +5,7 @@ import threading
 
 import wx
 import wx.xrc
+from loguru import logger
 from validators import email
 
 from ForgotPassword import ForgotFrame
@@ -254,7 +255,10 @@ class LoginFrame(wx.Frame):
         self.Destroy()
 
     def connect(self):
-        my_ip = sys.argv[1]
+        if sys.argv[1] == "Local" or sys.argv[1] == "local":
+            my_ip = socket.gethostbyname(socket.gethostname())
+        else:
+            my_ip = sys.argv[1]
         PORT = int(sys.argv[2])
         # my_ip = socket.gethostbyname(socket.gethostname())
         # PORT = 5005
@@ -262,7 +266,7 @@ class LoginFrame(wx.Frame):
         while True:
             try:
                 self.client.connect(ADDR)
-                print('client connected')
+                logger.success('client connected')
                 self.status_text.SetForegroundColour(colour='green')
                 self.status_text.SetLabelText('U Connected to the server')
                 self.EnDis(True)
@@ -271,7 +275,7 @@ class LoginFrame(wx.Frame):
                 self.EnDis(False)
                 self.status_text.SetForegroundColour(colour='red')
                 self.status_text.SetLabelText('U not Connected to the server')
-                print('client connect fail')
+                logger.error('client connect fail')
 
     def EnDis(self, flag):  # enable or disable buttons and textctrl
         self.textCtrl_Email.SetEditable(flag)
@@ -312,7 +316,7 @@ class LoginFrame(wx.Frame):
                     self.status_text.SetForegroundColour(colour='green')
                 else:
                     self.status_text.SetLabelText(msg)
-                print(msg)
+                logger.info(msg)
             elif self.Email == '' and password == '':
                 self.status_text.SetLabelText('write Email and password')
             elif self.Email == '':

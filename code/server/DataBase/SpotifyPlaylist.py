@@ -1,5 +1,7 @@
 import sqlite3
 
+from loguru import logger
+
 
 class SpotifyStat:
     def __init__(self, tablename="SpotifyStat", Id="Id", Angry="Angry", Disgust="Disgust",
@@ -14,7 +16,7 @@ class SpotifyStat:
         self.Surprise = Surprise
         self.Neutral = Neutral
         conn = sqlite3.connect('MoodMusic.db')
-        print("u open database successfully")
+        logger.info("Opened database successfully")
         """יוצרים טבלה אם אין"""
         CreateIfNotExist = f"create table if not exists {self.tablename} ({self.Id} integer primary key autoincrement , " \
                            f"{self.Angry} integer not null, {self.Disgust} integer not null, {self.Fear} integer not null ," \
@@ -37,13 +39,13 @@ class SpotifyStat:
                 conn.execute(command, values)
                 conn.commit()
                 conn.close()
-                print("Add stat successfully")
+                logger.success("Add stat successfully")
                 return True
             else:
-                print("stat exist so insert failed")
+                logger.info("stat exist so insert failed")
                 return False
         except:
-            print("Failed to Add stat")
+            logger.error("Failed to Add stat")
             return False
         finally:
             if conn:
@@ -53,21 +55,19 @@ class SpotifyStat:
         conn = None
         try:
             conn = sqlite3.connect('MoodMusic.db')
-            print("Opened database successfully")
             query = f"SELECT * from {self.tablename} where {self.Id} = (?)"
             values = (ID,)
-            print(query)
             cursor = conn.execute(query, values)
             row = ''
             for row in cursor:
-                print(row[0])
+                logger.info(row[0])
             conn.commit()
             conn.close()
             if row:
-                print("Exist")
+                logger.info("Exist")
                 return True
             else:
-                print("Not exist")
+                logger.info("Not exist")
                 return False
         except:
             return False
@@ -80,7 +80,6 @@ class SpotifyStat:
         try:
             base_value = self.value_by_Emote(Emote)
             conn = sqlite3.connect('MoodMusic.db')
-            print("Opened database successfully")
             query = f"""
                         UPDATE {self.tablename}
                         SET {Emote} = (?)
@@ -90,10 +89,10 @@ class SpotifyStat:
             conn.execute(query, values)
             conn.commit()
             conn.close()
-            print("Update Stat successfully")
+            logger.success("Update Stat successfully")
             return True
         except:
-            print("Failed to Update Stat")
+            logger.error("Failed to Update Stat")
             return False
         finally:
             if conn:
@@ -104,7 +103,6 @@ class SpotifyStat:
         conn = None
         try:
             conn = sqlite3.connect('MoodMusic.db')
-            print("Opened database successfully")
             f = f"select {Emote} from {self.tablename} WHERE {self.Id} == (?)"
             cursor = conn.execute(f, (1,))
             name = ''

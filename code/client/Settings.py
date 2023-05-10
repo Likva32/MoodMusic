@@ -4,6 +4,7 @@ import webbrowser
 import cv2
 import wx
 import wx.xrc
+from loguru import logger
 
 from tcp_by_size import recv_by_size
 from tcp_by_size import send_with_size
@@ -178,7 +179,7 @@ class SettingsFrame(wx.Frame):
         else:
             self.statusMode = 'Black'
         for frame in wx.GetTopLevelWindows():
-            print(type(frame))
+            logger.debug(type(frame))
             if type(frame).__name__ == "SettingsFrame":
                 frame.panel_background1.SetBackgroundColour(self.ModeColors[self.statusMode]['Background1'])
                 frame.m_panel9.SetBackgroundColour(self.ModeColors[self.statusMode]['Background2'])
@@ -283,4 +284,3 @@ class SettingsFrame(wx.Frame):
 
         # data = {'Email': self.parent.Email}
         # response = requests.post('http://127.0.0.1:5000/getEmail', data=data)
-        print(msg)

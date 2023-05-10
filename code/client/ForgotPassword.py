@@ -2,6 +2,7 @@ import json
 
 import wx
 import wx.xrc
+from loguru import logger
 from validators import email
 
 from Settings import SettingsFrame
@@ -188,7 +189,7 @@ class ForgotFrame(wx.Frame):
             else:
                 self.status_text.SetLabelText(data_from_server)
                 self.status_text.SetForegroundColour(colour='red')
-                print("error")
+                logger.error("error")
         else:
             self.status_text.SetForegroundColour(colour='red')
             self.status_text.SetLabelText('invalid Email')
@@ -214,7 +215,7 @@ class ForgotFrame(wx.Frame):
         else:
             self.status_text.SetLabelText(data_from_server)
             self.status_text.SetForegroundColour(colour='red')
-            print("error")
+            logger.error("error")
 
     def PasswordScreen(self):
         self.textCtrl_first.SetWindowStyle(style=wx.TE_PASSWORD)
@@ -251,7 +252,7 @@ class ForgotFrame(wx.Frame):
         else:
             self.status_text.SetLabelText("pass1 not equal to pass2")
             self.status_text.SetForegroundColour(colour='red')
-            print("pass1 not equal to pass2")
+            logger.warning("pass1 not equal to pass2")
 
     def GoBack(self, event):
 

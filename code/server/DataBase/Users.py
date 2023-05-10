@@ -2,9 +2,10 @@ import sqlite3
 import threading
 import time
 
+from loguru import logger
 
-class Users:  # main.html tbl with persons with their income&&outcome
-    """קלאס של טבלה IncomeOutcome"""
+
+class Users:
 
     def __init__(self, tablename="Users", Name='Name', UserId="UserId", Email="Email",
                  Password="Password", SpotUrl="SpotUrl", SpotToken="token", Code="Code"):
@@ -17,7 +18,7 @@ class Users:  # main.html tbl with persons with their income&&outcome
         self.SpotToken = SpotToken
         self.Code = Code
         conn = sqlite3.connect('MoodMusic.db')
-        print("u open database successfully")
+        logger.info("Opened database successfully")
         """יוצרים טבלה אם אין"""
         CreateIfNotExist = f"create table if not exists {self.tablename} ({self.UserId} integer primary key autoincrement , " \
                            f"{self.Name} text, {self.Email} text not null , {self.Password} text not null , " \
@@ -39,13 +40,13 @@ class Users:  # main.html tbl with persons with their income&&outcome
                 conn.execute(command, values)
                 conn.commit()
                 conn.close()
-                print("Add User successfully")
+                logger.info("Add User successfully")
                 return True
             else:
-                print("User exist so insert failed")
+                logger.info("User exist so insert failed")
                 return False
         except:
-            print("Failed to insert user")
+            logger.info("Failed to insert user")
             return False
         finally:
             if conn:
@@ -70,21 +71,20 @@ class Users:  # main.html tbl with persons with their income&&outcome
         conn = None
         try:
             conn = sqlite3.connect('MoodMusic.db')
-            print("Opened database successfully")
             query = f"SELECT * from {self.tablename} where {self.Email} = (?)"
             values = (Email,)
-            print(query)
+            logger.info(query)
             cursor = conn.execute(query, values)
             row = ''
             for row in cursor:
-                print(row[0])
+                logger.info(row[0])
             conn.commit()
             conn.close()
             if row:
-                print("Exist")
+                logger.info("Exist")
                 return True
             else:
-                print("Not exist")
+                logger.info("Not exist")
                 return False
         except:
             return False
@@ -96,7 +96,6 @@ class Users:  # main.html tbl with persons with their income&&outcome
         conn = None
         try:
             conn = sqlite3.connect('MoodMusic.db')
-            print("Opened database successfully")
             query = f"SELECT * from {self.tablename} where {self.Email} = (?) and {self.Password} = (?)"
             values = (Email, Password)
             cursor = conn.execute(query, values)
@@ -104,10 +103,10 @@ class Users:  # main.html tbl with persons with their income&&outcome
             conn.commit()
             conn.close()
             if row:
-                print("Email and pass True")
+                logger.info("Email and pass True")
                 return True
             else:
-                print("Email and pass False")
+                logger.info("Email and pass False")
                 return False
         except:
             return False
@@ -119,7 +118,6 @@ class Users:  # main.html tbl with persons with their income&&outcome
         conn = None
         try:
             conn = sqlite3.connect('MoodMusic.db')
-            print("Opened database successfully")
             query = f"""
                         UPDATE Users
                         SET {self.Password} = (?)
@@ -129,10 +127,10 @@ class Users:  # main.html tbl with persons with their income&&outcome
             conn.execute(query, values)
             conn.commit()
             conn.close()
-            print("Update User successfully")
+            logger.info("Update User successfully")
             return True
         except:
-            print("Failed to Update user")
+            logger.info("Failed to Update user")
             return False
         finally:
             if conn:
@@ -142,7 +140,6 @@ class Users:  # main.html tbl with persons with their income&&outcome
         conn = None
         try:
             conn = sqlite3.connect('MoodMusic.db')
-            print("Opened database successfully")
             query = f"""
                         UPDATE Users
                         SET {self.SpotUrl} = (?), {self.SpotToken} = (?)
@@ -152,10 +149,10 @@ class Users:  # main.html tbl with persons with their income&&outcome
             conn.execute(query, values)
             conn.commit()
             conn.close()
-            print("Update User successfully")
+            logger.info("Update User successfully")
             return True
         except:
-            print("Failed to Update user")
+            logger.info("Failed to Update user")
             return False
         finally:
             if conn:
@@ -166,7 +163,6 @@ class Users:  # main.html tbl with persons with their income&&outcome
         conn = None
         try:
             conn = sqlite3.connect('MoodMusic.db')
-            print("Opened database successfully")
             query = f"""
                                                         UPDATE Users
                                                         SET {self.Code} = (?)
@@ -176,14 +172,14 @@ class Users:  # main.html tbl with persons with their income&&outcome
             conn.execute(query, values)
             conn.commit()
             conn.close()
-            print("Update code successfully")
+            logger.info("Update code successfully")
             thread = threading.Thread(target=self.delete_code, args=(Email, Code))
             thread.daemon = True
             thread.start()
             return True
 
         except:
-            print("Failed to Update code")
+            logger.info("Failed to Update code")
             return False
         finally:
             if conn:
@@ -193,7 +189,6 @@ class Users:  # main.html tbl with persons with their income&&outcome
         conn = None
         try:
             conn = sqlite3.connect('MoodMusic.db')
-            print("Opened database successfully")
             query = f"SELECT * from {self.tablename} where {self.Email} = (?) and {self.Code} = (?)"
             values = (Email, Code)
             cursor = conn.execute(query, values)
@@ -201,10 +196,10 @@ class Users:  # main.html tbl with persons with their income&&outcome
             conn.commit()
             conn.close()
             if row:
-                print("Code Exist")
+                logger.info("Code Exist")
                 return True
             else:
-                print("Code Not exist")
+                logger.info("Code Not exist")
                 return False
         except:
             return False
@@ -217,7 +212,6 @@ class Users:  # main.html tbl with persons with their income&&outcome
         try:
             time.sleep(300)
             conn = sqlite3.connect('MoodMusic.db')
-            print("Opened database successfully")
             query = f"""
                     UPDATE Users
                                     SET Code = NULL
@@ -227,10 +221,10 @@ class Users:  # main.html tbl with persons with their income&&outcome
             conn.execute(query, values)
             conn.commit()
             conn.close()
-            print('delete')
+            logger.success('delete code')
             return True
         except:
-            print('not')
+            logger.error('not delete code')
             return False
         finally:
             if conn:
@@ -241,7 +235,6 @@ class Users:  # main.html tbl with persons with their income&&outcome
         conn = None
         try:
             conn = sqlite3.connect('MoodMusic.db')
-            print("Opened database successfully")
             f = f"select {self.Name} from {self.tablename} WHERE {self.Email} == (?)"
             cursor = conn.execute(f, (Email,))
             name = ''
@@ -258,12 +251,11 @@ class Users:  # main.html tbl with persons with their income&&outcome
         conn = None
         try:
             conn = sqlite3.connect('MoodMusic.db')
-            print("Opened database successfully")
             query = f"SELECT * from {self.tablename} where {self.Email} = '{Email}'"
             cursor = conn.execute(query)
             row = ''
             for row in cursor:
-                print(row[4])
+                logger.info(row[4])
             conn.commit()
             conn.close()
             if row[4]:
@@ -282,17 +274,16 @@ class Users:  # main.html tbl with persons with their income&&outcome
         conn = None
         try:
             conn = sqlite3.connect('MoodMusic.db')
-            print("Opened database successfully")
             query = f"SELECT * from {self.tablename} where {self.SpotUrl} = '{SpotUrl}'"
             cursor = conn.execute(query)
             row = ''
             for row in cursor:
-                print(row[2])
+                logger.info(row[2])
             conn.commit()
             conn.close()
             if row:
                 if row[2] == Email:
-                    print('url == Email so insert token')
+                    logger.success('url == Email so insert token')
                     self.insert_spot_Info(Email, SpotUrl, TokenInfo)
                     status = 'Login Success'
                     description = 'you can return to Mood Music'
@@ -300,16 +291,16 @@ class Users:  # main.html tbl with persons with their income&&outcome
                 else:
                     status = 'Login not Success'
                     description = 'This Spotify account already linked to another account'
-                    print("Url != Email so dont insert token")
+                    logger.info("Url != Email so dont insert token")
             else:
                 status = 'Login Successes'
                 description = 'you can return to Mood Music'
-                print("Url Not exist - so insert url")
+                logger.info("Url Not exist - so insert url")
                 self.insert_spot_Info(Email, SpotUrl, TokenInfo)
         except:
             status = 'Login not Success'
             description = 'ERROR'
-            print("error")
+            logger.error("error")
         finally:
             if conn:
                 conn.close()
@@ -322,7 +313,6 @@ class Users:  # main.html tbl with persons with their income&&outcome
             time.sleep(2)
             if self.is_exist(Email):
                 conn = sqlite3.connect('MoodMusic.db')
-                print("u open database successfully")
                 query = f"""
                                 UPDATE Users
                                 SET {self.SpotUrl} = (?) , {self.SpotToken} = (?)
@@ -332,13 +322,13 @@ class Users:  # main.html tbl with persons with their income&&outcome
                 conn.execute(query, values)
                 conn.commit()
                 conn.close()
-                print("insert SpotUrl successfully")
+                logger.success("insert SpotUrl successfully")
                 return True
             else:
-                print("User Not Exist")
+                logger.info("User Not Exist")
                 return False
         except:
-            print("Failed to insert SpotUrl")
+            logger.error("Failed to insert SpotUrl")
             return False
         finally:
             if conn:
@@ -347,7 +337,6 @@ class Users:  # main.html tbl with persons with their income&&outcome
     def get_token(self, Email):
         conn = sqlite3.connect('MoodMusic.db')
         try:
-            print("Opened database successfully")
             f = f"select {self.SpotToken} from {self.tablename} WHERE {self.Email} == (?)"
             cursor = conn.execute(f, (Email,))
             token = ''

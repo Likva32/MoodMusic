@@ -2,6 +2,7 @@ import json
 import time
 
 import spotipy
+from loguru import logger
 from spotipy.oauth2 import SpotifyOAuth
 
 from DataBase.Users import Users
@@ -40,19 +41,17 @@ class MySpotifyFunc:
     def get_current_user(self):
         self.token_info, authorized = self.get_token()
         if not authorized:
-            print("error, u need to re-login to spotify again")
+            logger.error("error, u need to re-login to spotify again")
             return "bad"
         sp = spotipy.Spotify(auth=self.token_info['access_token'])
         user = sp.current_user()
-        print(user)
         return json.dumps(user)
 
     def create_playlist(self, mood):
         self.token_info, authorized = self.get_token()
-        print('----------')
-        print(authorized)
+        logger.debug(authorized)
         if not authorized:
-            print("error, u need to re-login to spotify again")
+            logger.error("error, u need to re-login to spotify again")
             return "bad"
             # raise "error, u need to re-login to spotify again"
             # pass  go to login
@@ -75,7 +74,6 @@ class MySpotifyFunc:
         genre = genre_dict[mood]
         playlist_name = f"{mood} Playlist by MoodMusic"
         playlist_description = "This is my new playlist"
-        user_id = sp.current_user()["id"]
         # playlist = sp.user_playlist_create(user=sp.me()['id'], name=playlist_name, description=playlist_description)
         playlists = sp.user_playlists(sp.me()['id'])
         playlist = None

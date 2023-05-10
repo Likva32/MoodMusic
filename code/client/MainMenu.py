@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 import wx
 import wx.xrc
+from loguru import logger
 from wx.lib import statbmp
 
 from Settings import SettingsFrame
@@ -210,8 +211,6 @@ class MainFrame(wx.Frame):
                 self.mood = data_recv['Mood']
                 new_frame = np.array(new_frame)
                 new_frame = new_frame.astype(np.uint8)
-                print(new_frame.shape)
-                print(type(new_frame))
 
                 self.bmp.CopyFromBuffer(new_frame)
                 self.userCam.SetBitmap(self.bmp)
@@ -219,7 +218,7 @@ class MainFrame(wx.Frame):
             self.error_box_text.SetLabelText("cant grab image from cam")
             self.error_box_text.SetForegroundColour(colour='red')
             self.timer.Stop()
-            print(e)
+            logger.error(e)
 
     def Go_To_CreatePlaylist(self, event):
         mood = self.mood
@@ -228,7 +227,7 @@ class MainFrame(wx.Frame):
                                "Confirmation", wx.YES_NO | wx.ICON_QUESTION)
         result = dlg.ShowModal()
         if result == wx.ID_YES:
-            print("You clicked Yes")
+            logger.info("You clicked Yes")
             send_msg = {
                 'Func': 'CreatePlaylist',
                 'Mood': mood,
@@ -237,9 +236,8 @@ class MainFrame(wx.Frame):
             data_send = json.dumps(send_msg)
             send_with_size(self.client, data_send)
             msg = recv_by_size(self.client)
-            print(msg)
         else:
-            print("You clicked No")
+            logger.info("You clicked No")
         dlg.Destroy()
 
     def camera_on_thread(self, event):
@@ -257,7 +255,7 @@ class MainFrame(wx.Frame):
             self.error_box_text.SetLabelText("cant grab image from cam")
             self.error_box_text.SetForegroundColour(colour='red')
             self.timer.Stop()
-            print(e)
+            logger.error(e)
 
     def OffCamera(self, event):
         try:

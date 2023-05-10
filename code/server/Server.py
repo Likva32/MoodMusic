@@ -6,6 +6,7 @@ import threading
 import cv2
 import numpy as np
 from keras.models import load_model
+from loguru import logger
 from validators import email
 
 from DataBase.SpotifyPlaylist import SpotifyStat
@@ -20,14 +21,17 @@ from workedFlask import MyFlaskApp
 
 class server:
     def __init__(self):
-        print(socket.gethostbyname(socket.gethostname()))
+        logger.info("IP: " + socket.gethostbyname(socket.gethostname()))
         self.UsersDb = Users()
         self.SpotifyStatDB = SpotifyStat()
         self.SpotifyStatDB.insert_first_stat()
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.running = True
 
-        self.IP = sys.argv[1]
+        if sys.argv[1] == "Local" or sys.argv[1] == "local":
+            self.IP = socket.gethostbyname(socket.gethostname())
+        else:
+            self.IP = sys.argv[1]
         self.PORT = int(sys.argv[2])
         # self.IP = socket.gethostbyname(socket.gethostname())
         # self.PORT = 5005
@@ -38,7 +42,7 @@ class server:
         self.model = load_model('model\\MAYBE_FINAL\\model3.h5')
         thread = threading.Thread(target=self.create_flask)
         thread.start()
-        print(f"[LISTENING] Server is listening on {self.server}")
+        logger.info(f"[LISTENING] Server is listening on {self.server}")
         self.emotion_labels = {
             0: 'Angry',  # + Heavy Metal, Hardcore, Punk, Rap, Industrial
             1: 'Disgust',  # Experimental, Noise, Grindcore, Death Metal
@@ -49,13 +53,14 @@ class server:
             6: 'Neutral'  # - Classical, Ambient, New Age, Instrumental, Soundtrack
         }
         self.faceCascade = cv2.CascadeClassifier('model\\MAYBE_FINAL\\haarcascade_frontalface_default.xml')
+
         self.main()
 
     def main(self):
         while self.running:
             try:
                 conn, addr = self.server.accept()
-                print(f"[CONNECTION] user connected successfully, addr: {addr}")
+                logger.success(f"[CONNECTION] user connected successfully, addr: {addr}")
                 thread = threading.Thread(target=self.case, args=(conn, addr))
                 thread.daemon = True
                 thread.start()
@@ -64,107 +69,110 @@ class server:
                 self.server.close()
 
     def case(self, conn, addr):
-        while True:
-            data_recv = recv_by_size(conn)
-            if len(data_recv) == 0 or data_recv is None:
-                print(f"client {addr} DISCONNECTED")
-                break
-            data_recv = json.loads(data_recv)
-            # print(data_recv)
-
-            if data_recv['Func'] == 'Register':
-                if not self.UsersDb.is_exist(data_recv['Email']):
-                    if email(data_recv['Email']):
-                        flag = self.UsersDb.insert_user(data_recv['Name'], data_recv['Email'], data_recv['Password'])
-                        if flag:
-                            send_with_size(conn, 'Email inserted success')
-                            print('Email inserted success')
+        try:
+            while self.running:
+                data_recv = recv_by_size(conn)
+                if len(data_recv) == 0 or data_recv is None:
+                    logger.info(f"client {addr} DISCONNECTED")
+                    break
+                data_recv = json.loads(data_recv)
+                if data_recv['Func'] == 'Register':
+                    if not self.UsersDb.is_exist(data_recv['Email']):
+                        if email(data_recv['Email']):
+                            flag = self.UsersDb.insert_user(data_recv['Name'], data_recv['Email'],
+                                                            data_recv['Password'])
+                            if flag:
+                                send_with_size(conn, 'Email inserted success')
+                                logger.success('Email inserted success')
+                            else:
+                                send_with_size(conn, 'user inserted NOT success')
+                                logger.error('Email inserted NOT success')
                         else:
-                            send_with_size(conn, 'user inserted NOT success')
-                            print('Email inserted NOT success')
+                            send_with_size(conn, 'invalid email')
+                            logger.error('invalid email')
                     else:
-                        send_with_size(conn, 'invalid email')
-                        print('invalid email')
-                else:
-                    send_with_size(conn, 'user exist')
-                    print('user exist')
-            if data_recv['Func'] == 'Login':
-                if self.UsersDb.Login(data_recv['Email'], data_recv['Password']):
-                    send_with_size(conn, 'Login success')
-                    print('Login success')
-                else:
-                    send_with_size(conn, 'Login NOT success')
-                    print('Login NOT success')
-            if data_recv['Func'] == 'Sendmail':
-                print(data_recv['Email'])
-                if self.UsersDb.is_exist(data_recv['Email']):
-                    sendmail = SendVerificationCode(email_sender, email_password, data_recv['Email'])
-                    sendmail.SendMail()
-                    code = sendmail.security_code
-                    self.UsersDb.update_code(data_recv['Email'], code)
-                    send_with_size(conn, 'Code Sended')
-                    print('Code Sended')
-                else:
-                    send_with_size(conn, 'user NOT exist')
-                    print('user NOT exist')
-            if data_recv['Func'] == 'Sendcode':
-                if self.UsersDb.verify_code(data_recv['Email'], data_recv['Code']):
-                    send_with_size(conn, 'Code verified')
-                    print('Code verified')
-                else:
-                    send_with_size(conn, 'Code NOT verified')
-                    print('Code NOT verified')
-            if data_recv['Func'] == 'Sendpass':
-                flag = self.UsersDb.update_password(data_recv['Email'], data_recv['Password'])
-                if flag:
-                    send_with_size(conn, 'Password Changed')
-                    print('Password Changed')
-                else:
-                    send_with_size(conn, 'Password NOT Changed')
-                    print('Password NOT Changed')
-            if data_recv['Func'] == 'GetName':
-                data_send = self.UsersDb.name_by_email(data_recv['Email'])
-                send_with_size(conn, data_send)
+                        send_with_size(conn, 'user exist')
+                        logger.info('user exist')
+                if data_recv['Func'] == 'Login':
+                    if self.UsersDb.Login(data_recv['Email'], data_recv['Password']):
+                        send_with_size(conn, 'Login success')
+                        logger.success('Login success')
+                    else:
+                        send_with_size(conn, 'Login NOT success')
+                        logger.error('Login NOT success')
+                if data_recv['Func'] == 'Sendmail':
+                    if self.UsersDb.is_exist(data_recv['Email']):
+                        sendmail = SendVerificationCode(email_sender, email_password, data_recv['Email'])
+                        sendmail.SendMail()
+                        code = sendmail.security_code
+                        self.UsersDb.update_code(data_recv['Email'], code)
+                        send_with_size(conn, 'Code Sended')
+                        logger.success('Code Sended')
+                    else:
+                        send_with_size(conn, 'user NOT exist')
+                        logger.error('user NOT exist')
+                if data_recv['Func'] == 'Sendcode':
+                    if self.UsersDb.verify_code(data_recv['Email'], data_recv['Code']):
+                        send_with_size(conn, 'Code verified')
+                        logger.success('Code verified')
+                    else:
+                        send_with_size(conn, 'Code NOT verified')
+                        logger.error('Code NOT verified')
+                if data_recv['Func'] == 'Sendpass':
+                    flag = self.UsersDb.update_password(data_recv['Email'], data_recv['Password'])
+                    if flag:
+                        send_with_size(conn, 'Password Changed')
+                        logger.success('Password Changed')
+                    else:
+                        send_with_size(conn, 'Password NOT Changed')
+                        logger.error('Password NOT Changed')
+                if data_recv['Func'] == 'GetName':
+                    data_send = self.UsersDb.name_by_email(data_recv['Email'])
+                    send_with_size(conn, data_send)
 
-            if data_recv['Func'] == 'SpotAuth':
-                send_with_size(conn, "enter the site")
+                if data_recv['Func'] == 'SpotAuth':
+                    send_with_size(conn, "enter the site")
 
-            if data_recv['Func'] == 'CreatePlaylist':
-                sp = MySpotifyFunc(data_recv['Email'])
-                x = sp.create_playlist(data_recv['Mood'])
-                self.SpotifyStatDB.update_stat(data_recv['Mood'])
-                send_with_size(conn, x)
-            if data_recv['Func'] == 'GetUser':
-                try:
+                if data_recv['Func'] == 'CreatePlaylist':
                     sp = MySpotifyFunc(data_recv['Email'])
-                    x = sp.get_current_user()
-                except:
-                    x = 'No Spotify linked'
-                send_with_size(conn, x)
-            if data_recv['Func'] == 'CheckUrl':
-                x = self.UsersDb.check_url(data_recv['Email'])
-
-                print(x)
-                send_with_size(conn, x)
-            if data_recv['Func'] == 'Predict':
-                frame = data_recv['Frame']
-                frame = np.array(frame)
-                frame = frame.astype(np.uint8)
-                result = self.Predict(frame)
-                if type(result) == type((0, 0)):
-                    mood = result[1]
-                    new_frame = result[0]
-                else:
-                    mood = "Neutral"
-                    new_frame = result
-                msg = {
-                    'Frame': new_frame.tolist(),
-                    'Mood': mood
-                }
-                data_send = json.dumps(msg)
-                send_with_size(conn, data_send)
-            if data_recv['Func'] == '':
-                pass
+                    x = sp.create_playlist(data_recv['Mood'])
+                    self.SpotifyStatDB.update_stat(data_recv['Mood'])
+                    send_with_size(conn, x)
+                if data_recv['Func'] == 'GetUser':
+                    try:
+                        sp = MySpotifyFunc(data_recv['Email'])
+                        x = sp.get_current_user()
+                    except:
+                        x = 'No Spotify linked'
+                    send_with_size(conn, x)
+                if data_recv['Func'] == 'CheckUrl':
+                    x = self.UsersDb.check_url(data_recv['Email'])
+                    send_with_size(conn, x)
+                if data_recv['Func'] == 'Predict':
+                    frame = data_recv['Frame']
+                    frame = np.array(frame)
+                    frame = frame.astype(np.uint8)
+                    result = self.Predict(frame)
+                    if type(result) == type((0, 0)):
+                        mood = result[1]
+                        new_frame = result[0]
+                    else:
+                        mood = "Neutral"
+                        new_frame = result
+                    msg = {
+                        'Frame': new_frame.tolist(),
+                        'Mood': mood
+                    }
+                    data_send = json.dumps(msg)
+                    send_with_size(conn, data_send)
+                if data_recv['Func'] == '':
+                    pass
+        except ConnectionResetError:
+            conn.close()
+            logger.error("The remote host forcibly terminated the existing connection")
+        except:
+            conn.close()
+            logger.error("ERROR - Disconnect Client")
 
     def Predict(self, frame):
 
@@ -220,7 +228,7 @@ class server:
         cv2.putText(frame, status, (x, y - 10), font, 3, (0, 0, 255), 2, cv2.LINE_4)
         cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255))
         frame2 = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        print(status)
+        logger.info(status)
         if not status:
             status = 'Neutral'
         return frame2, status

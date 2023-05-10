@@ -1,6 +1,8 @@
 import socket
 import struct
 
+from loguru import logger
+
 SIZE_HEADER_FORMAT = "000000000"  # n digits for data size + one delimiter
 size_header_size = len(SIZE_HEADER_FORMAT)
 TCP_DEBUG = True
@@ -33,7 +35,7 @@ def recv_by_size(sock, return_type="string"):
                 data_to_print = data_to_print.decode()
             except (UnicodeDecodeError, AttributeError):
                 pass
-        print(f"\nReceive({str_size})>>>{data_to_print}")
+        logger.debug(f"\nReceive({str_size})>>>{data_to_print}")
 
     if data_len != len(data):
         data = b""  # Partial data is like no data !
@@ -61,7 +63,7 @@ def send_with_size(sock, data):
                 data = data.decode()
             except (UnicodeDecodeError, AttributeError):
                 pass
-        print(f"\nSend({len_data})>>>{data}")
+        logger.debug(f"\nSend({len_data})>>>{data}")
 
 
 def __hex(s):
