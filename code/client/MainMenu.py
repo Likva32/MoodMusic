@@ -236,6 +236,7 @@ class MainFrame(wx.Frame):
             data_send = json.dumps(send_msg)
             send_with_size(self.client, data_send)
             msg = recv_by_size(self.client)
+            logger.info(msg)
         else:
             logger.info("You clicked No")
         dlg.Destroy()

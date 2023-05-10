@@ -235,8 +235,7 @@ class LoginFrame(wx.Frame):
         self.Centre(wx.BOTH)
 
         # Connect Events
-        self.Button_user.Bind(wx.EVT_BUTTON, self.typeUser)
-        self.Button_dev.Bind(wx.EVT_BUTTON, self.typeDev)
+
         self.Button_password.Bind(wx.EVT_BUTTON, self.GoToForgot)
         self.Button_login.Bind(wx.EVT_BUTTON, self.Login)
         self.Button_signup.Bind(wx.EVT_BUTTON, self.GoToSignup)
@@ -287,12 +286,6 @@ class LoginFrame(wx.Frame):
         self.Button_password.Enable(flag)
         self.Button_dev.Enable(flag)
         self.Button_user.Enable(flag)
-
-    def typeUser(self, event):
-        event.Skip()
-
-    def typeDev(self, event):
-        event.Skip()
 
     def Login(self, event):
         self.Email = self.textCtrl_Email.GetValue()

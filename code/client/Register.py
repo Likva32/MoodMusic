@@ -209,8 +209,6 @@ class RegisterFrame(wx.Frame):
         self.Centre(wx.BOTH)
 
         # Connect Events
-        self.Button_user.Bind(wx.EVT_BUTTON, self.typeUser)
-        self.Button_dev.Bind(wx.EVT_BUTTON, self.typeDev)
         self.Button_login.Bind(wx.EVT_BUTTON, self.Register)
         self.Button_back.Bind(wx.EVT_BUTTON, self.GoBack)
         self.Button_settings.Bind(wx.EVT_BUTTON, self.GoToSettings)
@@ -225,12 +223,6 @@ class RegisterFrame(wx.Frame):
         except AttributeError:
             pass
         self.Destroy()
-
-    def typeUser(self, event):
-        event.Skip()
-
-    def typeDev(self, event):
-        event.Skip()
 
     def Register(self, event):
         name = self.textCtrl_name.GetValue()
@@ -271,10 +263,3 @@ class RegisterFrame(wx.Frame):
         self.SettingsFrame.button_changespot.Hide()
         self.SettingsFrame.Centre()
         self.SettingsFrame.Show()
-
-# app = wx.App()
-# frame = RegisterFrame(None)
-# frame.Show()
-#
-# frame.Centre()
-# app.MainLoop()
