@@ -28,11 +28,15 @@ class server:
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.running = True
 
-        if sys.argv[1] == "Local" or sys.argv[1] == "local":
+        try:
+            if sys.argv[1] == "Local" or sys.argv[1] == "local":
+                self.IP = socket.gethostbyname(socket.gethostname())
+            else:
+                self.IP = sys.argv[1]
+            self.PORT = int(sys.argv[2])
+        except:
             self.IP = socket.gethostbyname(socket.gethostname())
-        else:
-            self.IP = sys.argv[1]
-        self.PORT = int(sys.argv[2])
+            self.PORT = 5005
         # self.IP = socket.gethostbyname(socket.gethostname())
         # self.PORT = 5005
         self.ADDR = (self.IP, self.PORT)
@@ -131,7 +135,7 @@ class server:
                     send_with_size(conn, data_send)
 
                 if data_recv['Func'] == 'SpotAuth':
-                    send_with_size(conn, "enter the site")
+                    send_with_size(conn, self.IP)
 
                 if data_recv['Func'] == 'CreatePlaylist':
                     sp = MySpotifyFunc(data_recv['Email'])
@@ -235,7 +239,7 @@ class server:
 
     def create_flask(self):
         app = MyFlaskApp('Mood Music')
-        app.run()
+        app.run(self.IP)
 
 
 if __name__ == '__main__':

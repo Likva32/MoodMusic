@@ -111,7 +111,7 @@ class MyFlaskApp:
             redirect_uri=url_for('authorize', _external=True),
             scope="user-library-read")
 
-    def run(self):
-        self.app.run()
+    def run(self, ip):
+        self.app.run(host=ip)
 
 # app.run(debug=True)

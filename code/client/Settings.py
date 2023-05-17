@@ -280,7 +280,4 @@ class SettingsFrame(wx.Frame):
         data_send = json.dumps(send_msg)
         send_with_size(self.client, data_send)
         msg = recv_by_size(self.client)
-        webbrowser.open("http://127.0.0.1:5000")
-
-        # data = {'Email': self.parent.Email}
-        # response = requests.post('http://127.0.0.1:5000/getEmail', data=data)
+        webbrowser.open("http://" + msg + ":5000")

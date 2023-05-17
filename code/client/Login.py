@@ -255,11 +255,15 @@ class LoginFrame(wx.Frame):
         self.Destroy()
 
     def connect(self):
-        if sys.argv[1] == "Local" or sys.argv[1] == "local":
+        try:
+            if sys.argv[1] == "Local" or sys.argv[1] == "local":
+                my_ip = socket.gethostbyname(socket.gethostname())
+            else:
+                my_ip = sys.argv[1]
+            PORT = int(sys.argv[2])
+        except:
             my_ip = socket.gethostbyname(socket.gethostname())
-        else:
-            my_ip = sys.argv[1]
-        PORT = int(sys.argv[2])
+            PORT = 5005
         # my_ip = socket.gethostbyname(socket.gethostname())
         # PORT = 5005
         ADDR = (my_ip, PORT)
@@ -304,8 +308,9 @@ class LoginFrame(wx.Frame):
                 send_with_size(self.client, data_send)
                 msg = recv_by_size(self.client)
                 if msg == 'Login success':
-                    self.MainFrame.username_text.SetLabel(self.GetName())
-                    self.MainFrame.name = self.GetName()
+                    name = self.GetName()
+                    self.MainFrame.username_text.SetLabel(name)
+                    self.MainFrame.name = name
                     self.MainFrame.Email = self.Email
                     self.GoToMain()
                     self.status_text.SetLabelText(msg)
