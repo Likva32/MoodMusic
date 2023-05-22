@@ -1,3 +1,25 @@
+"""
+    Module Name: MainMenu
+    Description: This module contains the main application frame for the Mood Music application.
+                 It provides functionality for creating a playlist, controlling the camera, and accessing settings.
+
+    Dependencies:
+        - json
+        - threading
+        - cv2
+        - numpy
+        - wx
+        - wx.xrc
+        - loguru from loguru module
+        - wx.lib.statbmp
+        - SettingsFrame
+        - tcp_by_size
+
+    Classes:
+        MainFrame: Main application frame for the Mood Music application.
+
+    Author: Artur Tkach (Likva32 in GitHub)
+"""
 import json
 import threading
 
@@ -14,7 +36,52 @@ from tcp_by_size import send_with_size
 
 
 class MainFrame(wx.Frame):
+    """
+        Main application frame for the Mood Music application.
+
+        This frame represents the main window of the application, where the user can perform various actions such as
+        creating a playlist, controlling the camera, and accessing settings.
+
+        Args:
+            parent: The parent window.
+
+        Attributes:
+            - capture: The video capture object for accessing the camera.
+            - parent: The parent window object.
+            - mood: The current mood selected by the user.
+            - name: The name of the user.
+            - Email: The email address of the user.
+            - client: The client object for communication.
+            - camStatus: A boolean indicating the status of the camera (on/off).
+            - SettingsFrame: The settings frame object for accessing the settings window.
+            - timer: The timer object for periodically capturing frames from the camera.
+            - fps: The frame rate for capturing frames from the camera.
+            - userCam: The static bitmap object for displaying the camera feed.
+            - error_box_text: The static text object for displaying error messages.
+            - button_Create: The button for creating a playlist.
+            - Button_on: The button for turning on the camera.
+            - Button_off: The button for turning off the camera.
+            - Button_back: The button for going back to the previous window.
+            - Button_settings: The button for accessing the settings window.
+            - logo_image: The static bitmap object for displaying the application logo.
+
+        Methods:
+            - on_close: Event handler for the frame close event.
+            - NextFrame: Event handler for capturing and processing the next frame from the camera.
+            - Go_To_CreatePlaylist: Event handler for creating a playlist with the current mood.
+            - camera_on_thread: Event handler for turning on the camera in a separate thread.
+            - OnCamera: Method for turning on the camera and starting the frame capture.
+            - OffCamera: Event handler for turning off the camera.
+            - GoBack: Event handler for going back to the previous window.
+            - GoToSettings: Event handler for accessing the settings window.
+    """
     def __init__(self, parent):
+        """
+                Initialize the MainFrame object.
+
+                Args:
+                    parent: The parent window.
+        """
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=u"Mood Music", pos=wx.DefaultPosition,
                           size=wx.Size(840, 660), style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
         self.capture = None
@@ -188,6 +255,12 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_CLOSE, self.on_close)
 
     def on_close(self, event):
+        """
+                Event handler for the frame close event.
+
+                Args:
+                    event: The close event object.
+        """
         try:
             self.parent.on_close(event)
         except AttributeError:
@@ -195,6 +268,12 @@ class MainFrame(wx.Frame):
         self.Destroy()
 
     def NextFrame(self, event):
+        """
+                Event handler for capturing and processing the next frame from the camera.
+
+                Args:
+                    event: The timer event object.
+        """
         try:
             ret, frame = self.capture.read()
             frame = cv2.resize(frame, (400, 320))
@@ -221,6 +300,12 @@ class MainFrame(wx.Frame):
             logger.error(e)
 
     def Go_To_CreatePlaylist(self, event):
+        """
+                Event handler for creating a playlist with the current mood.
+
+                Args:
+                    event: The button event object.
+        """
         mood = self.mood
         dlg = wx.MessageDialog(self, f"Are you sure you want to create playlist with name "
                                      f"'{mood} Playlist by MoodMusic'?",
@@ -242,10 +327,19 @@ class MainFrame(wx.Frame):
         dlg.Destroy()
 
     def camera_on_thread(self, event):
+        """
+                Event handler for turning on the camera in a separate thread.
+
+                Args:
+                    event: The button event object.
+        """
         thread = threading.Thread(target=self.OnCamera)
         thread.start()
 
     def OnCamera(self):
+        """
+                Method for turning on the camera and starting the frame capture.
+        """
         try:
             self.capture = cv2.VideoCapture(0)
             wx.CallAfter(self.timer.Start)
@@ -259,6 +353,9 @@ class MainFrame(wx.Frame):
             logger.error(e)
 
     def OffCamera(self, event):
+        """
+            Turns off the camera and stops capturing video frames.
+        """
         try:
             self.capture.release()
             self.timer.Stop()
@@ -269,10 +366,19 @@ class MainFrame(wx.Frame):
             pass
 
     def GoBack(self, event):
+        """
+            Handles the event when the "Back" button is clicked.
+            Hides the current frame and shows the parent frame (login frame).
+        """
         self.Hide()  # hide the register frame
         self.parent.Show()  # show the login frame
 
     def GoToSettings(self, event):
+        """
+            Handles the event when the "Settings" button is clicked.
+            Retrieves user information and displays it in the Settings frame.
+            Hides the current frame and shows the Settings frame.
+        """
         send_msg = {
             'Func': 'GetUser',
             'Email': self.Email
@@ -292,4 +398,7 @@ class MainFrame(wx.Frame):
         self.SettingsFrame.Show()
 
     def __str__(self):
+        """
+            Returns a string representation of the MainFrame object.
+        """
         return "MainFrame object"

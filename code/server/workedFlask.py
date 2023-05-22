@@ -1,3 +1,32 @@
+"""
+    Module Name: workedFlask
+
+    Description:
+        This module provides functionality for a Flask application that handles Spotify login and authorization.
+
+    Dependencies:
+        - hashlib
+        - json
+        - time
+        - spotipy
+        - flask.Flask
+        - flask.url_for
+        - flask.session
+        - flask.request
+        - flask.redirect
+        - flask.render_template
+        - loguru.logger
+        - spotipy.oauth2.SpotifyOAuth
+        - DataBase.Users.Users
+        - lib.secret.client_id
+        - lib.secret.client_secret
+        - lib.secret.secret_key
+
+    Classes:
+        - MyFlaskApp: A class for a Flask application that handles Spotify login and authorization.
+
+    Author: Artur Tkach (Likva32 on GitHub)
+"""
 import hashlib
 import json
 import time
@@ -13,7 +42,32 @@ from lib.secret import secret_key
 
 
 class MyFlaskApp:
+    """
+        A class for a Flask application that handles Spotify login and authorization.
+
+        Attributes:
+            app (flask.Flask): The Flask application.
+            UsersDb (DataBase.Users.Users): An instance of the Users class for user database operations.
+
+        Methods:
+            __init__(name): Initializes the MyFlaskApp class with the specified name.
+            appLogin(): Handles the login page route and login functionality.
+            login(): Handles the login route and redirects to the Spotify authorization page.
+            authorize(): Handles the authorization route and retrieves the Spotify access token.
+            get_token(): Checks if the token is valid and gets a new token if necessary.
+            get_current_user(token_info): Retrieves information about the current user.
+            create_spotify_oauth(): Creates a SpotifyOAuth object for authorization.
+            run(ip): Runs the Flask application.
+
+        """
+
     def __init__(self, name):
+        """
+            Initializes the MyFlaskApp class with the specified name.
+
+            Parameters:
+                name (str): The name of the Flask application.
+        """
         self.app = Flask(name, static_url_path='/static')
         self.UsersDb = Users()
         self.app.config['SESSION_COOKIE_NAME'] = 'spotify-login-session'
@@ -24,6 +78,9 @@ class MyFlaskApp:
 
         @self.app.route('/', methods=["POST", "GET"])
         def appLogin():
+            """
+                Handles the login page route and login functionality.
+            """
             msg = ''
             if request.method == "POST":
                 email = request.form["email"]
@@ -45,6 +102,9 @@ class MyFlaskApp:
 
         @self.app.route('/log')
         def login():
+            """
+                Handles the login route and redirects to the Spotify authorization page.
+            """
             # session['email'] = self.Email
             sp_oauth = self.create_spotify_oauth()
             auth_url = sp_oauth.get_authorize_url()
@@ -52,6 +112,9 @@ class MyFlaskApp:
 
         @self.app.route('/authorize')
         def authorize():
+            """
+                Handles the authorization route and retrieves the Spotify access token.
+            """
             email = session.get('email')
             sp_oauth = self.create_spotify_oauth()
             # session.clear()
@@ -72,9 +135,14 @@ class MyFlaskApp:
             status, description = self.UsersDb.url_exist(email, url, json.dumps(token_info))
             return render_template('main.html', status=status, description=description)
 
-
     # Checks to see if token is valid and gets a new token if not
     def get_token(self):
+        """
+            Checks if the token is valid and gets a new token if necessary.
+
+            Returns:
+                tuple: A tuple containing the token information and a flag indicating if the token is valid.
+        """
         token_valid = False
         token_info = session.get("token_info", {})
 
@@ -96,6 +164,14 @@ class MyFlaskApp:
         return token_info, token_valid
 
     def get_current_user(self, token_info):
+        """
+            Retrieves information about the current user.
+
+            Parameters:
+                token_info (dict): A dictionary containing the token information.
+            Returns:
+                str: A JSON-encoded string containing the current user's information.
+        """
         token_info, authorized = self.get_token()
         if not authorized:
             logger.error("error, u need to re-login to spotify again (Flask)")
@@ -105,6 +181,12 @@ class MyFlaskApp:
         return json.dumps(user)
 
     def create_spotify_oauth(self):
+        """
+            Creates a SpotifyOAuth object for authorization.
+
+            Returns:
+                spotipy.oauth2.SpotifyOAuth: A SpotifyOAuth object.
+        """
         return SpotifyOAuth(
             client_id=client_id,
             client_secret=client_secret,
@@ -112,6 +194,12 @@ class MyFlaskApp:
             scope="user-library-read")
 
     def run(self, ip):
+        """
+            Runs the Flask application.
+
+            Parameters:
+                ip (str): The IP address on which to run the application.
+        """
         self.app.run(host=ip)
 
 # app.run(debug=True)

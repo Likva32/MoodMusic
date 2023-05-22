@@ -1,3 +1,21 @@
+"""
+    Module Name: Register
+
+    Description: This module contains the RegisterFrame class, which represents the registration frame of the application.
+                 The RegisterFrame class allows users to register by entering their name, email, and password.
+
+    Dependencies:
+        - hashlib
+        - json
+        - wx
+        - wx.xrc
+        - validators.email (from the validators module)
+        - Settings.SettingsFrame (from the Settings module)
+
+    Classes:
+        RegisterFrame: A class representing the registration frame.
+    Author: Artur Tkach (Likva32 on GitHub)
+"""
 import hashlib
 import json
 
@@ -9,7 +27,33 @@ from Settings import SettingsFrame
 
 
 class RegisterFrame(wx.Frame):
+    """
+        A class representing the registration frame.
+
+        Attributes:
+            - parent: The parent frame.
+            - client: The client object used for communication.
+            - name: The name entered by the user.
+            - Email: The email entered by the user.
+            - SettingsFrame: An instance of the SettingsFrame class.
+        Methods:
+            - __init__(parent): Initializes the RegisterFrame object
+            - on_close(event): Event handler for the close event of the frame.
+            - Register(event): Handles the event when the "Register" button is clicked.
+            - GoBack(event): Handles the event when the "Back" button is clicked.
+            - GoToSettings(event): Handles the event when the "Settings" button is clicked.
+
+    """
     def __init__(self, parent):
+        """
+                Initializes the RegisterFrame object.
+
+                Parameters:
+                - parent: The parent frame object.
+
+                Returns:
+                None
+        """
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=u"Mood Music", pos=wx.DefaultPosition,
                           size=wx.Size(620, 635), style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER | wx.TAB_TRAVERSAL)
         self.parent = parent
@@ -214,10 +258,17 @@ class RegisterFrame(wx.Frame):
         self.Button_settings.Bind(wx.EVT_BUTTON, self.GoToSettings)
         self.Bind(wx.EVT_CLOSE, self.on_close)
 
-    def __del__(self):
-        pass
-
     def on_close(self, event):
+        """
+                Event handler for the close event.
+                Closes the frame.
+
+                Parameters:
+                - event: The close event object.
+
+                Returns:
+                None
+        """
         try:
             self.parent.on_close(event)
         except AttributeError:
@@ -225,6 +276,16 @@ class RegisterFrame(wx.Frame):
         self.Destroy()
 
     def Register(self, event):
+        """
+                Handles the event when the "Register" button is clicked.
+                Retrieves the user input, encrypts the password, and sends the registration data to the server.
+
+                Parameters:
+                - event: The button click event object.
+
+                Returns:
+                None
+        """
         name = self.textCtrl_name.GetValue()
         Email = self.textCtrl_Email.GetValue()
         password = self.textCtrl_password.GetValue()
@@ -255,10 +316,30 @@ class RegisterFrame(wx.Frame):
             self.status_text.SetLabelText('invalid Email')
 
     def GoBack(self, event):
-        self.Hide()  # hide the register frame
-        self.parent.Show()  # show the login frame
+        """
+                Handles the event when the "Back" button is clicked.
+                Hides the current frame and shows the parent frame (login frame).
+
+                Parameters:
+                - event: The button click event object.
+
+                Returns:
+                None
+        """
+        self.Hide()
+        self.parent.Show()
 
     def GoToSettings(self, event):
+        """
+                Handles the event when the "Settings" button is clicked.
+                Hides the current frame and shows the Settings frame.
+
+                Parameters:
+                - event: The button click event object.
+
+                Returns:
+                None
+        """
         self.Hide()
         self.SettingsFrame.button_changespot.Hide()
         self.SettingsFrame.Centre()

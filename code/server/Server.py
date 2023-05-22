@@ -1,14 +1,46 @@
+"""
+    Module Name: Server
+    Description: This module provides functionality for a server that handles user registration, login, email verification, Spotify integration, emotion prediction, and more.
+    Dependencies:
+        - json
+        - socket
+        - sys
+        - threading
+        - cv2
+        - numpy
+        - keras.models
+        - loguru.logger
+        - validators.email
+        - rsa
+        - DataBase.SpotifyPlaylist.SpotifyStat
+        - DataBase.Users.Users
+        - Spotifyfunc.MySpotifyFunc
+        - lib.SendMail.SendVerificationCode
+        - lib.secret.email_sender
+        - lib.secret.email_password
+        - lib.tcp_by_size.recv_by_size
+        - lib.tcp_by_size.send_with_size
+        - workedFlask.MyFlaskApp
+
+    Classes:
+        - server: A class representing the server for handling user requests and managing connections.
+
+    Author: Artur Tkach (Likva32 on GitHub)
+"""
 import json
 import socket
 import sys
 import threading
 
+# import downloaded libs
 import cv2
 import numpy as np
 from keras.models import load_model
 from loguru import logger
 from validators import email
+import rsa
 
+# import libs that I wrote by myself
 from DataBase.SpotifyPlaylist import SpotifyStat
 from DataBase.Users import Users
 from Spotifyfunc import MySpotifyFunc
@@ -20,10 +52,38 @@ from workedFlask import MyFlaskApp
 
 
 class server:
+    """
+        A class representing the server for handling user requests and managing connections.
+
+        Attributes:
+            UsersDb (DataBase.Users.Users): An instance of the Users class for user database operations.
+            SpotifyStatDB (DataBase.SpotifyPlaylist.SpotifyStat): An instance of the SpotifyStat class for Spotify playlist statistics.
+            server (socket.socket): The server socket object for accepting client connections.
+            running (bool): Flag indicating whether the server is running.
+            IP (str): The IP address of the server.
+            PORT (int): The port number of the server.
+            ADDR (tuple): The address tuple consisting of IP and PORT.
+            FORMAT (str): The encoding format used for communication.
+            model (keras.models.Model): The pre-trained emotion prediction model.
+            faceCascade (cv2.CascadeClassifier): The classifier for detecting faces in frames.
+
+        Methods:
+            __init__(): Initializes the server and sets up the necessary configurations.
+            main(): Main loop that listens for client connections and handles them.
+            case(conn, addr): Handles the client requests and performs the corresponding actions.
+            Predict(frame): Predicts the emotion from a given frame using a pre-trained model.
+            create_flask(): Creates and runs a Flask application for additional functionality.
+    """
     def __init__(self):
+        """
+            Initializes the server and sets up the necessary configurations.
+        """
         logger.info("IP: " + socket.gethostbyname(socket.gethostname()))
+
+        # initialize classes
         self.UsersDb = Users()
         self.SpotifyStatDB = SpotifyStat()
+
         self.SpotifyStatDB.insert_first_stat()
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.running = True
@@ -37,10 +97,10 @@ class server:
         except:
             self.IP = socket.gethostbyname(socket.gethostname())
             self.PORT = 5005
-        # self.IP = socket.gethostbyname(socket.gethostname())
-        # self.PORT = 5005
+
         self.ADDR = (self.IP, self.PORT)
         self.FORMAT = 'utf-8'
+        public_key, private_key = rsa.newkeys(1024)
         self.server.bind(self.ADDR)
         self.server.listen()
         self.model = load_model('model\\MAYBE_FINAL\\model3.h5')
@@ -61,6 +121,9 @@ class server:
         self.main()
 
     def main(self):
+        """
+            Main loop that listens for client connections and handles them.
+        """
         while self.running:
             try:
                 conn, addr = self.server.accept()
@@ -73,6 +136,13 @@ class server:
                 self.server.close()
 
     def case(self, conn, addr):
+        """
+                Handles the client requests and performs the corresponding actions.
+
+                Parameters:
+                    conn (socket.socket): The connection socket object.
+                    addr (str): The address of the client.
+        """
         try:
             while self.running:
                 data_recv = recv_by_size(conn)
@@ -81,23 +151,27 @@ class server:
                     break
                 data_recv = json.loads(data_recv)
                 if data_recv['Func'] == 'Register':
+                    # Handle user registration
+                    msg = ''
                     if not self.UsersDb.is_exist(data_recv['Email']):
                         if email(data_recv['Email']):
                             flag = self.UsersDb.insert_user(data_recv['Name'], data_recv['Email'],
                                                             data_recv['Password'])
                             if flag:
-                                send_with_size(conn, 'Email inserted success')
+                                msg = 'Email inserted success'
                                 logger.success('Email inserted success')
                             else:
-                                send_with_size(conn, 'user inserted NOT success')
+                                msg = 'user inserted NOT success'
                                 logger.error('Email inserted NOT success')
                         else:
-                            send_with_size(conn, 'invalid email')
+                            msg = 'invalid email'
                             logger.error('invalid email')
                     else:
-                        send_with_size(conn, 'user exist')
+                        msg = 'user exist'
                         logger.info('user exist')
+                    send_with_size(conn, msg)
                 if data_recv['Func'] == 'Login':
+                    # Handle user login
                     if self.UsersDb.Login(data_recv['Email'], data_recv['Password']):
                         send_with_size(conn, 'Login success')
                         logger.success('Login success')
@@ -105,6 +179,7 @@ class server:
                         send_with_size(conn, 'Login NOT success')
                         logger.error('Login NOT success')
                 if data_recv['Func'] == 'Sendmail':
+                    # Handle sending verification code via email
                     if self.UsersDb.is_exist(data_recv['Email']):
                         sendmail = SendVerificationCode(email_sender, email_password, data_recv['Email'])
                         sendmail.SendMail()
@@ -116,6 +191,7 @@ class server:
                         send_with_size(conn, 'user NOT exist')
                         logger.error('user NOT exist')
                 if data_recv['Func'] == 'Sendcode':
+
                     if self.UsersDb.verify_code(data_recv['Email'], data_recv['Code']):
                         send_with_size(conn, 'Code verified')
                         logger.success('Code verified')
@@ -179,6 +255,14 @@ class server:
             logger.error("ERROR - Disconnect Client")
 
     def Predict(self, frame):
+        """
+                Predicts the emotion from a given frame using a pre-trained model.
+
+                Parameters:
+                    frame (numpy.ndarray): The input frame.
+                Returns: tuple or numpy.ndarray: If emotion prediction is successful, it returns a tuple containing the processed frame and the predicted emotion.
+                         Otherwise, it returns the original frame.
+        """
 
         font_scale = 1.5
         font = cv2.FONT_HERSHEY_PLAIN
@@ -238,6 +322,9 @@ class server:
         return frame2, status
 
     def create_flask(self):
+        """
+            Creates and runs a Flask application for additional functionality.
+        """
         app = MyFlaskApp('Mood Music')
         app.run(self.IP)
 

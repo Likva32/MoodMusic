@@ -1,3 +1,22 @@
+"""
+    Module Name: Settings
+    Description: This module provides a graphical user interface (GUI) for configuring various settings
+                 in a desktop application called "Mood Music".
+
+    Dependencies:
+        - json: Provides functions for working with JSON data.
+        - webbrowser: Provides a high-level interface for displaying web-based documents.
+        - cv2: OpenCV library for computer vision tasks.
+        - wx: wxPython library for creating GUI elements.
+        - wx.xrc: wxPython XML-based resource module.
+        - loguru: A logging utility.
+
+    Classes:
+        - SettingsFrame: Represents a frame for settings configuration. It inherits from the wxPython Frame class and provides controls for changing modes (Black/White), selecting a Spotify account, and navigating to other frames.
+
+
+    Author: Artur Tkach (Likva32 in GitHub)
+"""
 import json
 import webbrowser
 
@@ -11,8 +30,38 @@ from tcp_by_size import send_with_size
 
 
 class SettingsFrame(wx.Frame):
+    """
+        Represents a frame for settings configuration.
 
+        This class provides a graphical user interface (GUI) for configuring various settings. It inherits from the wxPython
+        `Frame` class, allowing it to be displayed as a window in a desktop application.
+
+        Attributes:
+            parent (wx.Window): The parent object that creates and manages the SettingsFrame.
+            panel (wx.Panel): The main panel that holds all the settings controls.
+            mode_label (wx.StaticText): A label for displaying the current mode.
+            mode_choice (wx.Choice): A choice control for selecting the mode (Black/White).
+            spotify_label (wx.StaticText): A label for displaying the current Spotify account.
+            spotify_choice (wx.Choice): A choice control for selecting the Spotify account.
+            back_button (wx.Button): A button for going back to the previous frame.
+
+        Methods:
+            __init__(self, parent): Initializes the SettingsFrame object.
+            on_close(self, event):  Event handler for the close event of the frame.
+            ChangeMode(self, event): Event handler for changing the mode (Black/White) of the frame.
+            GoBack(self, event): Event handler for going back to the previous frame.
+            ChangeSpotAcc(self, event): Event handler for changing the Spotify account.
+    """
     def __init__(self, parent):
+        """
+                Initializes the SettingsFrame object.
+
+                Args:
+                    parent: The parent object that creates and manages the SettingsFrame.
+
+                Returns:
+                    None
+        """
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=u"Mood Music", pos=wx.DefaultPosition,
                           size=wx.Size(560, 550), style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
         self.ModeColors = {'Black': {'Button': wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW),
@@ -167,6 +216,14 @@ class SettingsFrame(wx.Frame):
         self.Bind(wx.EVT_CLOSE, self.on_close)
 
     def on_close(self, event):
+        """
+                Event handler for the close event of the frame.
+
+                Args:
+                    event: The close event.
+                Returns:
+                    None
+        """
         try:
             self.parent.on_close(event)
         except AttributeError:
@@ -174,6 +231,14 @@ class SettingsFrame(wx.Frame):
         self.Destroy()
 
     def ChangeMode(self, event):
+        """
+                Event handler for changing the mode (Black/White) of the frame.
+
+                Args:
+                    event: The button click event.
+                Returns:
+                    None
+        """
         if self.statusMode == 'Black':
             self.statusMode = 'White'
         else:
@@ -254,6 +319,14 @@ class SettingsFrame(wx.Frame):
                 frame.Refresh()
 
     def GoBack(self, event):
+        """
+                Event handler for going back to the previous frame.
+
+                Args:
+                    event: The button click event.
+                Returns:
+                    None
+        """
         self.Hide()  # hide the register frame
         self.parent.Show()  # show the login frame
         if self.parent == 'MainFrame object':
@@ -272,6 +345,14 @@ class SettingsFrame(wx.Frame):
                 self.parent.button_Create.Disable()
 
     def ChangeSpotAcc(self, event):
+        """
+                Event handler for changing the Spotify account.
+
+                Args:
+                    event: The button click event.
+                Returns:
+                    None
+        """
         send_msg = {
             'Func': 'SpotAuth',
             'Name': self.parent.name,

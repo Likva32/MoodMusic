@@ -1,3 +1,26 @@
+"""
+    Module Name: SpotifyFunc
+
+    Description:
+        This module provides functionality for handling Spotify API, including obtaining and refreshing tokens,
+        interacting with the Spotify API, and creating playlists based on mood.
+
+    Dependencies:
+        - json
+        - time
+        - spotipy
+        - loguru.logger
+        - spotipy.oauth2.SpotifyOAuth
+        - DataBase.Users.Users
+        - lib.secret.client_id
+        - lib.secret.client_secret
+
+    Classes:
+        - MySpotifyFunc: A class for handling Spotify functionality.
+
+    Author: Artur Tkach (Likva32 on GitHub)
+"""
+
 import json
 import time
 
@@ -9,15 +32,43 @@ from DataBase.Users import Users
 from lib.secret import client_id, client_secret
 
 
-# App config
 class MySpotifyFunc:
+    """
+        A class for handling Spotify functionality, such as obtaining and refreshing tokens,
+        interacting with the Spotify API, and creating playlists based on mood.
+
+        Attributes:
+            - Email (str): The email address associated with the user.
+            - UsersDb (DataBase.Users.Users): An instance of the Users class for user database operations.
+            - token_info (dict): A dictionary containing the token information.
+
+        Methods:
+            - __init__(Email): Initializes the MySpotifyFunc class with the specified email address.
+            - get_token(): Checks if the token is valid and gets a new token if necessary.
+            - get_current_user(): Retrieves information about the current user.
+            - create_playlist(mood): Creates a new playlist based on the specified mood.
+            - create_spotify_oauth():  Creates a SpotifyOAuth object for authorization.
+
+    """
     def __init__(self, Email):
+        """
+            Initializes the MySpotifyFunc class with the specified email address.
+
+            Parameters:
+                Email (str): The email address associated with the user.
+        """
         self.Email = Email
         self.UsersDb = Users()
         self.token_info = json.loads(self.UsersDb.get_token(self.Email))
 
     # Checks to see if token is valid and gets a new token if not
     def get_token(self):
+        """
+            Checks if the token is valid and gets a new token if necessary.
+
+            Returns:
+                tuple: A tuple containing the token information and a flag indicating if the token is valid.
+        """
         token_valid = False
         token_info = self.token_info
 
@@ -39,6 +90,12 @@ class MySpotifyFunc:
         return token_info, token_valid
 
     def get_current_user(self):
+        """
+            Retrieves information about the current user.
+
+            Returns:
+                str: A JSON-encoded string containing the current user's information.
+        """
         self.token_info, authorized = self.get_token()
         if not authorized:
             logger.error("error, u need to re-login to spotify again")
@@ -48,6 +105,14 @@ class MySpotifyFunc:
         return json.dumps(user)
 
     def create_playlist(self, mood):
+        """
+            Creates a new playlist based on the specified mood.
+
+            Parameters:
+                mood (str): The mood for which the playlist should be created.
+            Returns:
+                str: A message indicating the success or failure of the playlist creation.
+        """
         self.token_info, authorized = self.get_token()
         logger.debug(authorized)
         if not authorized:
@@ -94,6 +159,12 @@ class MySpotifyFunc:
             return f"No {mood} songs found on Spotify."
 
     def create_spotify_oauth(self):
+        """
+            Creates a SpotifyOAuth object for authorization.
+
+            Returns:
+                spotipy.oauth2.SpotifyOAuth: A SpotifyOAuth object.
+        """
         return SpotifyOAuth(
             client_id=client_id,
             client_secret=client_secret,

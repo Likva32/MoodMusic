@@ -1,3 +1,18 @@
+"""
+    Module Name: SendMail
+    Description: This module provides a class for sending a verification code via email.
+
+    Dependencies:
+        - smtplib: Required for sending emails using the SMTP protocol.
+        - ssl: Required for creating a secure SSL/TLS connection.
+        - uuid: Required for generating a unique security code.
+        - email.message.EmailMessage: Required for creating an email message.
+
+    Classes:
+        SendVerificationCode: A class for sending a verification code via email.
+
+    Author: Artur Tkach (Likva32 on GitHub)
+"""
 import smtplib
 import ssl
 import uuid
@@ -5,8 +20,27 @@ from email.message import EmailMessage
 
 
 class SendVerificationCode:
+    """
+        A class for sending a verification code via email.
+
+        Attributes:
+            email_sender (str): The email address of the sender.
+            email_password (str): The password for the sender's email account.
+            email_receiver (str): The email address of the receiver.
+            security_code (str): The generated security code for verification.
+
+        Methods:
+            SendMail(): Sends an email with the verification code.
+    """
     def __init__(self, email_sender, email_password, email_receiver):
-        # Define email sender and receiver
+        """
+            Initialize the SendVerificationCode object.
+
+            Args:
+                email_sender (str): The email address of the sender.
+                email_password (str): The password for the sender's email account.
+                email_receiver (str): The email address of the receiver.
+        """
         self.email_sender = email_sender
         self.email_password = email_password
         self.email_receiver = email_receiver
@@ -15,6 +49,15 @@ class SendVerificationCode:
         self.security_code = self.security_code[:half_length]
 
     def SendMail(self):
+        """
+            Sends an email with the verification code.
+
+            The email contains a temporary security code for the MoodMusic Account,
+            which can only be used once within the next 5 minutes before it expires.
+
+            Returns:
+                None
+        """
         subject = 'Artur Security Code'
         body = f"""
 

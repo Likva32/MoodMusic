@@ -1,3 +1,31 @@
+"""
+    Module Name: Login
+
+    Description: This module contains the LoginFrame class, which represents the login
+                 frame of the Mood Music application. It provides functionality for user login, password recovery,
+                 user registration, and application settings modification.
+
+    Dependencies:
+        - hashlib
+        - json
+        - socket
+        - sys
+        - threading
+        - wx
+        - wx.xrc
+        - loguru
+        - validators
+        - ForgotPassword (module)
+        - MainMenu (module)
+        - Register (module)
+        - Settings (module)
+        - tcp_by_size (module)
+
+    Classes:
+        LoginFrame: Represents the login frame of the Mood Music application.
+
+    Author: Artur Tkach (Likva32 on GitHub)
+"""
 import hashlib
 import json
 import socket
@@ -18,8 +46,34 @@ from tcp_by_size import send_with_size
 
 
 class LoginFrame(wx.Frame):
+    """
+        A class representing the login frame of the Mood Music application.
+
+        Attributes:
+            - Email : The email address entered by the user.
+            - name : The name of the user.
+            - Connected : Flag indicating whether the client is connected to the server.
+            - recv_by_size : Function for receiving data from the server.
+            - send_with_size : Function for sending data to the server.
+            - client : Socket object representing the client-side connection.
+
+        Methods:
+        - __init__(parent): Initializes the LoginFrame object.
+        - on_close(event): Event handler for the frame close event.
+        - connect(): Establishes a connection with the server.
+        - EnDis(flag): Enables or disables buttons and text controls based on the given flag.
+        - Login(event): Handles the login button click event.
+        - GoToForgot(event): Opens the ForgotFrame for password recovery.
+        - GoToSignup(event): Opens the RegisterFrame for user registration.
+        - GoToSettings(event): Opens the SettingsFrame to modify application settings.
+    """
 
     def __init__(self, parent):
+        """
+                Initialize the LoginFrame.
+                Args:
+                    - parent: The parent window object.
+        """
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=u"Mood Music", pos=wx.DefaultPosition,
                           size=wx.Size(620, 635), style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
         self.Email = None
@@ -248,6 +302,13 @@ class LoginFrame(wx.Frame):
         thread.start()
 
     def on_close(self, event):
+        """
+                Event handler for the frame close event.
+                Args:
+                    event: The wxPython event object.
+                Returns:
+                    None.
+        """
         try:
             self.client.close()
         except AttributeError:
@@ -255,6 +316,13 @@ class LoginFrame(wx.Frame):
         self.Destroy()
 
     def connect(self):
+        """
+                Connect to the server.
+                Args:
+                    None.
+                Returns:
+                    None.
+        """
         try:
             if sys.argv[1] == "Local" or sys.argv[1] == "local":
                 my_ip = socket.gethostbyname(socket.gethostname())
@@ -281,7 +349,14 @@ class LoginFrame(wx.Frame):
                 self.status_text.SetLabelText('U not Connected to the server')
                 logger.error('client connect fail')
 
-    def EnDis(self, flag):  # enable or disable buttons and textctrl
+    def EnDis(self, flag):
+        """
+                Enable or disable buttons and text controls.
+                Args:
+                    flag (bool): Flag to enable or disable the controls.
+                Returns:
+                    None.
+        """
         self.textCtrl_Email.SetEditable(flag)
         self.textCtrl_password.SetEditable(flag)
         self.Button_login.Enable(flag)
@@ -292,6 +367,13 @@ class LoginFrame(wx.Frame):
         self.Button_user.Enable(flag)
 
     def Login(self, event):
+        """
+                Handle the login button click event.
+                Args:
+                    event: The wxPython event object.
+                Returns:
+                    None.
+        """
         self.Email = self.textCtrl_Email.GetValue()
         password = self.textCtrl_password.GetValue()
         salt = 'MoodMusic'
@@ -328,11 +410,25 @@ class LoginFrame(wx.Frame):
             self.status_text.SetLabelText('invalid Email')
 
     def GoToSignup(self, event):
-        self.Hide()  # hide the login frame
+        """
+                Navigate to the sign-up frame.
+                Args:
+                    event: The wxPython event object.
+                Returns:
+                    None.
+        """
+        self.Hide()
         self.register_frame.Centre()
-        self.register_frame.Show()  # show the register frame
+        self.register_frame.Show()
 
     def GoToMain(self):
+        """
+                Navigate to the main application frame.
+                Args:
+                    event: The wxPython event object.
+                Returns:
+                    None.
+        """
         send_msg = {
             'Func': 'CheckUrl',
             'Email': self.Email
@@ -349,22 +445,39 @@ class LoginFrame(wx.Frame):
         self.MainFrame.Show()  # show the register frame
 
     def GoToSettings(self, event):
+        """
+                Navigate to the settings frame.
+                Args:
+                    event: The wxPython event object.
+                Returns:
+                    None.
+        """
         self.Hide()
         self.SettingsFrame.button_changespot.Hide()
         self.SettingsFrame.Centre()
         self.SettingsFrame.Show()
 
     def GoToForgot(self, event):
-        self.Hide()  # hide the login frame
+        """
+                Navigate to the forgot password frame.
+                Args:
+                    event: The wxPython event object.
+                Returns:
+                    None.
+        """
+        self.Hide()
         self.ForgotFrame.Centre()
         self.ForgotFrame.Show()
 
-    # def on_text_change(self, event):
-    #     textctrl = event.GetEventObject()
-    #     size = textctrl.GetBestSize()
-    #     textctrl.SetSize(size)
-
     def GetName(self):
+        """
+                Retrieve the name of the user.
+
+                This method returns the name of the currently logged-in user.
+
+                Returns:
+                    str: The name of the user.
+        """
         send_msg = {
             'Func': 'GetName',
             'Email': self.Email
@@ -374,8 +487,6 @@ class LoginFrame(wx.Frame):
         msg = self.recv_by_size(self.client)
         return msg
 
-
-# Virtual event handlers, override them in your derived class
 
 if __name__ == '__main__':
     app = wx.App()

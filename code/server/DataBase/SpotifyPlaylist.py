@@ -1,3 +1,16 @@
+"""
+    Module Name: SpotifyPlaylist
+    Description: This module provides a class for managing statistics related to Spotify music.
+
+    Dependencies:
+        - sqlite3: Required for working with an SQLite database.
+        - loguru.logger: Required for logging messages.
+
+    Classes:
+        SpotifyStat: A class for managing Spotify statistics and interacting with an SQLite database.
+
+    Author: Artur Tkach (Likva32 on GitHub)
+"""
 import sqlite3
 
 from loguru import logger
@@ -6,6 +19,20 @@ from loguru import logger
 class SpotifyStat:
     def __init__(self, tablename="SpotifyStat", Id="Id", Angry="Angry", Disgust="Disgust",
                  Fear="Fear", Happy="Happy", Sad="Sad", Surprise="Surprise", Neutral="Neutral"):
+        """
+                Initialize the SpotifyStat object.
+
+                Args:
+                    tablename (str, optional): The name of the table in the database. Defaults to "SpotifyStat".
+                    Id (str, optional): The name of the Id column in the table. Defaults to "Id".
+                    Angry (str, optional): The name of the Angry column in the table. Defaults to "Angry".
+                    Disgust (str, optional): The name of the Disgust column in the table. Defaults to "Disgust".
+                    Fear (str, optional): The name of the Fear column in the table. Defaults to "Fear".
+                    Happy (str, optional): The name of the Happy column in the table. Defaults to "Happy".
+                    Sad (str, optional): The name of the Sad column in the table. Defaults to "Sad".
+                    Surprise (str, optional): The name of the Surprise column in the table. Defaults to "Surprise".
+                    Neutral (str, optional): The name of the Neutral column in the table. Defaults to "Neutral".
+        """
         self.tablename = tablename
         self.Id = Id
         self.Angry = Angry
@@ -27,7 +54,12 @@ class SpotifyStat:
         conn.close()
 
     def insert_first_stat(self):
-        """מכניס בן אדם לטבלה"""
+        """
+            Insert the first stat into the table.
+
+            Returns:
+                bool: True if the stat is added successfully, False otherwise.
+        """
         conn = None
         try:
             if not self.is_exist(1):
@@ -52,6 +84,14 @@ class SpotifyStat:
                 conn.close()
 
     def is_exist(self, ID):
+        """
+            Check if a record with the given ID exists in the table.
+
+            Args:
+                ID (int): The ID to check for existence.
+            Returns:
+                bool: True if the record exists, False otherwise.
+        """
         conn = None
         try:
             conn = sqlite3.connect('MoodMusic.db')
@@ -76,6 +116,14 @@ class SpotifyStat:
                 conn.close()
 
     def update_stat(self, Emote):
+        """
+            Update the specified Emote column in the table.
+
+            Args:
+                Emote (str): The name of the Emote column to update.
+            Returns:
+                bool: True if the stat is updated successfully, False otherwise.
+        """
         conn = None
         try:
             base_value = self.value_by_Emote(Emote)
@@ -99,6 +147,14 @@ class SpotifyStat:
                 conn.close()
 
     def value_by_Emote(self, Emote):
+        """
+            Get the value of the specified Emote column in the table.
+
+            Args:
+                Emote (str): The name of the Emote column.
+            Returns:
+                str: The value of the Emote column.
+        """
         name = ''
         conn = None
         try:

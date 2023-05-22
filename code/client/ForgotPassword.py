@@ -1,3 +1,22 @@
+"""
+    Module Name: ForgotPassword
+
+    Description: This module contains the implementation of the ForgotFrame class, which represents a frame for password recovery functionality in the Mood Music application.
+
+    Dependencies:
+        - hashlib: A module providing various hashing algorithms.
+        - json: A module for working with JSON data.
+        - wx: A GUI toolkit for Python.
+        - loguru: A library for logging.
+        - validators: A library for data validation.
+        - Settings: A module containing the SettingsFrame class.
+
+    Classes:
+        - ForgotFrame: Represents a frame for password recovery functionality.
+
+    Author: Artur Tkach (Likva32 in GitHub)
+"""
+
 import hashlib
 import json
 
@@ -10,8 +29,44 @@ from Settings import SettingsFrame
 
 
 class ForgotFrame(wx.Frame):
+    """
+       Represents a frame for password recovery functionality in the Mood Music application.
 
+       Attributes:
+           - parent (wx.Window): The parent window that contains the frame.
+           - client: The client object used for communication.
+           - Email (str): The email address entered by the user.
+           - Code (str): The code entered by the user.
+           - SettingsFrame (SettingsFrame): An instance of the SettingsFrame class.
+           - panel_background1 (wx.Panel): The main panel of the frame.
+           - header_text (wx.StaticText): The static text widget for the header.
+           - image (wx.StaticBitmap): The static bitmap widget for the image.
+           - textCtrl_first (wx.TextCtrl): The text control widget for entering the email or code.
+           - textCtrl_second (wx.TextCtrl): The text control widget for entering the password or confirmation password.
+           - status_text (wx.StaticText): The static text widget for displaying status messages.
+           - Button_login (wx.Button): The button widget for sending the email, code, or password.
+           - Button_back (wx.BitmapButton): The button widget for going back to the previous screen.
+           - Button_settings (wx.BitmapButton): The button widget for opening the settings frame.
+
+       Methods:
+           - __init__(parent): Initializes the ForgotFrame object.
+           - on_close(event): Event handler for the close event of the frame.
+           - EmailScreen(): Sets up the initial screen for entering the email address.
+           - SendEmail(event): Event handler for sending the email.
+           - CodeScreen(): Sets up the screen for entering the code.
+           - SendCode(event): Event handler for sending the code.
+           - PasswordScreen(): Sets up the screen for entering the new password.
+           - SendPassword(event): Event handler for sending the new password.
+           - GoBack(event): Event handler for going back to the previous screen.
+           - GoToSettings(event): Event handler for opening the settings frame.
+
+       """
     def __init__(self, parent):
+        """
+                Initializes the ForgotFrame object.
+                Args:
+                    - parent (wx.Window): The parent window that contains the frame.
+        """
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=u"Mood Music", pos=wx.DefaultPosition,
                           size=wx.Size(500, 500), style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
         self.parent = parent
@@ -162,6 +217,10 @@ class ForgotFrame(wx.Frame):
         self.EmailScreen()
 
     def on_close(self, event):
+        """
+            Handles the close event of the window.
+            Calls the 'on_close' method of the parent window (if available) and destroys the current window.
+        """
         try:
             self.parent.on_close(event)
         except AttributeError:
@@ -169,13 +228,25 @@ class ForgotFrame(wx.Frame):
         self.Destroy()
 
     def EmailScreen(self):
+        """
+            Sets up the email screen UI.
+            Binds the 'SendEmail' method to the login button's 'EVT_BUTTON' event.
+            Hides 'textCtrl_second' control.
+            Sets the hint for 'textCtrl_first' to 'Email'.
+        """
         self.Button_login.Bind(wx.EVT_BUTTON, self.SendEmail)
         self.textCtrl_second.Hide()
         self.textCtrl_first.SetHint('Email')
 
     def SendEmail(self, event):
+        """
+            Sends the email to the server for verification.
+            Retrieves the email from 'textCtrl_first'.
+            Serializes the email into JSON format and sends it to the server.
+            If the email is valid, proceeds to the code screen.
+            Displays error messages for invalid email or server response.
+        """
         self.status_text.SetLabelText('')
-        # bla bla send
         self.Email = self.textCtrl_first.GetValue()
         dict = {
             'Func': 'Sendmail',
@@ -196,12 +267,25 @@ class ForgotFrame(wx.Frame):
             self.status_text.SetLabelText('invalid Email')
 
     def CodeScreen(self):
+        """
+            Sets up the code screen UI.
+            Clears 'textCtrl_first'.
+            Sets the hint for 'textCtrl_first' to 'Code'.
+            Binds the 'SendCode' method to the login button's 'EVT_BUTTON' event.
+        """
         self.status_text.SetLabelText('')
         self.textCtrl_first.SetValue('')
         self.textCtrl_first.SetHint('Code')
         self.Button_login.Bind(wx.EVT_BUTTON, self.SendCode)
 
     def SendCode(self, event):
+        """
+           Sends the verification code to the server.
+           Retrieves the code from 'textCtrl_first'.
+           Serializes the code and email into JSON format and sends it to the server.
+           If the code is verified, proceeds to the password screen.
+           Displays error messages for incorrect code or server response.
+        """
         self.Code = self.textCtrl_first.GetValue()
         dict = {
             'Func': 'Sendcode',
@@ -219,6 +303,14 @@ class ForgotFrame(wx.Frame):
             logger.error("error")
 
     def PasswordScreen(self):
+        """
+            Sets up the password screen UI.
+            Sets 'textCtrl_first' and 'textCtrl_second' to password style.
+            Clears the values of 'textCtrl_first' and 'textCtrl_second'.
+            Shows 'textCtrl_second' control.
+            Set hints for password and confirm password fields.
+            Binds the 'SendPassword' method to the login button's 'EVT_BUTTON' event.
+        """
         self.textCtrl_first.SetWindowStyle(style=wx.TE_PASSWORD)
         self.textCtrl_second.SetWindowStyle(style=wx.TE_PASSWORD)
         self.status_text.SetLabelText('')
@@ -232,8 +324,14 @@ class ForgotFrame(wx.Frame):
         self.Button_login.Bind(wx.EVT_BUTTON, self.SendPassword)
 
     def SendPassword(self, event):
-        # send pass
-
+        """
+            Sends the password to the server for account registration.
+            Retrieves the passwords from 'textCtrl_first' and 'textCtrl_second'.
+            Generates an MD5 hash of the password.
+            Serializes the email, hashed password, and function identifier into JSON format and sends it to the server.
+            If the passwords match, displays a success message.
+            Displays error messages for password mismatch or server response.
+        """
         Password1 = self.textCtrl_first.GetValue()
         Password2 = self.textCtrl_second.GetValue()
         salt = 'MoodMusic'
@@ -259,12 +357,20 @@ class ForgotFrame(wx.Frame):
             logger.warning("pass1 not equal to pass2")
 
     def GoBack(self, event):
-
-        self.Hide()  # hide the register frame
+        """
+            Handles the 'Go Back' action.
+            Hides the current window, sets up the email screen UI, and shows the parent window.
+        """
+        self.Hide()
         self.EmailScreen()
-        self.parent.Show()  # show the login frame
+        self.parent.Show()
 
     def GoToSettings(self, event):
+        """
+            Handles the 'Go To Settings' action.
+            Hides the current window, hides 'button_changespot' control of the 'SettingsFrame',
+            centers the 'SettingsFrame', and shows it.
+        """
         self.Hide()
         self.SettingsFrame.button_changespot.Hide()
         self.SettingsFrame.Centre()
