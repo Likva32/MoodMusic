@@ -79,8 +79,6 @@ class server:
             Initializes the server and sets up the necessary configurations.
         """
         logger.info("IP: " + socket.gethostbyname(socket.gethostname()))
-
-        # initialize classes
         self.UsersDb = Users()
         self.SpotifyStatDB = SpotifyStat()
 
