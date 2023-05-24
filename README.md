@@ -14,6 +14,7 @@
 #### after this enter this address:  myaccount.google.com/u/3/apppasswords
 
 #### After typing the password, you need to create an "app", after creating an app (in select device choose other) you will receive a code that you will need (this code is a password that will allow you to enter the user without 2fa)
+#### save him in secret.py in server folder as email_password
 
 ![image](https://github.com/Likva32/MoodMusic/assets/114340841/f8784c78-e91d-4782-86ce-7a12863ea475)
 ![image](https://github.com/Likva32/MoodMusic/assets/114340841/12cc834e-b01e-43cf-87a8-2075d1d4b239)
@@ -44,6 +45,23 @@
 
 
 ## Set Spotify authentication app
+
+#### enter this site https://developer.spotify.com/dashboard
+#### create app
+![image](https://github.com/Likva32/MoodMusic/assets/114340841/ca75519d-76b3-468d-a074-fa3d20fa3300)
+#### in settings, check client id and client secret
+#### save them in secret.py in server folder as client_id and client_secret
+![image](https://github.com/Likva32/MoodMusic/assets/114340841/2e70dcbe-e73c-46b1-a89e-bf7120277955)
+
+#### add redirect url
+#### http://(UR IP THAT U HOST ON THE SERVER):5000
+#### http://(UR IP THAT U HOST ON THE SERVER):5000/
+#### http://(UR IP THAT U HOST ON THE SERVER):5000/redirect
+#### http://(UR IP THAT U HOST ON THE SERVER):5000/authorize
+#### http://(UR IP THAT U HOST ON THE SERVER):5000/redirect/
+#### http://(UR IP THAT U HOST ON THE SERVER):5000/redirect/
+![image](https://github.com/Likva32/MoodMusic/assets/114340841/f3fbd42e-f6f6-41b2-9f91-27dc07477d12)
+
 
 
 
