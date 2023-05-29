@@ -15,6 +15,7 @@
         - wx.xrc
         - loguru
         - validators
+        - cryptography
         - ForgotPassword (module)
         - MainMenu (module)
         - Register (module)
@@ -36,6 +37,10 @@ import wx
 import wx.xrc
 from loguru import logger
 from validators import email
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.backends import default_backend
+
 
 from ForgotPassword import ForgotFrame
 from MainMenu import MainFrame
@@ -50,6 +55,7 @@ class LoginFrame(wx.Frame):
         A class representing the login frame of the Mood Music application.
 
         Attributes:
+            - public_key
             - Email : The email address entered by the user.
             - name : The name of the user.
             - Connected : Flag indicating whether the client is connected to the server.
@@ -76,6 +82,7 @@ class LoginFrame(wx.Frame):
         """
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=u"Mood Music", pos=wx.DefaultPosition,
                           size=wx.Size(620, 635), style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
+        self.public_key = None
         self.Email = None
         self.name = None
         self.Connected = False
@@ -331,7 +338,7 @@ class LoginFrame(wx.Frame):
             PORT = int(sys.argv[2])
         except:
             my_ip = socket.gethostbyname(socket.gethostname())
-            PORT = 5005
+            PORT = 5007
         # my_ip = socket.gethostbyname(socket.gethostname())
         # PORT = 5005
         ADDR = (my_ip, PORT)
@@ -339,6 +346,11 @@ class LoginFrame(wx.Frame):
             try:
                 self.client.connect(ADDR)
                 logger.success('client connected')
+
+                pem = recv_by_size(self.client)
+                self.public_key = serialization.load_pem_public_key(pem.encode('utf-8'))
+
+                send_with_size(self.client, 'Good', self.public_key)
                 self.status_text.SetForegroundColour(colour='green')
                 self.status_text.SetLabelText('U Connected to the server')
                 self.EnDis(True)
@@ -384,10 +396,11 @@ class LoginFrame(wx.Frame):
             'Password': hashed_pass
         }
         data_send = json.dumps(send_msg)
+
         self.status_text.SetForegroundColour(colour='red')
         if email(self.Email):
             if self.Email and password != '':
-                send_with_size(self.client, data_send)
+                send_with_size(self.client, data_send, self.public_key)
                 msg = recv_by_size(self.client)
                 if msg == 'Login success':
                     name = self.GetName()
@@ -434,7 +447,7 @@ class LoginFrame(wx.Frame):
             'Email': self.Email
         }
         data_send = json.dumps(send_msg)
-        send_with_size(self.client, data_send)
+        send_with_size(self.client, data_send, self.public_key)
         msg = recv_by_size(self.client)
         if msg == '1':
             self.MainFrame.button_Create.Enable()
@@ -483,7 +496,7 @@ class LoginFrame(wx.Frame):
             'Email': self.Email
         }
         data_send = json.dumps(send_msg)
-        send_with_size(self.client, data_send)
+        send_with_size(self.client, data_send, self.public_key)
         msg = self.recv_by_size(self.client)
         return msg
 

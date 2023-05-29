@@ -1,5 +1,8 @@
 import socket
 import struct
+from cryptography.hazmat.primitives import serialization, hashes
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
+import socket
 
 from loguru import logger
 
@@ -8,7 +11,7 @@ size_header_size = len(SIZE_HEADER_FORMAT)
 TCP_DEBUG = True
 
 
-def recv_by_size(sock, return_type="string"):
+def recv_by_size(sock, private_key, return_type="string"):
     str_size = b""
     data_len = 0
     while len(str_size) < size_header_size:
@@ -36,12 +39,18 @@ def recv_by_size(sock, return_type="string"):
             except (UnicodeDecodeError, AttributeError):
                 pass
         logger.debug(f"\nReceive({str_size})>>>{data_to_print}")
-
-    if data_len != len(data):
-        data = b""  # Partial data is like no data !
-    if return_type == "string":
-        return data.decode()
-    return data
+    try:
+        data = private_key.decrypt(
+            data,
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+            )
+        )
+    except:
+        pass
+    return data.decode()
 
 
 def send_with_size(sock, data):

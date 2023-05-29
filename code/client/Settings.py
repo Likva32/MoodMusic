@@ -64,6 +64,7 @@ class SettingsFrame(wx.Frame):
         """
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=u"Mood Music", pos=wx.DefaultPosition,
                           size=wx.Size(560, 550), style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
+        self.public_key = parent.public_key
         self.ModeColors = {'Black': {'Button': wx.SystemSettings.GetColour(wx.SYS_COLOUR_3DDKSHADOW),
                                      'Background1': wx.Colour(20, 17, 21),
                                      'Background2': wx.Colour(53, 53, 53),
@@ -335,7 +336,8 @@ class SettingsFrame(wx.Frame):
                 'Email': self.parent.Email
             }
             data_send = json.dumps(send_msg)
-            send_with_size(self.client, data_send)
+            self.public_key = parent.public_key
+            send_with_size(self.client, data_send, self.public_key)
             msg = recv_by_size(self.client)
             if msg == '1':
                 self.parent.button_Created.Enable()
@@ -359,6 +361,7 @@ class SettingsFrame(wx.Frame):
             'Email': self.parent.Email
         }
         data_send = json.dumps(send_msg)
-        send_with_size(self.client, data_send)
+        self.public_key = self.parent.public_key
+        send_with_size(self.client, data_send, self.public_key)
         msg = recv_by_size(self.client)
         webbrowser.open("http://" + msg + ":5000")

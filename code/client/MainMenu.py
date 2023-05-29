@@ -4,6 +4,7 @@
                  It provides functionality for creating a playlist, controlling the camera, and accessing settings.
 
     Dependencies:
+        - base64
         - json
         - threading
         - cv2
@@ -22,6 +23,7 @@
 """
 import json
 import threading
+import base64
 
 import cv2
 import numpy as np
@@ -84,6 +86,7 @@ class MainFrame(wx.Frame):
         """
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=u"Mood Music", pos=wx.DefaultPosition,
                           size=wx.Size(840, 660), style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
+        self.public_key = parent.public_key
         self.capture = None
         self.parent = parent
         self.mood = ''
@@ -268,13 +271,13 @@ class MainFrame(wx.Frame):
         self.Destroy()
 
     def NextFrame(self, event):
-        """
-                Event handler for capturing and processing the next frame from the camera.
+            """
+                    Event handler for capturing and processing the next frame from the camera.
 
-                Args:
-                    event: The timer event object.
-        """
-        try:
+                    Args:
+                        event: The timer event object.
+            """
+        # try:
             ret, frame = self.capture.read()
             frame = cv2.resize(frame, (400, 320))
             if ret:
@@ -282,8 +285,10 @@ class MainFrame(wx.Frame):
                     'Func': 'Predict',
                     'Frame': frame.tolist(),
                 }
+
                 data_send = json.dumps(send_msg)
-                send_with_size(self.client, data_send)
+                self.public_key = self.parent.public_key
+                send_with_size(self.client, data_send, self.public_key)
                 data_recv = recv_by_size(self.client)
                 data_recv = json.loads(data_recv)
                 new_frame = data_recv['Frame']
@@ -293,11 +298,11 @@ class MainFrame(wx.Frame):
 
                 self.bmp.CopyFromBuffer(new_frame)
                 self.userCam.SetBitmap(self.bmp)
-        except Exception as e:
-            self.error_box_text.SetLabelText("cant grab image from cam")
-            self.error_box_text.SetForegroundColour(colour='red')
-            self.timer.Stop()
-            logger.error(e)
+        # except Exception as e:
+        #     self.error_box_text.SetLabelText("cant grab image from cam")
+        #     self.error_box_text.SetForegroundColour(colour='red')
+        #     self.timer.Stop()
+        #     logger.error(e)
 
     def Go_To_CreatePlaylist(self, event):
         """
@@ -319,7 +324,7 @@ class MainFrame(wx.Frame):
                 'Email': self.Email,
             }
             data_send = json.dumps(send_msg)
-            send_with_size(self.client, data_send)
+            send_with_size(self.client, data_send, self.public_key)
             msg = recv_by_size(self.client)
             logger.info(msg)
         else:
@@ -384,7 +389,8 @@ class MainFrame(wx.Frame):
             'Email': self.Email
         }
         data_send = json.dumps(send_msg)
-        send_with_size(self.client, data_send)
+        self.public_key = self.parent.public_key
+        send_with_size(self.client, data_send, self.public_key)
         msg = recv_by_size(self.client)
         try:
             msg = json.loads(msg)

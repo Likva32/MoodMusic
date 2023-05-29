@@ -69,6 +69,7 @@ class ForgotFrame(wx.Frame):
         """
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=u"Mood Music", pos=wx.DefaultPosition,
                           size=wx.Size(500, 500), style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
+        self.public_key = parent.public_key
         self.parent = parent
         self.client = parent.client
         self.Email = ''
@@ -254,7 +255,8 @@ class ForgotFrame(wx.Frame):
         }
         data_send = json.dumps(dict)
         if email(self.Email):
-            self.parent.send_with_size(self.parent.client, data_send)
+            self.public_key = self.parent.public_key
+            self.parent.send_with_size(self.parent.client, data_send, self.public_key)
             data_from_server = self.parent.recv_by_size(self.parent.client)
             if data_from_server == 'Code Sended':
                 self.CodeScreen()
@@ -293,7 +295,8 @@ class ForgotFrame(wx.Frame):
             'Code': self.Code,
         }
         data_send = json.dumps(dict)
-        self.parent.send_with_size(self.parent.client, data_send)
+        self.public_key = self.parent.public_key
+        self.parent.send_with_size(self.parent.client, data_send, self.public_key)
         data_from_server = self.parent.recv_by_size(self.parent.client)
         if data_from_server == 'Code verified':
             self.PasswordScreen()
@@ -343,7 +346,8 @@ class ForgotFrame(wx.Frame):
         }
         data_send = json.dumps(dict)
         if Password1 == Password2:
-            self.parent.send_with_size(self.parent.client, data_send)
+            self.public_key = self.parent.public_key
+            self.parent.send_with_size(self.parent.client, data_send, self.public_key)
             data_from_server = self.parent.recv_by_size(self.parent.client)
             if data_from_server == 'Password Changed':
                 self.status_text.SetLabelText(data_from_server)

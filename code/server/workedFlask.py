@@ -74,7 +74,7 @@ class MyFlaskApp:
         # self.app.config['EMAIL'] = 'email'
         self.app.config['SESSION_TYPE'] = 'filesystem'
         self.app.config['SECRET_KEY'] = "Shhh..ItsASecret"
-        self.app.secret_key = secret_key
+        self.app.secret_key = secret_key # random string to encrypt the session
 
         @self.app.route('/', methods=["POST", "GET"])
         def appLogin():

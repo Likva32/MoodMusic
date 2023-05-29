@@ -56,6 +56,7 @@ class RegisterFrame(wx.Frame):
         """
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=u"Mood Music", pos=wx.DefaultPosition,
                           size=wx.Size(620, 635), style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER | wx.TAB_TRAVERSAL)
+        self.public_key = parent.public_key
         self.parent = parent
         self.client = parent.client
         self.name = None
@@ -301,7 +302,8 @@ class RegisterFrame(wx.Frame):
         self.status_text.SetForegroundColour(colour='red')
         if email(Email):
             if Email and password != '':
-                self.parent.send_with_size(self.parent.client, data_send)
+                self.public_key = self.parent.public_key
+                self.parent.send_with_size(self.parent.client, data_send, self.public_key)
                 msg = self.parent.recv_by_size(self.parent.client)
                 if msg == 'Email inserted success':
                     self.status_text.SetForegroundColour(colour='green')

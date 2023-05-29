@@ -31,14 +31,17 @@ import json
 import socket
 import sys
 import threading
-
+import base64
 # import downloaded libs
 import cv2
 import numpy as np
 from keras.models import load_model
 from loguru import logger
 from validators import email
-import rsa
+
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.backends import default_backend
 
 # import libs that I wrote by myself
 from DataBase.SpotifyPlaylist import SpotifyStat
@@ -74,6 +77,7 @@ class server:
             Predict(frame): Predicts the emotion from a given frame using a pre-trained model.
             create_flask(): Creates and runs a Flask application for additional functionality.
     """
+
     def __init__(self):
         """
             Initializes the server and sets up the necessary configurations.
@@ -94,11 +98,24 @@ class server:
             self.PORT = int(sys.argv[2])
         except:
             self.IP = socket.gethostbyname(socket.gethostname())
-            self.PORT = 5005
+            self.PORT = 5007
 
         self.ADDR = (self.IP, self.PORT)
         self.FORMAT = 'utf-8'
-        public_key, private_key = rsa.newkeys(1024)
+
+        # Генерация ключей RSA
+        self.private_key = rsa.generate_private_key(
+            public_exponent=65537,
+            key_size=2048,
+            backend=default_backend()
+        )
+        self.public_key = self.private_key.public_key()
+        self.pem = self.public_key.public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo
+        )
+        print(self.pem)
+
         self.server.bind(self.ADDR)
         self.server.listen()
         self.model = load_model('model\\MAYBE_FINAL\\model3.h5')
@@ -126,6 +143,14 @@ class server:
             try:
                 conn, addr = self.server.accept()
                 logger.success(f"[CONNECTION] user connected successfully, addr: {addr}")
+
+                send_with_size(conn, self.pem)
+                msg = recv_by_size(conn, self.private_key)
+                if msg == 'Good':
+                    logger.success("Client Receive the public key")
+                else:
+                    conn.close()
+                    logger.error("ERROR - Disconnect fafwawfClient")
                 thread = threading.Thread(target=self.case, args=(conn, addr))
                 thread.daemon = True
                 thread.start()
@@ -134,16 +159,16 @@ class server:
                 self.server.close()
 
     def case(self, conn, addr):
-        """
-                Handles the client requests and performs the corresponding actions.
+            """
+                    Handles the client requests and performs the corresponding actions.
 
-                Parameters:
-                    conn (socket.socket): The connection socket object.
-                    addr (str): The address of the client.
-        """
-        try:
+                    Parameters:
+                        conn (socket.socket): The connection socket object.
+                        addr (str): The address of the client.
+            """
+        # try:
             while self.running:
-                data_recv = recv_by_size(conn)
+                data_recv = recv_by_size(conn, self.private_key)
                 if len(data_recv) == 0 or data_recv is None:
                     logger.info(f"client {addr} DISCONNECTED")
                     break
@@ -228,6 +253,7 @@ class server:
                     send_with_size(conn, x)
                 if data_recv['Func'] == 'Predict':
                     frame = data_recv['Frame']
+
                     frame = np.array(frame)
                     frame = frame.astype(np.uint8)
                     result = self.Predict(frame)
@@ -245,12 +271,12 @@ class server:
                     send_with_size(conn, data_send)
                 if data_recv['Func'] == '':
                     pass
-        except ConnectionResetError:
-            conn.close()
-            logger.error("The remote host forcibly terminated the existing connection")
-        except:
-            conn.close()
-            logger.error("ERROR - Disconnect Client")
+        # except ConnectionResetError:
+        #     conn.close()
+        #     logger.error("The remote host forcibly terminated the existing connection")
+        # except:
+        #     conn.close()
+        #     logger.error("ERROR - Disconnect Client")
 
     def Predict(self, frame):
         """
