@@ -387,8 +387,6 @@ class Users:
             Returns:
                 tuple: A tuple containing the status ('Login Success', 'Login not Success') and description.
         """
-        status = ''
-        description = ''
         conn = None
         try:
             conn = sqlite3.connect('MoodMusic.db')

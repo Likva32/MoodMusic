@@ -74,7 +74,7 @@ class MyFlaskApp:
         # self.app.config['EMAIL'] = 'email'
         self.app.config['SESSION_TYPE'] = 'filesystem'
         self.app.config['SECRET_KEY'] = "Shhh..ItsASecret"
-        self.app.secret_key = secret_key # random string to encrypt the session
+        self.app.secret_key = secret_key  # random string to encrypt the session
 
         @self.app.route('/', methods=["POST", "GET"])
         def appLogin():
@@ -115,7 +115,6 @@ class MyFlaskApp:
             """
                 Handles the authorization route and retrieves the Spotify access token.
             """
-            email = session.get('email')
             sp_oauth = self.create_spotify_oauth()
             # session.clear()
             if session.get('token_info'):
@@ -143,7 +142,6 @@ class MyFlaskApp:
             Returns:
                 tuple: A tuple containing the token information and a flag indicating if the token is valid.
         """
-        token_valid = False
         token_info = session.get("token_info", {})
 
         # Checking if the session already has a token stored

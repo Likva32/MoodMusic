@@ -271,13 +271,13 @@ class MainFrame(wx.Frame):
         self.Destroy()
 
     def NextFrame(self, event):
-            """
-                    Event handler for capturing and processing the next frame from the camera.
+        """
+                Event handler for capturing and processing the next frame from the camera.
 
-                    Args:
-                        event: The timer event object.
-            """
-        # try:
+                Args:
+                    event: The timer event object.
+        """
+        try:
             ret, frame = self.capture.read()
             frame = cv2.resize(frame, (400, 320))
             if ret:
@@ -298,11 +298,11 @@ class MainFrame(wx.Frame):
 
                 self.bmp.CopyFromBuffer(new_frame)
                 self.userCam.SetBitmap(self.bmp)
-        # except Exception as e:
-        #     self.error_box_text.SetLabelText("cant grab image from cam")
-        #     self.error_box_text.SetForegroundColour(colour='red')
-        #     self.timer.Stop()
-        #     logger.error(e)
+        except Exception as e:
+            self.error_box_text.SetLabelText("cant grab image from cam")
+            self.error_box_text.SetForegroundColour(colour='red')
+            self.timer.Stop()
+            logger.error(e)
 
     def Go_To_CreatePlaylist(self, event):
         """

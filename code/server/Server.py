@@ -159,23 +159,23 @@ class server:
                 self.server.close()
 
     def case(self, conn, addr):
-            """
-                    Handles the client requests and performs the corresponding actions.
+        """
+                Handles the client requests and performs the corresponding actions.
 
-                    Parameters:
-                        conn (socket.socket): The connection socket object.
-                        addr (str): The address of the client.
-            """
-        # try:
+                Parameters:
+                    conn (socket.socket): The connection socket object.
+                    addr (str): The address of the client.
+        """
+        try:
             while self.running:
                 data_recv = recv_by_size(conn, self.private_key)
                 if len(data_recv) == 0 or data_recv is None:
                     logger.info(f"client {addr} DISCONNECTED")
+                    conn.close()
                     break
                 data_recv = json.loads(data_recv)
                 if data_recv['Func'] == 'Register':
                     # Handle user registration
-                    msg = ''
                     if not self.UsersDb.is_exist(data_recv['Email']):
                         if email(data_recv['Email']):
                             flag = self.UsersDb.insert_user(data_recv['Name'], data_recv['Email'],
@@ -271,12 +271,13 @@ class server:
                     send_with_size(conn, data_send)
                 if data_recv['Func'] == '':
                     pass
-        # except ConnectionResetError:
-        #     conn.close()
-        #     logger.error("The remote host forcibly terminated the existing connection")
-        # except:
-        #     conn.close()
-        #     logger.error("ERROR - Disconnect Client")
+
+        except ConnectionResetError:
+            conn.close()
+            logger.error("The remote host forcibly terminated the existing connection")
+        except:
+            conn.close()
+            logger.error("ERROR - Disconnect Client")
 
     def Predict(self, frame):
         """
